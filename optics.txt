@@ -1,0 +1,4 @@
+experiment dotsandbars
+NA 1.46
+wavelength 509
+pixelsize 130
