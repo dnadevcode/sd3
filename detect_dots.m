@@ -82,9 +82,9 @@ for i = 1:numel(dotBars)
     marginDots = marginDots + sum(mask.*~endMask);
 	dots{i}.locations = peaks{i}.locations(accMask);
     dots{i}.depth = peaks{i}.depth(accMask);
-	dots{i}.N = sum(mask);
+	dots{i}.N = sum(accMask);
 	totdots = totdots + dots{i}.N;
-	dots{i}.val = peaks{i}.scores(mask)/medint;
+	dots{i}.val = peaks{i}.scores(accMask)/medint;
     dots{i}.leftOffset = peaks{i}.leftOffset;
     dots{i}.rightOffset = peaks{i}.rightOffset;
 end
