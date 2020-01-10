@@ -57,7 +57,7 @@ function printName = print_version(nImage,experiment,firstName,runNo)
 	else
 		nameType = firstName;
 	end
-	nameType = [nameType,'results'];
+	nameType = [nameType,'results_run'];
 %	content = dir(experiment.targetFolder);
 %	numbers = zeros(1,numel(content));
 %	for i = 1:numel(content)
