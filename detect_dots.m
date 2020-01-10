@@ -20,14 +20,15 @@ for i = 1:numel(dotBars)
 	if sum(~isnan(dotBars{i})) > lengthLims(1)
         barLength = numel(dotBars{i});
         [initnan,endnan] = nanfind(dotBars{i});
-		dotBars{i} = dotBars{i}(~isnan(dotBars{i}));
-        %dotBars{i}(isnan(dotBars{i})) = 0;
+        dotBars{i}(isnan(dotBars{i})) = 0;
+		dotBars{i} = dotBars{i}(1+initnan:end-endnan);
+		%dotBars{i} = dotBars{i}(~isnan(dotBars{i}));
         logBar = imfilter(dotBars{i},filt);
 		[~,peaklocs] = findpeaks(-logBar);
 		peaks{i}.scores = zeros(1,numel(peaklocs));
 		peaks{i}.locations = peaklocs;
         %peaks{i}.depth = min(peaklocs-initnan-oldsig,barLength-peaklocs-endnan-oldsig);
-        peaks{i}.depth = min(peaklocs-oldsig,barLength-peaklocs-endnan-initnan-oldsig);
+        peaks{i}.depth = min(peaklocs-oldsig,barLength-peaklocs-endnan-initnan-oldsig); 
         peaks{i}.leftOffset = initnan;
         peaks{i}.rightOffset = endnan;
 		for j = 1:numel(peaklocs)
@@ -45,10 +46,11 @@ for i = 1:numel(dotBars)
 end
 
 %%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%
-pmin = 4e4;
+pmin = 1e4;
 %%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%
-autoThreshRel = graythresh(allscores);
-autoThresh = max(allscores)*autoThreshRel;
+maxScore = max(allscores);
+autoThreshRel = graythresh(allscores/maxScore);
+autoThresh = maxScore*autoThreshRel;
 if actions.autoThreshDots
 	pmin = autoThresh;
 end

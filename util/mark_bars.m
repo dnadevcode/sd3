@@ -11,13 +11,23 @@ if isfield(movies,'dotFigNum')
 	    end
 	    if molIdx < length(barcodes.dots)+1
 	        str = sprintf('Mol. %i',molIdx);
-	        text(movies.pos{molIdx}(2),movies.pos{molIdx}(1)+barcodes.lineParams{molIdx}(2),str,'Color','white');
             angle = atan(barcodes.lineParams{molIdx}(1));
+			if barcodes.lineParams{molIdx}(1) < 0
+				vOff = 0;
+				hOff = (-barcodes.lineParams{molIdx}(1)) * cos(angle)-sin(angle)*barcodes.dots{molIdx}.leftOffset;
+			elseif barcodes.lineParams{molIdx}(1) > 1 
+				vOff = size(movies.bwM{molIdx},1);
+				hOff = cos(angle)*(barcodes.lineParams{molIdx}(2) - vOff);
+			else
+				vOff = barcodes.lineParams{molIdx}(2);
+				hOff = 0;
+			end
+	        text(movies.pos{molIdx}(2),movies.pos{molIdx}(1)+vOff,str,'Color','white');
             for j = 1:numel(barcodes.dots{molIdx}.locations)
 	            dy = -sin(angle)*(barcodes.dots{molIdx}.locations(j)-1+barcodes.dots{molIdx}.leftOffset);
 	            dx = cos(angle)*(barcodes.dots{molIdx}.locations(j)-1+barcodes.dots{molIdx}.leftOffset);
-	            y = movies.pos{molIdx}(1)+barcodes.lineParams{molIdx}(2)+dy-1;
-	            x = movies.pos{molIdx}(2)+dx;
+	            y = movies.pos{molIdx}(1)+vOff+dy-1;%barcodes.lineParams{molIdx}(2)+dy-1;
+	            x = movies.pos{molIdx}(2)+hOff+dx;
                 plot(x,y,'rx');
 				str = sprintf('I = %.1f, depth = %.1f',barcodes.dots{molIdx}.val(j),barcodes.dots{molIdx}.depth(j));
 				text(x-5,y-5,str,'Color','white');
