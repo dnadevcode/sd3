@@ -5,14 +5,18 @@ nImage = numel(output);
 imDots = zeros(1,nImage);
 imBarLength = zeros(1,nImage);
 imBars = zeros(1,nImage);
+hasDots = zeros(1,nImage);
 for i = 1:nImage
+	hasDots(i) = isfield(output{i},'dots');
 	nBars = numel(output{i}.expBars);
 	imBars(i) = nBars;
 	nDots = zeros(1,nBars);
 	barLength = zeros(1,nBars);
 	for j = 1:nBars
-		nDots(j) = output{i}.dots{j}.N;
-		imDots(i) = imDots(i) + nDots(j);	
+		if hasDots(i)
+			nDots(j) = output{i}.dots{j}.N;
+			imDots(i) = imDots(i) + nDots(j);	
+		end
 		barLength(j) = numel(output{i}.expBars{j}.rawBarcode)*optics.pixelSize/1000;
 		imBarLength(i) = imBarLength(i) + barLength(j);
 	end
@@ -28,8 +32,10 @@ fid = fopen(printName,'w');
 fprintf(fid,'Results for the analysis of %s\n',printName(1:end-12));
 fprintf(fid,'\n Total number of barcodes: %i \n',sum(imBars));
 fprintf(fid,'\n Total length of barcodes: %.1f micrometer \n',sum(imBarLength));
-fprintf(fid,'\n Total number of dots    : %i \n',sum(imDots));
-fprintf(fid,'\n Average dots/micron     : %.6f \n',sum(imDots)/sum(imBarLength));
+if hasDots
+	fprintf(fid,'\n Total number of dots    : %i \n',sum(imDots));
+	fprintf(fid,'\n Average dots/micron     : %.6f \n',sum(imDots)/sum(imBarLength));
+end
 fprintf(fid,'   Note that these number relate to the OBSERVED length of the molecule \n');
 fprintf(fid,'   and might not accurately represent contour length! \n');
 fprintf(fid,'----------------------------------------------------------------------- \n');
@@ -40,8 +46,10 @@ if nImage > 1
       fprintf(fid,'\nFor image %s',output{i}.name);
       fprintf(fid,'\n Total number of barcodes: %i \n',imBars(i));
       fprintf(fid,'\n Total length of barcodes: %.1f micrometer \n',imBarLength(i));
-      fprintf(fid,'\n Total number of dots    : %i \n',imDots(i));
-      fprintf(fid,'\n Average dots/micron     : %.6f \n',imDotsPerLength(i));
+	  if hasDots(i)
+	      fprintf(fid,'\n Total number of dots    : %i \n',imDots(i));
+	      fprintf(fid,'\n Average dots/micron     : %.6f \n',imDotsPerLength(i));
+	  end
 	  fprintf(fid,'----------------------------------------------- \n');
    end
 end

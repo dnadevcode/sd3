@@ -8,11 +8,13 @@ If you wish to only analyze a single image, specify this in the "targetFile" par
 
 As this software is set up to analyse pairs of images, one with DNA molecules and one with "dots", it requires particular naming of the images in the folder:
 
-	The names of the images showing barcodes due to fluouresence by YOYO must contain the flag defines in "experiment.barFlag".
+	The names of the images showing barcodes due to fluouresence by YOYO must contain the flag defined in "experiment.barFlag".
 	
 	Similarly,
 
-	The names of the images showing dots must contain the flag defines in "experiment.dotFlag".
+	The names of the images showing dots must contain the flag defined in "experiment.dotFlag".
+
+        Example: If the YOYO fluoresence image always contains "CH1", such that all YOYO images are on the form "XXCH1YY.tif", set "experiment.barFlag = 'CH1'". Similarly, if the dot images are named on the form "XXCH2YY.tif", set "experiment.dotFlag = 'CH2'".
 
 In order to extract barcodes, a file named "optics.txt" must be placed in the target folder along the images. This file must hold the NA, pixelsize, and wavelength of the flourescent light(for the molecule detection), along with an experiment name on the form
 
