@@ -97,7 +97,7 @@ widthLims = [0 10]; 		% Set lower and upper limit for the width of the molecule 
 [autoThreshRel,em] = graythresh(log(meh(meh>0)));
 autoThresh = exp(autoThreshRel*max(log(meh(meh>0))));
 if actions.autoThreshBars
-	lowlim = autoThresh;
+	lowLim = autoThresh;
 end
 
 if actions.showScores
