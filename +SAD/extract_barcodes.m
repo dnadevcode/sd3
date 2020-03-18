@@ -1,4 +1,4 @@
-function barcodes = extract_barcodes(movies,optics,lengthLims,imageNumber,runNo,sets,experiment,actions)
+function [barcodes,dotScoreMin] = extract_barcodes(movies,optics,lengthLims,imageNumber,runNo,sets,experiment,actions)
 
 %import PD.Core.Extraction.get_kymos_from_movies;
 %%%%%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%%%%
@@ -15,8 +15,9 @@ if isfield(movies,'dotM')
 	% Extract dotBarcodes from their images
 	[barcodes.dotBars,~] = get_kymos_from_movies(movies.dotM,movies.bwM,sPer);
     barcodes.dotBars(barcodes.delid) = [];
-	% Extract peak numbers and positions from dot images
-	barcodes.dots = detect_dots(barcodes.dotBars,optics,sets.dotMargin,lengthLims,imageNumber,movies.imageName,actions);
+	[barcodes.dots,dotScoreMin] = detect_dots(barcodes.dotBars,optics,sets.dotMargin,lengthLims,imageNumber,movies.imageName,actions);
+else
+    dotScoreMin = 'NA';
 end
 
 if actions.saveBars

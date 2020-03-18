@@ -1,4 +1,4 @@
-function printName = dnarec_print(output,experiment,optics,runNo)
+function printName = dnarec_print(output,experiment,actions,optics,runNo,sets)
 nImage = numel(output);
 
 % Extract all barcode lengths and dot numbers
@@ -44,15 +44,41 @@ if nImage > 1
    % Print results for each image in folder
    for i = 1:nImage
       fprintf(fid,'\nFor image %s',output{i}.name);
+      if actions.autoThreshBars
+          molThresh = [num2str(output{i}.molScoreLim) '(Auto)'];
+      else
+          molThresh = [num2str(output{i}.molScoreLim) '(Manual)'];
+      end
+      fprintf(fid,'\n Minimum molecule score  :%s\n',molThresh); 
       fprintf(fid,'\n Total number of barcodes: %i \n',imBars(i));
       fprintf(fid,'\n Total length of barcodes: %.1f micrometer \n',imBarLength(i));
 	  if hasDots(i)
+          if actions.autoThreshDots
+             dotThresh = [num2str(output{i}.dotScoreLim) '(Auto)'];
+          else
+             dotThresh = [num2str(output{i}.dotScoreLim) '(Manual)'];
+          end
+          fprintf(fid, '\n Minimum dot score      : %s \n',dotThresh);
 	      fprintf(fid,'\n Total number of dots    : %i \n',imDots(i));
 	      fprintf(fid,'\n Average dots/micron     : %.6f \n',imDotsPerLength(i));
 	  end
 	  fprintf(fid,'----------------------------------------------- \n');
    end
 end
+fprintf(fid,'Analysis settings:\n');
+lengthLims = output{1}.lengthLims;
+widthLims = output{1}.widthLims;
+fprintf(fid,' Molecule length limits      : %.1f - %.1f pixels \n',lengthLims(1),lengthLims(2));
+fprintf(fid,' Molecule width limits       : %.1f - %.1f pixels \n',widthLims(1),widthLims(2));
+%fprintf(fid,'Molecule eccentricity limit : \n');
+fprintf(fid,' Min. dot to end distance    : %.1f pixels \n',sets.dotMargin);
+fprintf(fid,' Optics settings             : NA = %.2f, pixel size = %.2f, wavelength = %.2f. \n',optics.NA,optics.pixelSize,optics.waveLength);
+if actions.removeRegions
+    remSet = 'On';
+else
+    remSet = 'Off';
+end
+fprintf(fid,' Remove regions setting      : %s \n',remSet);
 fclose(fid);
 
 

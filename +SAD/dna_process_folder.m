@@ -1,4 +1,4 @@
-function output = dna_process_folder(experiment,functions,actions)
+function output = dna_process_folder(experiment,functions,actions,sets)
 
 % This routine analyses the image contents of the folder specified in the "exp" struct
 % via the functions specified in the "functions" struct according to te actions
@@ -51,10 +51,10 @@ if check
 		end
         
         % Segment image
-        [movies,~,optics,lengthLims] = functions.img_segment(cleanImages,imageNames{i},i,runNo);
+        [movies,~,optics,lengthLims,molScoreLim,widthLims] = functions.img_segment(cleanImages,imageNames{i},i,runNo);
        	
 		% Extract barcodes 
-        barcodes = functions.bc_extract(movies,optics,lengthLims,i,runNo);
+        [barcodes,dotScoreLim] = functions.bc_extract(movies,optics,lengthLims,i,runNo);
         
         if actions.showMolecules
             % Mark barcodes in molecule image
@@ -65,9 +65,13 @@ if check
         %	output = functions.bc_analyse(barcodes,optics);i
         output{i} = barcodes;
 		output{i}.name = imageNames{i};
+        output{i}.lengthLims = lengthLims;
+        output{i}.widthLims = widthLims;
+        output{i}.molScoreLim = molScoreLim;
+        output{i}.dotScoreLim = dotScoreLim;
     end
 	import SAD.dnarec_print
-	resultsName = dnarec_print(output,experiment,optics,runNo);
+	resultsName = dnarec_print(output,experiment,actions,optics,runNo,sets);
 	fprintf('\n-------------------------------------------------------------------\n');
 	fprintf('Analysis complete\n');
 	fprintf('Results saved in %s',resultsName);

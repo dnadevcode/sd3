@@ -1,4 +1,4 @@
-function [movies,scores,optics,lengthLims] = segment_image(images,imageName,imageNumber,runNo,experiment,actions)
+function [movies,scores,optics,lengthLims,lowLim,widthLims] = segment_image(images,imageName,imageNumber,runNo,experiment,actions)
 
 registeredIm = images.registeredIm;
 imAverage = images.imAverage;

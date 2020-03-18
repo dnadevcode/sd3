@@ -1,4 +1,4 @@
-function dots = detect_dots(dotBars,optics,dotMargin,lengthLims,imageNumber,imageName,actions)
+function [dots,pmin] = detect_dots(dotBars,optics,dotMargin,lengthLims,imageNumber,imageName,actions)
 
 oldsig = optics.sigma;
 optics.sigma = 669/509*optics.sigma;

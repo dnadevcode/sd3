@@ -3,16 +3,16 @@ function output = dnarec_skel(target)
 % Store data path and assumptions on experimental conditions
 
 if nargin == 0
- 	experiment.targetFolder = '/Users/krog/Dropbox/dnabarcoding/SDD_dots_2/testfolder/'; % Folder containing images and optics.txt file
+ 	experiment.targetFolder = '/Users/krog/Dropbox/dnabarcoding/SDD_dots/mytest/'; % Folder containing images and optics.txt file
 else
 	experiment.targetFolder = target;
 end
 targetFile = ''; % Optional specified target image. If the whole folder should be analysed, leave "targetFile = '';"
 experiment.barFlag = 'C=1'; % Flag for specifying that the image is an image of barcodes. Only images containing the flag in their name will be analysed
-experiment.dotFlag = 'C=0'; % Flag for specifying that the image is a dot image. The flag must be contanied in the image name.
+experiment.dotFlag = 'C=90'; % Flag for specifying that the image is a dot image. The flag must be contanied in the image name.
 experiment.opticsFile = 'optics.txt'; % Optionally specified optics file location (full path needed). If this is specified, the software assumes the optical setup to be identical for all images
 
-sets.dotMargin = 3; % Minimum distance (in pixels) from molecule end for a dot to be included in the analysis.
+sets.dotMargin = 4; % Minimum distance (in pixels) from molecule end for a dot to be included in the analysis.
 
 %%% IFF only one (DNA molecule) image should be analyzed, write the full filename here
 %targetFile = 'Snap-1283.czi - C=1.tif';
@@ -26,9 +26,9 @@ sets.dotMargin = 3; % Minimum distance (in pixels) from molecule end for a dot t
  actions.checkSameOrientation = 1;	% Check that images from the same stack (of the same subject) are identically oriented. Only applies or image stacks
  actions.makeSameSize = 1;			% Makes images in imagestacks the same size
  actions.showScores = 1; 			% Show a histogram of the scores for the regions as well as the dots, which helps setting tweak parameters
- actions.showMolecules = 0;			% Show plots of detected molecules and images
+ actions.showMolecules = 1;			% Show plots of detected molecules and images
  actions.saveMolecules = 0;			% Save individual molecule and dot images (2D)
- actions.saveBars = 1; 				% Save the generated barcodes and dot barcodes
+ actions.saveBars = 0; 				% Save the generated barcodes and dot barcodes
  actions.autoThreshBars = 0;
  actions.autoThreshDots = 0;
 % actions.computeFreeConcentrations = 1;
@@ -73,5 +73,8 @@ sets.dotMargin = 3; % Minimum distance (in pixels) from molecule end for a dot t
  functions.consensus_gen = @(barcodes) generate_consensus(barcodes);
 
 import SAD.dna_process_folder
-output = dna_process_folder(experiment,functions,actions);
+output = dna_process_folder(experiment,functions,actions,sets);
+
 save([experiment.targetFolder,'dnarecoutput'],'output')
+save([experiment.targetFolder,'dnarecoutput'],'actions','-append')
+save([experiment.targetFolder,'dnarecoutput'],'experiment','-append')
