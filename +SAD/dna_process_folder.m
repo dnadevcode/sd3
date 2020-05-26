@@ -6,6 +6,8 @@ function output = dna_process_folder(experiment,functions,actions,sets)
 
 addpath('util/');
 addpath('util/lldev/src/MATLAB/');
+import SAD.dnarec_print
+
 % Perform preliminary check to see if all required files are accessible
 check = prel_check(experiment,functions,actions);
 
@@ -62,15 +64,17 @@ if check
         end
         
         % Calculate p-values for specific sequence
-        %	output = functions.bc_analyse(barcodes,optics);i
+        %	output = functions.bc_analyse(barcodes,optics);
+
         output{i} = barcodes;
 		output{i}.name = imageNames{i};
         output{i}.lengthLims = lengthLims;
         output{i}.widthLims = widthLims;
         output{i}.molScoreLim = molScoreLim;
         output{i}.dotScoreLim = dotScoreLim;
+        output{i}.median = median(cleanImages.imAverage(:));
+        
     end
-	import SAD.dnarec_print
 	resultsName = dnarec_print(output,experiment,actions,optics,runNo,sets);
 	fprintf('\n-------------------------------------------------------------------\n');
 	fprintf('Analysis complete\n');

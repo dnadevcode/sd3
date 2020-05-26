@@ -8,7 +8,7 @@ else
 	experiment.targetFolder = target;
 end
 targetFile = ''; % Optional specified target image. If the whole folder should be analysed, leave "targetFile = '';"
-experiment.barFlag = 'C=1'; % Flag for specifying that the image is an image of barcodes. Only images containing the flag in their name will be analysed
+experiment.barFlag = 'C=0'; % Flag for specifying that the image is an image of barcodes. Only images containing the flag in their name will be analysed
 experiment.dotFlag = 'C=90'; % Flag for specifying that the image is a dot image. The flag must be contanied in the image name.
 experiment.opticsFile = 'optics.txt'; % Optionally specified optics file location (full path needed). If this is specified, the software assumes the optical setup to be identical for all images
 
@@ -25,11 +25,11 @@ sets.dotMargin = 4; % Minimum distance (in pixels) from molecule end for a dot t
  actions.removeRegions = 0;			% Remove regions outside a central brigth region (can remove too much if illumination is uniform)
  actions.checkSameOrientation = 1;	% Check that images from the same stack (of the same subject) are identically oriented. Only applies or image stacks
  actions.makeSameSize = 1;			% Makes images in imagestacks the same size
- actions.showScores = 1; 			% Show a histogram of the scores for the regions as well as the dots, which helps setting tweak parameters
- actions.showMolecules = 1;			% Show plots of detected molecules and images
+ actions.showScores = 0; 			% Show a histogram of the scores for the regions as well as the dots, which helps setting tweak parameters
+ actions.showMolecules = 0;			% Show plots of detected molecules and images
  actions.saveMolecules = 0;			% Save individual molecule and dot images (2D)
  actions.saveBars = 0; 				% Save the generated barcodes and dot barcodes
- actions.autoThreshBars = 0;
+ actions.autoThreshBars = 1;
  actions.autoThreshDots = 0;
 % actions.computeFreeConcentrations = 1;
  actions.getConsensus = 1;			% 
