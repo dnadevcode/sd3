@@ -6,6 +6,8 @@ function output = dna_process_folder(experiment,functions,actions,sets)
 
 addpath('util/');
 % addpath('util/lldev/src/MATLAB/');
+import SAD.dnarec_print
+
 % Perform preliminary check to see if all required files are accessible
 % check = prel_check(experiment,functions,actions);
 %
