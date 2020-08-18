@@ -23,6 +23,7 @@ This file must hold the NA, pixelsize, and wavelength of the flourescent light(f
 - NA 1.46
 - pixelsize 500
 - wavelength 509
+
 such that the pixelsize and wavelength are given in nanometers.
 If the same optics setup is used for many different measurements in different folders, the path of a specific optics file may be specified in the experiment.opticsFile variable.
 In this case, the file does not need to be present in all data folders.

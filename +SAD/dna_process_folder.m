@@ -76,6 +76,7 @@ for i = 1:numel(images)
     output{i}.widthLims = widthLims;
     output{i}.molScoreLim = molScoreLim;
     output{i}.dotScoreLim = dotScoreLim;
+    output{i}.median = median(cleanImages.imAverage(:));
 end
 import SAD.dnarec_print
 resultsName = dnarec_print(output,experiment,actions,optics,runNo,sets);
