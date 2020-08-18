@@ -1,4 +1,4 @@
-function [dots,pmin] = detect_dots(dotBars,optics,dotMargin,lengthLims,imageNumber,imageName,actions)
+function [dots,pmin] = detect_dots(dotBars,optics,dotMargin,pmin,lengthLims,imageNumber,imageName,actions)
 
 oldsig = optics.sigma;
 optics.sigma = 669/509*optics.sigma;
@@ -46,7 +46,7 @@ for i = 1:numel(dotBars)
 end
 
 %%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%
-pmin = 1e4;
+% pmin = 1e4;
 %%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%
 maxScore = max(allscores);
 autoThreshRel = graythresh(allscores/maxScore);
@@ -58,7 +58,7 @@ medint = median(allscores(allscores>pmin));
 if actions.showScores
     figure(5+(imageNumber-1)*5)
     h2 = histogram(allscores,20);
-    title([imageName, 'dot scores'])
+    title([imageName, ' dot scores'])
     hold on
 %    line([autoThresh autoThresh],[0 max(h2.Values)],'LineStyle','--','Color','red','LineWidth',2)
 	if actions.autoThreshDots

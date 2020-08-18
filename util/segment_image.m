@@ -1,4 +1,4 @@
-function [movies,scores,optics,lengthLims,lowLim,widthLims] = segment_image(images,imageName,imageNumber,runNo,experiment,actions)
+function [movies,scores,optics,lengthLims,lowLim,widthLims] = segment_image(images,imageName,imageNumber,runNo,experiment,actions,sets)
 
 registeredIm = images.registeredIm;
 imAverage = images.imAverage;
@@ -8,21 +8,42 @@ hasDots = isfield(images,'dotIm');
 if hasDots
 	dotIm = images.dotIm;
 end
-if isfield(experiment,'opticsFile')
-    opticsDir = dir(experiment.opticsFile);
-    folder = [opticsDir(1).folder,'/'];
+% if isfield(experiment,'opticsFile')
+%     opticsDir = dir(experiment.opticsFile);
+%     folder = [opticsDir(1).folder,'/'];
+% else
+%     folder = experiment.targetFolder;
+% end
+
+foundOptics = 0;
+optics = struct();
+if isfield(experiment, 'opticsFile') && (isfile(experiment.opticsFile) || isfile(fullfile(experiment.targetFolder, experiment.opticsFile)))
+    try
+        [optics.NA,optics.pixelSize,optics.waveLength] = get_optic_params(fullfile(experiment.targetFolder, experiment.opticsFile));
+    catch
+        [optics.NA,optics.pixelSize,optics.waveLength] = get_optic_params(experiment.opticsFile);
+    end
+    optics.sigma = 1.22*optics.waveLength/(2*optics.NA) / optics.pixelSize; % Calculate width of PSF
+    if imageNumber == 1
+        fprintf('Width of point spread function estimated to be %.2f pixels.\n',optics.sigma);
+    end
+    foundOptics = 1;
 else
-    folder = experiment.targetFolder;
+    optics.NA = nan;
+    optics.waveLength = nan;
 end
-[optics.NA,optics.pixelSize,optics.waveLength] = get_optic_params(folder);
-optics.sigma = 1.22*optics.waveLength/(2*optics.NA) / optics.pixelSize; % Calculate width of PSF
-if imageNumber == 1
-	fprintf('Width of point spread function estimated to be %.2f pixels.\n',optics.sigma);
+if isfield(experiment, 'psfnm') && isfield(experiment, 'pxnm')
+    optics.sigma = experiment.psfnm/experiment.pxnm;
+    optics.pixelSize = experiment.pxnm;
+    foundOptics = 1;
+end
+if not(foundOptics)    
+    throw(MException('segment:optics', 'No optics file or optics settings found'))
 end
 
 % Use _some_ scoring to segment the image as a BW image with molecules in white
 %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
-edgePx = 3; %Arbitrary minimum distance to edge (filters away regions that are less than edgePx pixels from the edge of the image) 
+% edgePx = 3; %Arbitrary minimum distance to edge (filters away regions that are less than edgePx pixels from the edge of the image) 
 %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
 
 tic;
@@ -53,13 +74,13 @@ meh = zeros(1,length(B));
 stat = @(h) mean(h);  % This should perhaps be given from the outside
 fprintf('Total number of regions: %i.\n',length(B));
 for k = 1:length(B) % Filter out any regions with artifacts in them
-    if ~isempty(centers) > 0
+    if not(isempty(centers))
         in = inpolygon(centers(:,1),centers(:,2),B{k}(:,2),B{k}(:,1));
     else
         in = 0;
     end
     if ~in
-        meh(k) = edge_score(B{k},logim,Gdir,dist,stat)/optics.sigma^3;
+        meh(k) = edge_score(B{k},logim,Gdir,dist,stat);%/optics.sigma^3; % What is the point of this division? //Erik
     else
         meh(k) = -Inf;
     end
@@ -87,16 +108,27 @@ if actions.showMolecules
 end
 
 %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
-lowLim = exp(6);     % Set the low score threshold to consider a region "signal" (very important)
-highLim = exp(24);   % Arbitrary higher bound not utilized at this point. (ignore this for now)
-elim = .8;			 % Set lower limit for eccentricity of region (removes dots and circles and keeps long shapes)
-ratlim = .4;		 % Set lower limit for ratio of area of region to the convex region formed around (removes "wiggly" regions)
-lengthLims = [15 1000]; % Set lower and upper limit for the length of the molecule (pixels)
-widthLims = [0 10]; 		% Set lower and upper limit for the width of the molecule (pixels)
+% lowLim = exp(-4.5);     % Set the low score threshold to consider a region "signal" (very important)
+% highLim = exp(24);   % Arbitrary higher bound not utilized at this point. (ignore this for now)
+% elim = .8;			 % Set lower limit for eccentricity of region (removes dots and circles and keeps long shapes)
+% ratlim = .5;		 % Set lower limit for ratio of area of region to the convex region formed around (removes "wiggly" regions)
+% lengthLims = [50 1000]; % Set lower and upper limit for the length of the molecule (pixels)
+% widthLims = [0 50]; 		% Set lower and upper limit for the width of the molecule (pixels)
 %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
-[autoThreshRel,em] = graythresh(log(meh(meh>0)));
-autoThresh = exp(autoThreshRel*max(log(meh(meh>0))));
+
+lowLim = experiment.lowLim;
+highLim = experiment.highLim;
+elim = experiment.elim;
+ratlim = experiment.ratlim;
+lengthLims = experiment.lengthLims;
+widthLims = experiment.widthLims;
+sigmaBgLim = experiment.sigmaBgLim;
+
 if actions.autoThreshBars
+    logEdgeScores = log(meh(meh>0));
+    lowestScore = min(logEdgeScores);
+    [autoThreshRel, em] = graythresh(logEdgeScores-lowestScore);
+    autoThresh = exp(autoThreshRel*(max(logEdgeScores)-lowestScore)+lowestScore);
 	lowLim = autoThresh;
 end
 
@@ -122,9 +154,22 @@ newL = zeros(size(L));
 trueedge = cell(1,length(B));
 scores = nan(1,length(B));
 
+if sigmaBgLim > 0
+    bgPixels = imAverage(L == 0);
+    bgMean = trimmean(bgPixels(:), 10);
+    bgStd = sqrt(trimmean(bgPixels(:).^2, 10)-bgMean.^2);
+    bgThresh = bgMean + sigmaBgLim*bgStd;
+end
+
 for k = 1:length(B) % Filter any edges with lower scores than lim
 	acc = mol_filt(B{k},meh(k),lowLim,highLim,elim,ratlim,lengthLims,widthLims);
-	if acc
+    if sigmaBgLim > 0
+        numPixelsInMol = sum(L == k, 'all');
+        intensAcc = sum(imAverage(L == k)) >= numPixelsInMol*bgThresh;
+    else
+        intensAcc = 1;
+    end
+	if acc && intensAcc
 		accepted = accepted + 1;
 	    trueedge{accepted} = D{k};
 		scores(k) = meh(k);
@@ -150,15 +195,16 @@ if hasDots && actions.showMolecules
     	hold off
 	end
 end
-fprintf('Found %i molecules with "high" edge score, eccentricity >%.2f, aRat >%.2f, %i < length <%i, and width < %i.\n',accepted,elim,ratlim,lengthLims(1),lengthLims(2),widthLims(2));
+fprintf('Found %i molecules with log edge score >%.2f, eccentricity >%.2f, aRat >%.2f, %i< length <%i, and %i< width <%i.\n',accepted,log(lowLim),elim,ratlim,lengthLims(1),lengthLims(2),widthLims(1),widthLims(2));
 t = toc;
 fprintf('Segmentation completed in %.1f seconds.\n',t);
 
 % Store each molecules in its own image (this might be very slow)
+folderName = subsref(dir(experiment.targetFolder), substruct('.', 'folder'));
 if hasDots
-	[molM,bwM,dotM,pos] = generate_molecule_images_fast(D,newL,registeredIm,dotIm,experiment.targetFolder,runNo,imageName,edgePx,actions);
+	[molM,bwM,dotM,pos] = generate_molecule_images_fast(D,newL,registeredIm,dotIm,folderName,runNo,imageName,sets.edgeMargin,actions);
 else
-	[molM,bwM,dotM,pos] = generate_molecule_images_fast(D,newL,registeredIm,[],experiment.targetFolder,runNo,imageName,edgePx,actions);
+	[molM,bwM,dotM,pos] = generate_molecule_images_fast(D,newL,registeredIm,[],folderName,runNo,imageName,sets.edgeMargin,actions);
 end
 movies.imageName = imageName;
 movies.molM = molM;

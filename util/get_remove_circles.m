@@ -1,4 +1,4 @@
-function [ nw,centers ] = get_remove_circles( imDenoised, imAverage,rMin, rMiax )
+function [ nw,centers ] = get_remove_circles( imDenoised, imAverage,rMin, rMax )
     % removes circles
     if nargin < 4
         rMin = 12;
@@ -11,7 +11,7 @@ function [ nw,centers ] = get_remove_circles( imDenoised, imAverage,rMin, rMiax 
     circles = imDenoised > lim(2);
     se = strel('disk',5);
     dilatedBW = imdilate(circles,se);
-    dilatedBW = circles;
+%     dilatedBW = circles;
 	[centers,~] = imfindcircles(dilatedBW,[rMin rMax]);
    
  

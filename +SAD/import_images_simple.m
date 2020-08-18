@@ -1,4 +1,4 @@
-function [images,names] = import_images_simple(experiment,actions)
+function [images,names] = import_images_simple(experiment)
 tic;
 folder = experiment.targetFolder;
 fprintf('Analyzing data from the %s folder,\n',folder)
@@ -6,33 +6,42 @@ barFlag = experiment.barFlag;
 dotFlag = experiment.dotFlag;
 
 list = dir(folder);
-images = cell(1,floor(numel(list)/2));
-imageSets = 0;
-names = cell(1,floor(numel(list)/2));
+
+images = {};
+names = {};
 for i = 1:numel(list)
     % Check if the file ends in 'C=1.tif'
-    match = strfind(list(i).name,barFlag);
-    if ~isempty(match)
-        imageSets = imageSets + 1;
-		names{imageSets} = list(i).name([1:match-1,match+length(barFlag):end]); %sort away flag
-        images{imageSets}.registeredIm = cell(1);
-		images{imageSets}.registeredIm{1} = importdata([folder,'/',list(i).name]);
-        dotPath = [folder,'/',list(i).name(1:match-1),dotFlag,list(i).name(match+length(barFlag):end)];
+    filename = fullfile(list(i).folder, list(i).name);
+    isFile = isfile(filename);
+    isBar = not(isempty(strfind(list(i).name, barFlag))) || isempty(barFlag);
+    if isFile && isBar
+        try
+            images{end+1}.registeredIm = imread(filename);
+        catch
+            fprintf('Could not interpret %s as an image.\n', list(i).name);
+            continue
+        end
+        names{end+1} = strrep(list(i).name, barFlag, ''); %sort away flag
+        if not(isempty(barFlag))
+            dotPath = fullfile(list(i).folder, strrep(list(i).name, barFlag, dotFlag));
             try
-                images{imageSets}.dotIm = importdata(dotPath);
+                images{end}.dotIm = importdata(dotPath);
             catch
                 fprintf('Did not find file %s.\n',dotPath);
             end
+        end
     end
-    images(imageSets+1:end) = [];
-	names(imageSets+1:end) = [];
+end
+
+if isempty(images)
+    throw(MException('image:import', 'No viable images found in target folder.'))
 end
 
 %import PD.Core.Extraction.get_load_tiffs;
 
 
 %[cutoutM] = get_load_tiffs(folder,actions.checkSameOrientation,actions.removeRegions,actions.makeSameSize);
- 
+
 %import PD.Core.Extraction.register_images_fast;
 %images = register_images_fast(cutoutM);
 t=toc;

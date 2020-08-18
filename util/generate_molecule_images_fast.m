@@ -5,6 +5,11 @@ molM = cell(1,cellLength);
 bwM = cell(1,cellLength);
 dotM = cell(1,cellLength);
 
+% Fix to simplify surrounding code.
+if not(iscell(registeredIm))
+    registeredIm = {registeredIm};
+end
+
 for k = 1:cellLength
     yMin = max(1,min(D{k}(:,1))-edgePx);
     yMax = min(edgePx+max(D{k}(:,1)),size(registeredIm{1},1));
@@ -32,16 +37,16 @@ for k = 1:cellLength
 	 bwMov(mask == 1) = 1;
  
 	 if actions.saveMolecules
-		 molSaveName = [folder,'/molecules_run',num2str(runNo),'/',imageName,'_mol',num2str(k),'mov.tif'];
+		 molSaveName = fullfile(folder, ['molecules_run',num2str(runNo)], [imageName,'_mol',num2str(k),'mov.tif']);
 		 imwrite(uint16(molMov(:,:,1)),molSaveName);
 		 for i = 2:length(registeredIm)
    	     	imwrite(uint16(molMov(:,:,i)),molSaveName,'writemode','append');
 		 end
 		 if ~isempty(dotMov)
-			 dotSaveName = [folder,'molecules_run',num2str(runNo),'/',imageName,'_dot',num2str(k),'mov.tif'];
+			 dotSaveName = fullfile(folder, ['molecules_run',num2str(runNo)], [imageName,'_dot',num2str(k),'mov.tif']);
 			 imwrite(uint16(dotMov),dotSaveName);
 		 end
-		 bwSaveName = [folder,'molecules_run',num2str(runNo),'/',imageName,'_bwmol',num2str(k),'mov.tif'];	 
+		 bwSaveName = fullfile(folder, ['molecules_run',num2str(runNo)], [imageName,'_bwmol',num2str(k),'mov.tif']);	 
 		 imwrite(uint16(bwMov(:,:,1)),bwSaveName);
 	 end
 %	 pos{k} = D{k}(1,:);

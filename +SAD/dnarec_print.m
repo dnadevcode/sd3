@@ -73,12 +73,12 @@ fprintf(fid,' Molecule width limits       : %.1f - %.1f pixels \n',widthLims(1),
 %fprintf(fid,'Molecule eccentricity limit : \n');
 fprintf(fid,' Min. dot to end distance    : %.1f pixels \n',sets.dotMargin);
 fprintf(fid,' Optics settings             : NA = %.2f, pixel size = %.2f, wavelength = %.2f. \n',optics.NA,optics.pixelSize,optics.waveLength);
-if actions.removeRegions
-    remSet = 'On';
-else
-    remSet = 'Off';
-end
-fprintf(fid,' Remove regions setting      : %s \n',remSet);
+% if actions.removeRegions
+%     remSet = 'On';
+% else
+%     remSet = 'Off';
+% end
+% fprintf(fid,' Remove regions setting      : %s \n',remSet);
 fclose(fid);
 
 
@@ -86,10 +86,14 @@ end
 
 function printName = print_version(nImage,experiment,firstName,runNo)
 	if nImage > 1
-		slashes = strfind(experiment.targetFolder,'/');
-		nameType = experiment.targetFolder(slashes(end-1)+1:slashes(end)-1);
+% 		slashes = strfind(experiment.targetFolder,'/');
+% 		nameType = experiment.targetFolder(slashes(end-1)+1:slashes(end)-1);
+        [~, nameType] = fileparts(experiment.targetFolder);
+        folderName = experiment.targetFolder;
 	else
 		nameType = firstName;
+        nameType = regexprep(nameType, '[.]\S{1,4}', '');
+        folderName = fileparts(experiment.targetFolder);
 	end
 	nameType = [nameType,'results_run'];
 %	content = dir(experiment.targetFolder);
@@ -106,7 +110,7 @@ function printName = print_version(nImage,experiment,firstName,runNo)
 %	end
 %	version = max(numbers)+1;	
 	version = runNo;	
-	printName = [experiment.targetFolder,nameType,num2str(version),'.txt'];
+	printName = fullfile(folderName, [nameType, num2str(version),'.txt']);
 end
 
 

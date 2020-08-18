@@ -13,18 +13,18 @@ for i = 1:nmol
 	newBars{i}.rawBitmask([1:min(edgeLen,bitmaskLen),max(bitmaskLen - edgeLen + 1,1):end]) = 0;
 end
 
-if actions.getConsensus == 1
-	commonLength = ceil(mean(cellfun(@(x) length(x.rawBarcode),newBars)));
-	barStats.commonLength = commonLength;
-	for i = 1:nmol
-		molLen = length(newBars{i}.rawBarcode);
-		if molLen > 1
-			v = linspace(1,molLen,commonLength);
-			newBars{i}.stretchedBarcode = interp1(newBars{i}.rawBarcode,v);
-			newBars{i}.stretchedBitmask = newBars{i}.rawBitmask(round(v));
-		end
-	end
-end
+% if actions.getConsensus == 1
+% 	commonLength = ceil(mean(cellfun(@(x) length(x.rawBarcode),newBars)));
+% 	barStats.commonLength = commonLength;
+% 	for i = 1:nmol
+% 		molLen = length(newBars{i}.rawBarcode);
+% 		if molLen > 1
+% 			v = linspace(1,molLen,commonLength);
+% 			newBars{i}.stretchedBarcode = interp1(newBars{i}.rawBarcode,v);
+% 			newBars{i}.stretchedBitmask = newBars{i}.rawBitmask(round(v));
+% 		end
+% 	end
+% end
 
 % Remove barcodes with less than 3 trusted, numerical points
 delId = [];

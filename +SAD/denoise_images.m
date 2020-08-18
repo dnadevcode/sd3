@@ -1,13 +1,14 @@
 function cleanImages = denoise_images(registeredIm,actions)
 
 tic;
-if actions.denoiseImage == 1
-	% Denoisify
- 	[imDenoised, imAverage ]= get_denoised_image(registeredIm);
- else
- 	imAverage = averageImages(registeredIm);
+% if actions.denoiseImage == 1
+% 	% Denoisify
+%  	[imDenoised, imAverage ]= get_denoised_image(registeredIm);
+%  else
+%  	imAverage = averageImages(registeredIm);
+    imAverage = double(registeredIm);
  	imDenoised = imAverage; % This is NOT clean
- end
+%  end
 
 % Remove circles
 [~,centers] = get_remove_circles(imDenoised, imAverage);
