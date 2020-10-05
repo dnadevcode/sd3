@@ -24,22 +24,26 @@ if isfield(experiment, 'opticsFile') && (isfile(experiment.opticsFile) || isfile
         [optics.NA,optics.pixelSize,optics.waveLength] = get_optic_params(experiment.opticsFile);
     end
     optics.sigma = 1.22*optics.waveLength/(2*optics.NA) / optics.pixelSize; % Calculate width of PSF
-    if imageNumber == 1
-        fprintf('Width of point spread function estimated to be %.2f pixels.\n',optics.sigma);
-    end
+    logSigma = optics.sigma;
     foundOptics = 1;
 else
     optics.NA = nan;
     optics.waveLength = nan;
 end
 if isfield(experiment, 'psfnm') && isfield(experiment, 'pxnm')
-    optics.sigma = experiment.psfnm/experiment.pxnm;
+    if not(foundOptics)
+        optics.sigma = experiment.psfnm/experiment.pxnm;
+    end
+    logSigma = experiment.psfnm/experiment.pxnm;
     optics.pixelSize = experiment.pxnm;
     foundOptics = 1;
 end
 if not(foundOptics)    
     throw(MException('segment:optics', 'No optics file or optics settings found'))
 end
+% if imageNumber == 1
+%     fprintf('Width of point spread function estimated to be %.2f pixels.\n',optics.sigma);
+% end
 
 % Use _some_ scoring to segment the image as a BW image with molecules in white
 %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
@@ -48,9 +52,9 @@ end
 
 tic;
 % Filter image with LoG filter
-n = ceil(6*optics.sigma);
+n = ceil(6*logSigma);
 n = n + 1 -mod(n,2);
-filt = fspecial('log',n,optics.sigma);
+filt = fspecial('log',n,logSigma);
 if ~isa(imAverage,'double')
 	imAverage = double(imAverage);
 	fprintf('Averaged image has been converted to type "double"\n');
@@ -154,18 +158,20 @@ newL = zeros(size(L));
 trueedge = cell(1,length(B));
 scores = nan(1,length(B));
 
+% Background stuff
+bgPixels = imAverage(L == 0);
+bgMean = trimmean(bgPixels(:), 10);
 if sigmaBgLim > 0
-    bgPixels = imAverage(L == 0);
-    bgMean = trimmean(bgPixels(:), 10);
     bgStd = sqrt(trimmean(bgPixels(:).^2, 10)-bgMean.^2);
-    bgThresh = bgMean + sigmaBgLim*bgStd;
 end
+bgSubtractedIm = registeredIm - bgMean;
+bgSubtractedIm(bgSubtractedIm <= 0) = nan;
 
 for k = 1:length(B) % Filter any edges with lower scores than lim
 	acc = mol_filt(B{k},meh(k),lowLim,highLim,elim,ratlim,lengthLims,widthLims);
     if sigmaBgLim > 0
         numPixelsInMol = sum(L == k, 'all');
-        intensAcc = sum(imAverage(L == k)) >= numPixelsInMol*bgThresh;
+        intensAcc = sum(imAverage(L == k)) >= numPixelsInMol*bgMean + sqrt(numPixelsInMol)*sigmaBgLim*bgStd;
     else
         intensAcc = 1;
     end
@@ -202,9 +208,9 @@ fprintf('Segmentation completed in %.1f seconds.\n',t);
 % Store each molecules in its own image (this might be very slow)
 folderName = subsref(dir(experiment.targetFolder), substruct('.', 'folder'));
 if hasDots
-	[molM,bwM,dotM,pos] = generate_molecule_images_fast(D,newL,registeredIm,dotIm,folderName,runNo,imageName,sets.edgeMargin,actions);
+	[molM,bwM,dotM,pos] = generate_molecule_images_fast(D,newL,bgSubtractedIm,dotIm,folderName,runNo,imageName,sets.edgeMargin,actions);
 else
-	[molM,bwM,dotM,pos] = generate_molecule_images_fast(D,newL,registeredIm,[],folderName,runNo,imageName,sets.edgeMargin,actions);
+	[molM,bwM,dotM,pos] = generate_molecule_images_fast(D,newL,bgSubtractedIm,[],folderName,runNo,imageName,sets.edgeMargin,actions);
 end
 movies.imageName = imageName;
 movies.molM = molM;

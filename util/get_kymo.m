@@ -31,7 +31,7 @@ function [kymo] = get_kymo(mol,k,b,sPer)
 		  	xVals = (b-st)/k + 1 + cos(angle) * (lIdx - 1)  - sin(angle) * lSpc;
 		  	yVals = st - sin(angle) * (lIdx - 1) -  cos(angle) * lSpc;
             Vq = interp2(molC,xVals,yVals,'linear'); % Could change interpolation method
-            kymo(i,lIdx) = nanmean(Vq);
+            kymo(i,lIdx) = nansum(Vq);
         end
     end
 end
