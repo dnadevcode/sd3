@@ -29,6 +29,8 @@ for i = 1:numel(list)
             catch
                 fprintf('Did not find file %s.\n',dotPath);
             end
+        elseif isempty(barFlag) && isempty(dotFlag)
+          images{end}.dotIm = images{end}.registeredIm;
         end
     end
 end
