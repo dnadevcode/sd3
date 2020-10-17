@@ -15,7 +15,7 @@ end
 if nargin < 2
     
     %%% User default settings %%%
-    experiment.barFlag = 'C=1'; % Flag for specifying that the image is an image of barcodes. Only images containing the flag in their name will be analysed
+    experiment.barFlag = ''; % Flag for specifying that the image is an image of barcodes. Only images containing the flag in their name will be analysed
     experiment.dotFlag = 'C=0'; % Flag for specifying that the image is a dot image. The flag must be contanied in the image name.
     
     experiment.lowLim = exp(0); % Set the low score threshold to consider a region "signal" (very important)
@@ -37,7 +37,7 @@ else
     experiment.barFlag = inputsets.barFlag;
     experiment.dotFlag = inputsets.dotFlag;
     
-    experiment.psfnm = inputsets.psfnm;
+    experiment.logSigmaNm = inputsets.logSigmaNm;
     experiment.pxnm = inputsets.pxnm;
     
     experiment.lowLim = inputsets.lowLim;
@@ -61,6 +61,7 @@ experiment.highLim = inf; % Arbitrary higher bound not utilized at this point. (
 sets.edgeMargin = 3; % Minimum distance (in pixels) from image edge for a molecule to be included in the analysis.
 sets.dotMargin = 1; % Minimum distance (in pixels) from molecule end for a dot to be included in the analysis.
 sets.deltaCut = 1; % Number of sigma_psf uncertainty for extract_barcodes.
+sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
 
 % Experimental settings
 experiment.sigmaBgLim = 0; % Set lower limit for number of standard deviations in molecule intensity from the background

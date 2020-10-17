@@ -24,17 +24,17 @@ if isfield(experiment, 'opticsFile') && (isfile(experiment.opticsFile) || isfile
         [optics.NA,optics.pixelSize,optics.waveLength] = get_optic_params(experiment.opticsFile);
     end
     optics.sigma = 1.22*optics.waveLength/(2*optics.NA) / optics.pixelSize; % Calculate width of PSF
-    logSigma = optics.sigma;
+    optics.logSigma = optics.sigma;
     foundOptics = 1;
 else
     optics.NA = nan;
     optics.waveLength = nan;
 end
-if isfield(experiment, 'psfnm') && isfield(experiment, 'pxnm')
+if isfield(experiment, 'logSigmaNm') && isfield(experiment, 'pxnm')
     if not(foundOptics)
-        optics.sigma = experiment.psfnm/experiment.pxnm;
+        optics.sigma = experiment.logSigmaNm/experiment.pxnm;
     end
-    logSigma = experiment.psfnm/experiment.pxnm;
+    optics.logSigma = experiment.logSigmaNm/experiment.pxnm;
     optics.pixelSize = experiment.pxnm;
     foundOptics = 1;
 end
@@ -52,9 +52,9 @@ end
 
 tic;
 % Filter image with LoG filter
-n = ceil(6*logSigma);
+n = ceil(6*optics.logSigma);
 n = n + 1 -mod(n,2);
-filt = fspecial('log',n,logSigma);
+filt = fspecial('log',n,optics.logSigma);
 if ~isa(imAverage,'double')
 	imAverage = double(imAverage);
 	fprintf('Averaged image has been converted to type "double"\n');

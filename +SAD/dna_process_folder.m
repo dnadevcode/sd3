@@ -85,8 +85,6 @@ fprintf('Analysis complete\n');
 fprintf('Results saved in %s',resultsName);
 fprintf('\n-------------------------------------------------------------------\n');
 
-msgbox('Analysis complete!');
-
 % Run the consensus barcode routine on the barcodes
 %	consensusStruct = functions.consensus_gen(barcodes);
 
