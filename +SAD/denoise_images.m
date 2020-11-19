@@ -6,8 +6,8 @@ tic;
 %  	[imDenoised, imAverage ]= get_denoised_image(registeredIm);
 %  else
 %  	imAverage = averageImages(registeredIm);
-    imAverage = double(registeredIm);
- 	imDenoised = imAverage; % This is NOT clean
+imAverage = double(registeredIm);
+imDenoised = imAverage; % This is NOT clean
 %  end
 
 % Remove circles

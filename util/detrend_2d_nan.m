@@ -8,12 +8,12 @@ function Z_f = detrend_2d_nan(Z)
 %  Z_f = DETREND(Z) removes the best plane fit trend from the
 %     data in the 2D array Z and returns the residual in the 2D array Z_f
 
-%Thanks for 
+%Thanks for
 %    http://www.mathworks.co.uk/support/solutions/en/data/1-1AVW5/index.html?solution=1-1AVW5
 if size(Z,2) < 2
-    disp('Z must be a 2D array')
-    return
-end 
+  disp('Z must be a 2D array')
+  return
+end
 
 M = size(Z,2);
 N = size(Z,1);

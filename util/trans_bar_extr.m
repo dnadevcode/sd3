@@ -6,11 +6,11 @@ edgeLen = round(sets.deltaCut * optics.sigma);
 nmol = length(kymos);
 newBars = cell(1,nmol);
 for i = 1:nmol
-	initbar = nanmean(kymos{i},1);
-	newBars{i}.rawBarcode = initbar(~isnan(initbar));
-    bitmaskLen = length(newBars{i}.rawBarcode);
-	newBars{i}.rawBitmask = ones(1,bitmaskLen);
-	newBars{i}.rawBitmask([1:min(edgeLen,bitmaskLen),max(bitmaskLen - edgeLen + 1,1):end]) = 0;
+  initbar = nanmean(kymos{i},1);
+  newBars{i}.rawBarcode = initbar(~isnan(initbar));
+  bitmaskLen = length(newBars{i}.rawBarcode);
+  newBars{i}.rawBitmask = ones(1,bitmaskLen);
+  newBars{i}.rawBitmask([1:min(edgeLen,bitmaskLen),max(bitmaskLen - edgeLen + 1,1):end]) = 0;
 end
 
 % if actions.getConsensus == 1
@@ -29,10 +29,10 @@ end
 % Remove barcodes with less than 3 trusted, numerical points
 delId = [];
 for i = 1:nmol
-	detail = sum(~isnan(newBars{i}.rawBarcode).*newBars{i}.rawBitmask);
-	if detail < 2*edgeLen+3 % Ensure that there is always 3 data points to compare between theory and exp
-		delId = [delId i];
-	end
+  detail = sum(~isnan(newBars{i}.rawBarcode).*newBars{i}.rawBitmask);
+  if detail < 2*edgeLen+3 % Ensure that there is always 3 data points to compare between theory and exp
+    delId = [delId i];
+  end
 end
 newBars(delId) = [];
 fprintf('%i viable barcodes found.\n',length(newBars));

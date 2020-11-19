@@ -17,7 +17,7 @@ import SAD.dnarec_print
 output = cell(1,numel(images));
 
 if prompt_figure_excess(length(images), sum(cellfun(@(x) isfield(x, 'dotIm'), images)), actions)
-    return
+  return
 end
 
 % Specify save name
@@ -27,56 +27,56 @@ folderName = subsref(dir(experiment.targetFolder), substruct('.', 'folder'));
 runNo = 0;
 outputExist = 1;
 while outputExist
-    runNo = runNo + 1;
-%     if runNo > 98
-%         fprintf('Only %i run outputs supported, overwriting last result (run %i).\n',runNo,runNo);
-%         break;
-%     end
-    barName = fullfile(folderName, ['barcodes_run', num2str(runNo)]);
-    dotName = fullfile(folderName, ['dotbars_run', num2str(runNo)]);
-    molName = fullfile(folderName, ['molecules_run', num2str(runNo)]);
-    resName = fullfile(folderName, ['results_run', num2str(runNo), '.txt']);
-    barcodeExist = isfolder(barName);
-    dotbarExist = isfolder(dotName);
-    moleculesExist = isfolder(molName);
-    resExist = isfolder(resName);
-    outputExist = barcodeExist || dotbarExist || moleculesExist || resExist;
+  runNo = runNo + 1;
+  %     if runNo > 98
+  %         fprintf('Only %i run outputs supported, overwriting last result (run %i).\n',runNo,runNo);
+  %         break;
+  %     end
+  barName = fullfile(folderName, ['barcodes_run', num2str(runNo)]);
+  dotName = fullfile(folderName, ['dotbars_run', num2str(runNo)]);
+  molName = fullfile(folderName, ['molecules_run', num2str(runNo)]);
+  resName = fullfile(folderName, ['results_run', num2str(runNo), '.txt']);
+  barcodeExist = isfolder(barName);
+  dotbarExist = isfolder(dotName);
+  moleculesExist = isfolder(molName);
+  resExist = isfolder(resName);
+  outputExist = barcodeExist || dotbarExist || moleculesExist || resExist;
 end
 if actions.saveMolecules
-    mkdir(molName)
+  mkdir(molName)
 end
 if actions.saveBars
-    mkdir(barName)
-    mkdir(dotName)
+  mkdir(barName)
+  mkdir(dotName)
 end
 for i = 1:numel(images)
-    fprintf('\nAnalysing image %s.\n',imageNames{i});
-    % Denoise images and remove artifacts
-    cleanImages = functions.img_denoise(images{i}.registeredIm);
-    if isfield(images{i},'dotIm')
-        cleanImages.dotIm = images{i}.dotIm;
-    end
-    
-    % Segment image
-    [movies,~,optics,lengthLims,molScoreLim,widthLims] = functions.img_segment(cleanImages,imageNames{i},i,runNo);
-    
-    % Extract barcodes
-    [barcodes,dotScoreLim] = functions.bc_extract(movies,optics,lengthLims,i,runNo);
-    
-    if actions.showMolecules
-        % Mark barcodes in molecule image
-        mark_bars(movies,barcodes);
-    end
-    
-    % Calculate p-values for specific sequence
-    %	output = functions.bc_analyse(barcodes,optics);i
-    output{i} = barcodes;
-    output{i}.name = imageNames{i};
-    output{i}.lengthLims = lengthLims;
-    output{i}.widthLims = widthLims;
-    output{i}.molScoreLim = molScoreLim;
-    output{i}.dotScoreLim = dotScoreLim;
-    output{i}.median = median(cleanImages.imAverage(:));
+  fprintf('\nAnalysing image %s.\n',imageNames{i});
+  % Denoise images and remove artifacts
+  cleanImages = functions.img_denoise(images{i}.registeredIm);
+  if isfield(images{i},'dotIm')
+    cleanImages.dotIm = images{i}.dotIm;
+  end
+  
+  % Segment image
+  [movies,~,optics,lengthLims,molScoreLim,widthLims] = functions.img_segment(cleanImages,imageNames{i},i,runNo);
+  
+  % Extract barcodes
+  [barcodes,dotScoreLim] = functions.bc_extract(movies,optics,lengthLims,i,runNo);
+  
+  if actions.showMolecules
+    % Mark barcodes in molecule image
+    mark_bars(movies,barcodes);
+  end
+  
+  % Calculate p-values for specific sequence
+  %	output = functions.bc_analyse(barcodes,optics);i
+  output{i} = barcodes;
+  output{i}.name = imageNames{i};
+  output{i}.lengthLims = lengthLims;
+  output{i}.widthLims = widthLims;
+  output{i}.molScoreLim = molScoreLim;
+  output{i}.dotScoreLim = dotScoreLim;
+  output{i}.median = median(cleanImages.imAverage(:));
 end
 import SAD.dnarec_print
 resultsName = dnarec_print(output,experiment,actions,optics,runNo,sets);

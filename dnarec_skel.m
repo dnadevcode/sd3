@@ -8,51 +8,51 @@ functions = struct();
 sets = struct();
 
 if nargin > 0
-    experiment.targetFolder = target;
+  experiment.targetFolder = target;
 else
-    experiment.targetFolder = pwd;
+  experiment.targetFolder = pwd;
 end
 if nargin < 2
-    
-    %%% User default settings %%%
-    experiment.barFlag = ''; % Flag for specifying that the image is an image of barcodes. Only images containing the flag in their name will be analysed
-    experiment.dotFlag = 'C=0'; % Flag for specifying that the image is a dot image. The flag must be contanied in the image name.
-    
-    experiment.lowLim = exp(0); % Set the low score threshold to consider a region "signal" (very important)
-    experiment.elim = .8; % Set lower limit for eccentricity of region (removes dots and circles and keeps long shapes)
-    experiment.ratlim = .4; % Set lower limit for ratio of area of region to the convex region formed around (removes "wiggly" regions)
-    experiment.lengthLims = [50 inf]; % Set lower and upper limit for the length of the molecule (pixels)
-    experiment.widthLims = [1 inf]; % Set lower and upper limit for the width of the molecule (pixels)
-    experiment.dotScoreMin = 1e4; % Dot score lower threshold.
-    
-    actions.showScores = 0; % Show a histogram of the scores for the regions as well as the dots, which helps setting tweak parameters
-    actions.showMolecules = 0; % Show plots of detected molecules and images
-    actions.saveMolecules = 0; % Save individual molecule and dot images (2D)
-    actions.saveBars = 0; % Save the generated barcodes and dot barcodes
-    actions.autoThreshBars = 0;
-    actions.autoThreshDots = 0;
-    %%% End of settings %%%
-    
+  
+  %%% User default settings %%%
+  experiment.barFlag = ''; % Flag for specifying that the image is an image of barcodes. Only images containing the flag in their name will be analysed
+  experiment.dotFlag = 'C=0'; % Flag for specifying that the image is a dot image. The flag must be contanied in the image name.
+  
+  experiment.lowLim = exp(0); % Set the low score threshold to consider a region "signal" (very important)
+  experiment.elim = .8; % Set lower limit for eccentricity of region (removes dots and circles and keeps long shapes)
+  experiment.ratlim = .4; % Set lower limit for ratio of area of region to the convex region formed around (removes "wiggly" regions)
+  experiment.lengthLims = [50 inf]; % Set lower and upper limit for the length of the molecule (pixels)
+  experiment.widthLims = [1 inf]; % Set lower and upper limit for the width of the molecule (pixels)
+  experiment.dotScoreMin = 1e4; % Dot score lower threshold.
+  
+  actions.showScores = 0; % Show a histogram of the scores for the regions as well as the dots, which helps setting tweak parameters
+  actions.showMolecules = 0; % Show plots of detected molecules and images
+  actions.saveMolecules = 0; % Save individual molecule and dot images (2D)
+  actions.saveBars = 0; % Save the generated barcodes and dot barcodes
+  actions.autoThreshBars = 0;
+  actions.autoThreshDots = 0;
+  %%% End of settings %%%
+  
 else
-    experiment.barFlag = inputsets.barFlag;
-    experiment.dotFlag = inputsets.dotFlag;
-    
-    experiment.logSigmaNm = inputsets.logSigmaNm;
-    experiment.pxnm = inputsets.pxnm;
-    
-    experiment.lowLim = inputsets.lowLim;
-    experiment.elim = inputsets.elim;
-    experiment.ratlim = inputsets.ratlim;
-    experiment.lengthLims = inputsets.lengthLims;
-    experiment.widthLims = inputsets.widthLims;
-    experiment.dotScoreMin = inputsets.dotScoreMin;
-    
-    actions.showScores = inputsets.showScores;
-    actions.showMolecules = inputsets.showMolecules;
-    actions.saveMolecules = inputsets.saveMolecules;
-    actions.saveBars = inputsets.saveBars;
-    actions.autoThreshBars = inputsets.autoThreshBars;
-    actions.autoThreshDots = inputsets.autoThreshDots;
+  experiment.barFlag = inputsets.barFlag;
+  experiment.dotFlag = inputsets.dotFlag;
+  
+  experiment.logSigmaNm = inputsets.logSigmaNm;
+  experiment.pxnm = inputsets.pxnm;
+  
+  experiment.lowLim = inputsets.lowLim;
+  experiment.elim = inputsets.elim;
+  experiment.ratlim = inputsets.ratlim;
+  experiment.lengthLims = inputsets.lengthLims;
+  experiment.widthLims = inputsets.widthLims;
+  experiment.dotScoreMin = inputsets.dotScoreMin;
+  
+  actions.showScores = inputsets.showScores;
+  actions.showMolecules = inputsets.showMolecules;
+  actions.saveMolecules = inputsets.saveMolecules;
+  actions.saveBars = inputsets.saveBars;
+  actions.autoThreshBars = inputsets.autoThreshBars;
+  actions.autoThreshDots = inputsets.autoThreshDots;
 end
 
 % Legacy settings (remove?)
