@@ -400,19 +400,23 @@ classdef sdd_dots_gui < matlab.apps.AppBase
     function app = sdd_dots_gui
       
       if isfile('gui_settings.mat')
-        sets = subsref(load('gui_settings'), substruct('.', 'sets'));
-        app.pixelInputDefault = sets.pxnm;
-        app.logSigmaInputDefault = sets.logSigmaNm;
-        app.barFlagInputDefault = sets.barFlag;
-        app.dotFlagInputDefault = sets.dotFlag;
-        app.edgeScoreInputDefault = log(sets.lowLim);
-        app.dotScoreInputDefault = sets.dotScoreMin;
-        app.widthMinInputDefault = sets.widthLims(1);
-        app.widthMaxInputDefault = sets.widthLims(2);
-        app.lengthMinInputDefault = sets.lengthLims(1);
-        app.lengthMaxInputDefault = sets.lengthLims(2);
-        app.eccMinInputDefault = sets.elim;
-        app.ratMinInputDefault = sets.ratlim;
+        try
+          sets = subsref(load('gui_settings'), substruct('.', 'sets'));
+          app.pixelInputDefault = sets.pxnm;
+          app.logSigmaInputDefault = sets.logSigmaNm;
+          app.barFlagInputDefault = sets.barFlag;
+          app.dotFlagInputDefault = sets.dotFlag;
+          app.edgeScoreInputDefault = log(sets.lowLim);
+          app.dotScoreInputDefault = sets.dotScoreMin;
+          app.widthMinInputDefault = sets.widthLims(1);
+          app.widthMaxInputDefault = sets.widthLims(2);
+          app.lengthMinInputDefault = sets.lengthLims(1);
+          app.lengthMaxInputDefault = sets.lengthLims(2);
+          app.eccMinInputDefault = sets.elim;
+          app.ratMinInputDefault = sets.ratlim;
+        catch
+          warning('GUI-Settings file could not be read.')
+        end
       end
       
       % Create and configure components
