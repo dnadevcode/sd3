@@ -4,7 +4,12 @@ function output = dna_process_folder(experiment,functions,actions,sets)
 % via the functions specified in the "functions" struct according to te actions
 % specified in the "actions" struct.
 
-addpath('util/');
+mfolders = split(mfilename('fullpath'), {'\', '/'});
+addpath(fullfile(mfolders{1:end-2}, 'util'));
+[~, lwid] = lastwarn;
+if strcmp(lwid, 'MATLAB:mpath:nameNonexistentOrNotADirectory')
+  error('Unexpected error when asserting source folder path.')
+end
 % addpath('util/lldev/src/MATLAB/');
 import SAD.dnarec_print
 
