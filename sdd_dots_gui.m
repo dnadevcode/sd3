@@ -61,6 +61,7 @@ classdef sdd_dots_gui < matlab.apps.AppBase
     fourthWidth = 122.5; % (width-2*margin-3*paddingW)/4
     
     % Lazy default values for GUI...
+    pathInputDefault = pwd;
     pixelInputDefault = 130;
     logSigmaInputDefault = 300;
     barFlagInputDefault = 'C=1';
@@ -96,6 +97,8 @@ classdef sdd_dots_gui < matlab.apps.AppBase
       app.RefreshUI();
       
       sets = struct();
+      sets.pathInput = app.PathInput.Value;
+      
       sets.barFlag = app.BarFlagInput.Value;
       sets.dotFlag = app.DotFlagInput.Value;
       
@@ -163,7 +166,7 @@ classdef sdd_dots_gui < matlab.apps.AppBase
         app.height-app.margin-app.buttonHeight ...
         app.widthPathInput ...
         app.buttonHeight];
-      app.PathInput.Value = pwd;
+      app.PathInput.Value = app.pathInputDefault;
       
       % Create Browse Button
       app.BrowseButton = uibutton(app.UIFigure, 'push');
@@ -402,6 +405,7 @@ classdef sdd_dots_gui < matlab.apps.AppBase
       if isfile('gui_settings.mat')
         try
           sets = subsref(load('gui_settings'), substruct('.', 'sets'));
+          app.pathInputDefault = sets.pathInput;
           app.pixelInputDefault = sets.pxnm;
           app.logSigmaInputDefault = sets.logSigmaNm;
           app.barFlagInputDefault = sets.barFlag;
@@ -414,8 +418,9 @@ classdef sdd_dots_gui < matlab.apps.AppBase
           app.lengthMaxInputDefault = sets.lengthLims(2);
           app.eccMinInputDefault = sets.elim;
           app.ratMinInputDefault = sets.ratlim;
-        catch
-          warning('GUI-Settings file could not be read.')
+        catch ME
+          warning(compose('gui_settings.mat could not be read: %s', ...
+            ME.message))
         end
       end
       
