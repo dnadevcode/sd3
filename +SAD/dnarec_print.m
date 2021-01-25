@@ -118,14 +118,15 @@ end
 
 function printName = print_version(nImage,experiment,firstName,runNo)
 if nImage > 1
-  [~, nameType] = fileparts(experiment.targetFolder);
+  % [~, nameType] = fileparts(experiment.targetFolder);
   folderName = experiment.targetFolder;
 else
-  nameType = firstName;
-  nameType = regexprep(nameType, '[.]\S{1,4}', '');
+  % nameType = firstName;
+  % nameType = regexprep(nameType, '[.]\S{1,4}', '');
   folderName = fileparts(experiment.targetFolder);
 end
-nameType = [nameType,'results_run'];
+% nameType = [nameType,'results_run'];
+nameType = 'results_run';
 version = runNo;
 printName = fullfile(folderName, [nameType, num2str(version),'.txt']);
 end

@@ -38,10 +38,11 @@ while numel(possibles) > 0
     %Check if possibles is an output folder
     if isOutput || isLink || isEmpty
       % Remove element from possibles
-    elseif hasSubfolder
-      % Add each subfolder to possibles
-      possibles = [possibles subfolders];
     else
+      if hasSubfolder
+        % Add each subfolder to possibles
+        possibles = [possibles subfolders];
+      end
       nDataFolders = nDataFolders + 1;
       % Add element to datafolders
       dataFolders{nDataFolders} = possibles{i};

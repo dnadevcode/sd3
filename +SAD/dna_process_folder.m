@@ -4,8 +4,13 @@ function output = dna_process_folder(experiment,functions,actions,sets)
 % via the functions specified in the "functions" struct according to te actions
 % specified in the "actions" struct.
 
-mfolders = split(mfilename('fullpath'), {'\', '/'});
-addpath(fullfile(mfolders{1:end-2}, 'util'));
+mFilePath = mfilename('fullpath');
+mfolders = split(mFilePath, {'\', '/'});
+utilPath = fullfile(mfolders{1:end-2}, 'util');
+if strcmp(mFilePath(1), '/')
+  utilPath = strcat('/', utilPath);
+end
+addpath(utilPath);
 [~, lwid] = lastwarn;
 if strcmp(lwid, 'MATLAB:mpath:nameNonexistentOrNotADirectory')
   error('Unexpected error when asserting source folder path.')
@@ -21,7 +26,7 @@ import SAD.dnarec_print
 [images,imageNames] = functions.img_import();
 output = cell(1,numel(images));
 
-if prompt_figure_excess(length(images), sum(cellfun(@(x) isfield(x, 'dotIm'), images)), actions)
+if isempty(images) || prompt_figure_excess(length(images), sum(cellfun(@(x) isfield(x, 'dotIm'), images)), actions)
   return
 end
 
@@ -44,7 +49,7 @@ while outputExist
   barcodeExist = isfolder(barName);
   dotbarExist = isfolder(dotName);
   moleculesExist = isfolder(molName);
-  resExist = isfolder(resName);
+  resExist = isfile(resName);
   outputExist = barcodeExist || dotbarExist || moleculesExist || resExist;
 end
 if actions.saveMolecules

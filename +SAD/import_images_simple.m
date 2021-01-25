@@ -36,7 +36,8 @@ for i = 1:numel(list)
 end
 
 if isempty(images)
-  throw(MException('image:import', 'No viable images found in target folder.'))
+%   throw(MException('image:import', 'No viable images found in target folder.'))
+  warning(compose("No viable images found in target folder: %s", folder))
 end
 
 %import PD.Core.Extraction.get_load_tiffs;
