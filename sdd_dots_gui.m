@@ -67,7 +67,7 @@ classdef sdd_dots_gui < matlab.apps.AppBase
     barFlagInputDefault = 'C=1';
     dotFlagInputDefault = 'C=0';
     edgeScoreInputDefault = 0;
-    dotScoreInputDefault = 1e4;
+    dotScoreInputDefault = 10;
     widthMinInputDefault = 1;
     widthMaxInputDefault = inf;
     lengthMinInputDefault = 50;
