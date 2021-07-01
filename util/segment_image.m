@@ -109,7 +109,7 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut] = seg
   % If showScores, show histogram of log of region scores
   if actions.showScores
     figure(2 + (imageNumber - 1) * 5)
-    h1 = histogram(log(meh(meh > 0)));
+    h1 = histogram(log(meh(meh > 1)));
     title([imageName, ' edge scores'])
   end
 
@@ -147,9 +147,9 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut] = seg
   sigmaBgLim = experiment.sigmaBgLim;
 
   if actions.autoThreshBars
-    logEdgeScores = log(meh(meh > 0));
+    logEdgeScores = log(meh(meh > 1));
     lowestScore = min(logEdgeScores);
-    [autoThreshRel, em] = graythresh(logEdgeScores - lowestScore);
+    [autoThreshRel, em] = graythresh(logEdgeScores(:) - lowestScore);
     autoThresh = exp(autoThreshRel * (max(logEdgeScores) - lowestScore) + lowestScore);
     lowLim = autoThresh;
   end
@@ -163,7 +163,7 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut] = seg
       line([log(lowLim) log(lowLim)], [0 max(h1.Values)], 'LineStyle', '--', 'Color', 'red', 'LineWidth', 2)
     else
       line([log(lowLim) log(lowLim)], [0 max(h1.Values)], 'LineStyle', '--', 'Color', 'black', 'LineWidth', 2)
-      mess = 'User ser threshold';
+      mess = 'User set threshold';
     end
 
     text(1.1 * log(lowLim), 2/3 * max(h1.Values), mess, 'FontSize', 14)
