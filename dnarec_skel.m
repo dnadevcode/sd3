@@ -25,6 +25,7 @@ function output = dnarec_skel(target, inputsets)
     experiment.lengthLims = [50 inf]; % Set lower and upper limit for the length of the molecule (pixels)
     experiment.widthLims = [10 inf]; % Set lower and upper limit for the width of the molecule (pixels)
     experiment.dotScoreMin = 10; % Dot score lower threshold.
+    experiment.dotMargin = 2; % Minimum distance (in pixels) from molecule end for a dot to be included in the analysis.
 
     actions.showScores = 0; % Show a histogram of the scores for the regions as well as the dots, which helps setting tweak parameters
     actions.showMolecules = 0; % Show plots of detected molecules and images
@@ -47,6 +48,7 @@ function output = dnarec_skel(target, inputsets)
     experiment.lengthLims = inputsets.lengthLims;
     experiment.widthLims = inputsets.widthLims;
     experiment.dotScoreMin = inputsets.dotScoreMin;
+    experiment.dotMargin = inputsets.dotMargin;
 
     actions.showScores = inputsets.showScores;
     actions.showMolecules = inputsets.showMolecules;
@@ -60,7 +62,6 @@ function output = dnarec_skel(target, inputsets)
   experiment.opticsFile = 'optics.txt'; % Optionally specified optics file location (full path needed). If this is specified, the software assumes the optical setup to be identical for all images
   experiment.highLim = inf; % Arbitrary higher bound not utilized at this point. (ignore this for now)
   sets.edgeMargin = 3; % Minimum distance (in pixels) from image edge for a molecule to be included in the analysis.
-  sets.dotMargin = 2; % Minimum distance (in pixels) from molecule end for a dot to be included in the analysis.
   sets.deltaCut = 1; % Number of sigma_psf uncertainty for extract_barcodes.
 
   % Experimental settings

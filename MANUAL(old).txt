@@ -33,7 +33,7 @@ Similarly, the "TWEAK PARAMETER", "pmin" in the detect_dots.m routine may be cha
 
 An option for automated choice of the thresholds for molecule and dot scores has been added. To enforce automated thresholding of these, set "actions.autoThreshBars=1" and/or "actions.autoThreshDots=1".
 
-In order to filter away any dots that are centered within the first X pixels of the molecule, set the parameter "sets.dotMargin = X". The number of dots filtered in this way is displayed in the command line when running the routine.
+In order to filter away any dots that are centered within the first X pixels of the molecule, set the parameter "experiment.dotMargin = X". The number of dots filtered in this way is displayed in the command line when running the routine.
 
 If "actions.saveMolecules=1", closeups of the detected molecules along with their barcode, if a such can be extracted, is saved in a "molecules" folder inside the target folder. These should be readily insertable into the CBC_Gui routine. Similarly, if "actions.saveBars=1", the molecule barcodes and barcode from the dot image are saved in the folders "barcodes" and "dotbars" respectively.
 

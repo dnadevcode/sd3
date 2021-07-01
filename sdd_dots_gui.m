@@ -21,6 +21,8 @@ classdef sdd_dots_gui < matlab.apps.AppBase
     EdgeScoreInput matlab.ui.control.NumericEditField
     DotScoreLabel matlab.ui.control.Label
     DotScoreInput matlab.ui.control.NumericEditField
+    DotMarginLabel matlab.ui.control.Label
+    DotMarginInput matlab.ui.control.NumericEditField
     
     WidthMinLabel matlab.ui.control.Label
     WidthMinInput matlab.ui.control.NumericEditField
@@ -54,7 +56,7 @@ classdef sdd_dots_gui < matlab.apps.AppBase
     checkbHeight = 25;
     margin = 30;
     paddingW = 30;
-    paddingH = 10;
+    paddingH = 8;
     widthPathInput = 460; % (width-2*margin-buttonWidth-paddingW)
     halfWidth = 275; % (width-2*margin-paddingW)/2
     thirdWidth = 173.33; % (width-2*margin-2*paddingW)/3
@@ -68,6 +70,7 @@ classdef sdd_dots_gui < matlab.apps.AppBase
     dotFlagInputDefault = 'C=0';
     edgeScoreInputDefault = 0;
     dotScoreInputDefault = 10;
+    dotMarginInputDefault = 2;
     widthMinInputDefault = 1;
     widthMaxInputDefault = inf;
     lengthMinInputDefault = 50;
@@ -106,6 +109,7 @@ classdef sdd_dots_gui < matlab.apps.AppBase
       sets.pxnm = app.PxInput.Value;
       sets.lowLim = exp(app.EdgeScoreInput.Value);
       sets.dotScoreMin = app.DotScoreInput.Value;
+      sets.dotMargin = app.DotMarginInput.Value;
       sets.widthLims = [app.WidthMinInput.Value app.WidthMaxInput.Value];
       sets.lengthLims = [app.LengthMinInput.Value app.LengthMaxInput.Value];
       sets.elim = app.EccentricitySlider.Value;
@@ -317,13 +321,27 @@ classdef sdd_dots_gui < matlab.apps.AppBase
         app.buttonHeight];
       app.LengthMaxInput.Value = app.lengthMaxInputDefault;
       
+      % Create DotMarginInput
+      app.DotMarginLabel = uilabel(app.UIFigure);
+      app.DotMarginLabel.Position = [app.margin+2*app.paddingW+2*app.fourthWidth ...
+        app.height-app.margin-5*app.paddingH-10*app.buttonHeight ...
+        app.fourthWidth ...
+        app.buttonHeight];
+      app.DotMarginLabel.Text = 'Edge margin for dots';
+      app.DotMarginInput = uieditfield(app.UIFigure, 'numeric');
+      app.DotMarginInput.Position = [app.margin+2*app.paddingW+2*app.fourthWidth ...
+        app.height-app.margin-5*app.paddingH-11*app.buttonHeight ...
+        app.fourthWidth ...
+        app.buttonHeight];
+      app.DotMarginInput.Value = app.dotMarginInputDefault;
+      
       % Create EccentricitySlider
       app.EccentricityLabel = uilabel(app.UIFigure);
       app.EccentricityLabel.Position = [app.margin ...
         app.height-app.margin-5*app.paddingH-10*app.buttonHeight ...
         app.halfWidth ...
         app.buttonHeight];
-      app.EccentricityLabel.Text = 'Minimum eccentricity';
+      app.EccentricityLabel.Text = 'Minimum molecule eccentricity';
       app.EccentricitySlider = uislider(app.UIFigure);
       app.EccentricitySlider.Position = [app.margin ...
         app.height-app.margin-5*app.paddingH-10*app.buttonHeight ...
@@ -334,14 +352,14 @@ classdef sdd_dots_gui < matlab.apps.AppBase
       
       % Create MolRatSlider
       app.MolRatLabel = uilabel(app.UIFigure);
-      app.MolRatLabel.Position = [app.margin+app.paddingW+app.halfWidth ...
-        app.height-app.margin-5*app.paddingH-10*app.buttonHeight ...
+      app.MolRatLabel.Position = [app.margin ...
+        app.height-app.margin-6*app.paddingH-12*app.buttonHeight ...
         app.halfWidth ...
         app.buttonHeight];
       app.MolRatLabel.Text = 'Minimum molecule-to-convex-hull ratio';
       app.MolRatSlider = uislider(app.UIFigure);
-      app.MolRatSlider.Position = [app.margin+app.paddingW+app.halfWidth ...
-        app.height-app.margin-5*app.paddingH-10*app.buttonHeight ...
+      app.MolRatSlider.Position = [app.margin ...
+        app.height-app.margin-6*app.paddingH-12*app.buttonHeight ...
         app.halfWidth ...
         3];
       app.MolRatSlider.Limits = [0 1];

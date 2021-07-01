@@ -15,7 +15,7 @@ function [barcodes, dotScoreMin] = extract_barcodes(movies, optics, lengthLims, 
     % Extract dotBarcodes from their images
     [barcodes.dotBars, ~] = get_kymos_from_movies(movies.dotM, movies.bwM, sPer);
     barcodes.dotBars(barcodes.delid) = [];
-    [barcodes.dots, dotScoreMin] = detect_dots(barcodes.dotBars, optics, sets.dotMargin, experiment.dotScoreMin, lengthLims, imageNumber, movies.imageName, actions, bgPixels);
+    [barcodes.dots, dotScoreMin] = detect_dots(barcodes.dotBars, optics, experiment.dotMargin, experiment.dotScoreMin, lengthLims, imageNumber, movies.imageName, actions, bgPixels);
   else
     dotScoreMin = 'NA';
   end
