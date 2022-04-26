@@ -1,3 +1,5 @@
 *.asv
 gui_settings.mat
 testfolder/
+TEST/
+test2/

@@ -1,9 +1,9 @@
-# SDD_dots
+# SDD_dots readme v0.1
 Barcode and dot extractor for DNA stretced on glass
 
 # How to use
 With GUI:
-Run `sdd_dots_gui`. The GUI calls the `dnarec_folder_scan` routine which allows for analysis of large data sets.
+Run `sdd_gui` (old:sdd_dots_gui). The GUI calls the `dnarec_folder_scan` routine which allows for analysis of large data sets.
 Information about some specific settings can be found below.
 
 Without GUI:

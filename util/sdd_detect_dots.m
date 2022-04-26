@@ -1,4 +1,4 @@
-function [dots, pmin] = detect_dots(dotBars, optics, dotMargin, pmin, lengthLims, imageNumber, imageName, actions, bgPixels)
+function [dots, pmin] = sdd_detect_dots(dotBars, optics, dotMargin, pmin, lengthLims, imageNumber, imageName, actions, bgPixels,tiles)
 
   oldsig = optics.sigma;
   % TODO: Ask user to provide wavelength for second channel
@@ -10,7 +10,7 @@ function [dots, pmin] = detect_dots(dotBars, optics, dotMargin, pmin, lengthLims
   n = n + 1 - mod(n, 2);
   range = (n - 1) / 2;
   idx = -range:range;
-  filt = -1 / (pi * newsig^4) * (1 - idx.^2 / (2 * newsig^2)) .* exp(-idx.^2 / (2 * newsig^2));
+  filt = -1 / (pi * newsig^4) * (1 - idx.^2 / (2 * newsig^2)) .* exp(-idx.^2 / (2 * newsig^2)); 
   peaks = cell(1, numel(dotBars));
   allscores = [];
   % sumI = sum(cellfun(@(x) nansum(x), dotBars));
@@ -23,21 +23,23 @@ function [dots, pmin] = detect_dots(dotBars, optics, dotMargin, pmin, lengthLims
     if sum(~isnan(dotBars{i})) > lengthLims(1)
       barLength = numel(dotBars{i});
       [initnan, endnan] = nanfind(dotBars{i});
-      dotBars{i}(isnan(dotBars{i})) = 0;
-      dotBars{i} = dotBars{i}(1 + initnan:end - endnan);
+      dotBars{i}(isnan(dotBars{i})) = 0; % keep only non-nans. Here can't be any nan's in the middle of barcode!
+      dotBars{i} = dotBars{i}(1 + initnan:end - endnan)-bgMedian;
+       dotBars{i}( dotBars{i} <0) = 0;
       %dotBars{i} = dotBars{i}(~isnan(dotBars{i}));
       logBar = imfilter(dotBars{i}, filt);
-      [~, peaklocs] = findpeaks(-logBar);
+      [~, peaklocs] = findpeaks(-logBar); % find peaks after fuker
       peaks{i}.scores = zeros(1, numel(peaklocs));
-      peaks{i}.locations = peaklocs;
+      peaks{i}.locations = peaklocs; % locations: shifted by initnan
       %peaks{i}.depth = min(peaklocs-initnan-oldsig,barLength-peaklocs-endnan-oldsig);
-      peaks{i}.depth = min(peaklocs - oldsig, barLength - peaklocs - endnan - initnan - oldsig);
-      peaks{i}.leftOffset = initnan;
+      peaks{i}.depth = min(peaklocs - oldsig, barLength - peaklocs - endnan - initnan - oldsig); % how far along barcode
+      peaks{i}.leftOffset = initnan; % offsets
       peaks{i}.rightOffset = endnan;
 
       for j = 1:numel(peaklocs)
         idx = max(1, round(peaklocs(j) - w * newsig)):min(numel(dotBars{i}), round(peaklocs(j) + w * newsig));
-        peaks{i}.scores(j) = mean(dotBars{i}(idx)) / bgMedian;
+        peaks{i}.scores(j) = mean(dotBars{i}(idx));% / bgMedian; % why
+%         divide by background? better substract?
       end
 
       allscores = [allscores peaks{i}.scores];
@@ -54,19 +56,23 @@ function [dots, pmin] = detect_dots(dotBars, optics, dotMargin, pmin, lengthLims
   %%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%
   % pmin = 1e4;
   %%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%
-  if actions.autoThreshDots
-    logBgPixels = bgPixels / bgMedian;
-    bgscores = [movmean(logBgPixels, 2 * w * newsig + 1, 1, 'omitnan');
-                  movmean(logBgPixels, 2 * w * newsig + 1, 2, 'omitnan')];
-    pmin = nanmax(bgscores(:));
+  if actions.autoThreshDots % ?? 
+    logBgPixels = bgPixels-bgMedian;% ;
+%     logBgPixels(logBgPixels<0)=0;
+%     logBgPixels(~isnan(logBgPixels))
+%     logBgPixels =logBgPixels(~isnan(logBgPixels);
+    pmin = 3*nanstd(logBgPixels(:)); % for correctness. should take same number as when averaging for extracting barcode
+%     bgscores = [movmean(logBgPixels, 2 * w * newsig + 1, 1, 'omitnan');
+%                   movmean(logBgPixels, 2 * w * newsig + 1, 2, 'omitnan')];
+%     pmin = nanmax(bgscores(:));%/bgMedian;
   end
 
   medint = median(allscores(allscores > pmin));
 
   if actions.showScores
 %     t = tiledlayout(hPanelResult,2,2,'TileSpacing','compact');
-
-    figure(5 + (imageNumber - 1) * 5)
+    axes(tiles.dotScores);
+%     figure(5 + (imageNumber - 1) * 5)
     h2 = histogram(allscores, 20);
     title([imageName, ' dot scores'])
     hold on
@@ -81,6 +87,8 @@ function [dots, pmin] = detect_dots(dotBars, optics, dotMargin, pmin, lengthLims
 
     text(1.1 * pmin, 2/3 * max(h2.Values), mess, 'FontSize', 14)
     hold off
+    
+    % Alternative: all dot intensities
   end
 
   % Locate peak positions in images with "high" scores
@@ -96,7 +104,7 @@ function [dots, pmin] = detect_dots(dotBars, optics, dotMargin, pmin, lengthLims
     dots{i}.depth = peaks{i}.depth(accMask);
     dots{i}.N = sum(accMask);
     totdots = totdots + dots{i}.N;
-    dots{i}.val = peaks{i}.scores(accMask) / medint;
+    dots{i}.val = peaks{i}.scores(accMask);% / medint;% ??
     dots{i}.leftOffset = peaks{i}.leftOffset;
     dots{i}.rightOffset = peaks{i}.rightOffset;
 
@@ -105,7 +113,8 @@ function [dots, pmin] = detect_dots(dotBars, optics, dotMargin, pmin, lengthLims
     if dots{i}.N > 0 && actions.showDotPeaks
       logBar = -imfilter(dotBars{i}, filt);
       thisScores = peaks{i}.scores(accMask);
-      figure;
+%       axes(tiles.dotPeaks);
+        figure
       plot(dotBars{i});
       hold on
       plot(logBar / mean(logBar) * mean(dotBars{i}));
