@@ -6,7 +6,24 @@ function [] = sdd_gui()
     % create a simpler version of sdd gui that possibly shows output in the
     % same GUI.
     
-    addpath(genpath('util'));
+
+      mFilePath = mfilename('fullpath');
+      mfolders = split(mFilePath, {'\', '/'});
+%       utilPath = fullfile(mfolders{1:end - 1}, 'util');
+%       utilPath2 = fullfile(mfolders{1:end - 1}, '+SAD');
+
+     
+      
+
+      warning(''); % empty warning
+      addpath(genpath(fullfile(mfolders{1:end - 1})));
+%       addpath(utilPath2);
+
+      [~, lwid] = lastwarn;
+
+      if strcmp(lwid, 'MATLAB:mpath:nameNonexistentOrNotADirectory')
+        error('Unexpected error when asserting source folder path.')
+      end
     
     % GUI eventually calls dnarec_folder_scan with all the input settings
     % for the SDD-dots

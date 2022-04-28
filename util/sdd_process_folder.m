@@ -15,20 +15,20 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     hPanelResult = [];
 
 
-  mFilePath = mfilename('fullpath');
-  mfolders = split(mFilePath, {'\', '/'});
-  utilPath = fullfile(mfolders{1:end - 2}, 'util');
-
-  if strcmp(mFilePath(1), '/')
-    utilPath = strcat('/', utilPath);
-  end
-
-  addpath(utilPath);
-  [~, lwid] = lastwarn;
-
-  if strcmp(lwid, 'MATLAB:mpath:nameNonexistentOrNotADirectory')
-    error('Unexpected error when asserting source folder path.')
-  end
+%   mFilePath = mfilename('fullpath');
+%   mfolders = split(mFilePath, {'\', '/'});
+%   utilPath = fullfile(mfolders{1:end - 2}, 'util');
+% 
+%   if strcmp(mFilePath(1), '/')
+%     utilPath = strcat('/', utilPath);
+%   end
+% 
+%   addpath(utilPath);
+%   [~, lwid] = lastwarn;
+% 
+%   if strcmp(lwid, 'MATLAB:mpath:nameNonexistentOrNotADirectory')
+%     error('Unexpected error when asserting source folder path.')
+%   end
 
   % addpath('util/lldev/src/MATLAB/');
   import SAD.dnarec_print
