@@ -1,37 +1,76 @@
-function [kymo] = get_dot_kymo(mol,k,b,sPer)
+function [kymo, boundaries] = get_dot_kymo(mol,k,b,sPer)
+    % get_kymo - extract kymo from a movie
+    % based on line parameters k,b and perpendicular length sPer
+    % the line equations is  y = kx+b, and the normal equation is
+    % todo: more complicated features, using spline.
+    
+    [n,m] = size(mol(:,:,1)); % y and x dimensions
 
-[n,m] = size(mol(:,:,1));
-sz = -k*(m-1)+b;
-if k > 0
-  st = min(n,b);
-  en = max(1,sz);
-elseif k < 0
-  st = max(1,b);
-  en = min(n,sz);
-else
-  st = b;
-  en = b;
-end
+    sz = -k*(m-1)+b; % for the second-last x coordinate, do we go out of bounds?
 
-yl = en - st;
-if k  == 0
-  xl = 0;
-else
-  xl =  yl/k;
-end
-l = ceil(sqrt(xl^2 + yl^2))+1;
+    % start and end bounds on the molecule (for y) to detect dots so that
+    % we do not go out of the field of view
+    if k > 0 
+      stY = min(n,b);
+      enY = max(1,sz);
+    elseif k < 0
+      stY = max(1,b);
+      enY = min(n,sz);
+    else
+      stY = b; %constant
+      enY = b;
+      stX = 1;
+      enX = m;
+    end
+    
+    % extra v0.1: updated so that the correct X length is taken.
+    % also define bounds for X, start
+    if stY >= 1 && stY <= n
+        stX = 1;
+    else
+        if k > 0
+            stX = -(n-b)/k;
+        elseif k < 0
+            stX = -(1-b)/k;            
+        end
+    end
+    
+    % and stop
+    if enY >= 1 && enY <= n
+        enX = m; % should we take last or second to last?
+    else
+        if k > 0
+            enX = -(1-b)/k;
+        elseif k < 0
+            enX = -(n-b)/k;            
+        end
+    end
+    
+    % boundaries for the molecule within the cut-out window
+    boundaries = [stY enY stX enX];
+
+
+    % y,x px between start and stop
+    yl = enY - stY;
+    xl = enX - stX;
+% if k  == 0
+%   xl = 0;
+% else
+%   xl =  yl/k;
+% end
+lenPx = ceil(sqrt(xl^2 + yl^2))+1; % total number of pixels
 
 % Only scan over rows where the molecule is present
-kymo = zeros(size(mol,3),l);
+kymo = zeros(size(mol,3),lenPx);
 angle = atan(k);
 for i=1:size(mol,3)
   molC = mol(:,:,i);
-  lSpc = linspace(-sPer,sPer,2*sPer+1);
-  for lIdx=1:l
-    xVals = (b-st)/k + 1 + cos(angle) * (lIdx - 1)  - sin(angle) * lSpc;
-    yVals = st - sin(angle) * (lIdx - 1) -  cos(angle) * lSpc;
+  lSpc = linspace(-sPer,sPer,2*sPer+1); % take perpendicularly
+  for lIdx=1:lenPx % if at least one point outside, produces a nan
+    xVals = stX + cos(angle) * (lIdx - 1)  - sin(angle) * lSpc; % stX + cos(angle) * (lIdx - 1) is current x coordinate
+    yVals = stY - sin(angle) * (lIdx - 1) -  cos(angle) * lSpc; % same for Y
     Vq = interp2(molC,xVals,yVals,'linear'); % Could change interpolation method
-    kymo(i,lIdx) = nanmean(Vq);
+    kymo(i,lIdx) = nanmean(Vq); % could be nansum
   end
 end
 end

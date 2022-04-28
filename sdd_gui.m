@@ -6,7 +6,7 @@ function [] = sdd_gui()
     % create a simpler version of sdd gui that possibly shows output in the
     % same GUI.
     
-    
+    addpath(genpath('util'));
     
     % GUI eventually calls dnarec_folder_scan with all the input settings
     % for the SDD-dots
@@ -28,7 +28,7 @@ function [] = sdd_gui()
     hPanelImport = uitab(tsHCC, 'title', 'Dot import tab');
 
     % make into loop
-   checkItems =  {'Show score histograms','Show detected molecules','Save detected molecules','Save barcodes and dots','Auto-threshold EdgeScore','Auto-threshold DotScore'};
+   checkItems =  {'Show score histograms','Show detected molecules','Save detected molecules','Save barcodes and dots','Auto-threshold EdgeScore','Auto-threshold DotScore','(todo) 2D Dot-detection'};
 
    % checkbox for things to plot and threshold
     for i=1:length(checkItems)
@@ -37,7 +37,7 @@ function [] = sdd_gui()
     
     % parameters with initial values
    textItems =  {'Pixel size(nm)','Width of LoG filter (nm)','Molecule image flag','Dots image flag','Minimum log(EdgeScore)','Minimum DotScore',...
-       'Minimum width', 'Maximum width','Minimum length','Maximum length','Edge margin for dots'};
+       'Minimum width (px)', 'Maximum width (px)','Minimum length (px)','Maximum length (px)','Edge margin for dots'};
    values =  {'130','300','C=1','C=0','0','10',...
        '1', 'Inf','50','Inf','2'};
    
@@ -96,6 +96,8 @@ function [] = sdd_gui()
         sets.logSigmaNm =  str2double(textList{2}.String);
         sets.barFlag =   textList{3}.String{1};
         sets.dotFlag =   textList{4}.String{1};
+        sets.dotDet2D =   textList{5}.String{1}; % detects dots locally 2D
+
         sets.lowLim = exp(str2double(textList{5}.String));
         
         sets.dotScoreMin = str2double(textList{6}.String);

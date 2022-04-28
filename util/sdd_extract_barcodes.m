@@ -38,6 +38,11 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
     
     % old:
     [barcodes.dots, dotScoreMin] = sdd_detect_dots(barcodes.dotBars, optics, sets.dotMargin, sets.dotScoreMin, lengthLims, imageNumber, movies.imageName, sets, bgPixels,tiles);
+%     if sets.dotDet2D % detect 2d dots      
+%         % for each point need to find 
+%         %%
+% %         [barcodes.dots, dotScoreMin] = sdd_detect_dots_2D(movies.dotM, optics, sets.dotMargin, sets.dotScoreMin, lengthLims, imageNumber, movies.imageName, sets, bgPixels,tiles);
+%     end
   else
     dotScoreMin = 'NA';
   end
@@ -48,7 +53,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %     hold on
 %     plot(barcodes.boundaries{idx}(3):barcodes.boundaries{idx}(4),-barcodes.lineParams{idx}(1)*(barcodes.boundaries{idx}(3):barcodes.boundaries{idx}(4))+barcodes.lineParams{idx}(2),'red')
 %     angle = atan(barcodes.lineParams{idx}(1));
-% 
+% % 
 %     vOff = barcodes.boundaries{idx}(1);
 %     hOff = barcodes.boundaries{idx}(3);
 % 
