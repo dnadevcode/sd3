@@ -23,28 +23,9 @@ function [kymo, boundaries] = get_kymo(mol,k,b,sPer)
       enX = m;
     end
     
-    % extra v0.1: updated so that the correct X length is taken.
-    % also define bounds for X, start
-    if stY >= 1 && stY <= n
-        stX = 1;
-    else
-        if k > 0
-            stX = -(n-b)/k;
-        elseif k < 0
-            stX = -(1-b)/k;            
-        end
-    end
-    
-    % and stop
-    if enY >= 1 && enY <= n
-        enX = m; % should we take last or second to last?
-    else
-        if k > 0
-            enX = -(1-b)/k;
-        elseif k < 0
-            enX = -(n-b)/k;            
-        end
-    end
+    stX = -(stY-b)/k;
+    enX = -(enY-b)/k;
+
     
     % boundaries for the molecule within the cut-out window
     boundaries = [stY enY stX enX];
@@ -70,7 +51,7 @@ for i=1:size(mol,3)
     xVals = stX + cos(angle) * (lIdx - 1)  - sin(angle) * lSpc; % stX + cos(angle) * (lIdx - 1) is current x coordinate
     yVals = stY - sin(angle) * (lIdx - 1) -  cos(angle) * lSpc; % same for Y
     Vq = interp2(molC,xVals,yVals,'linear'); % Could change interpolation method
-    kymo(i,lIdx) = nansum(Vq); % could be nansum
+    kymo(i,lIdx) = nanmean(Vq); % could be nansum
   end
 end
 end

@@ -1,13 +1,15 @@
-function [newBars,barStats,delId] = trans_bar_extr(kymos,optics,actions,sets)
+function [newBars,barStats,delId,nanid] = trans_bar_extr(kymos,optics,actions,sets)
 
 edgeLen = round(sets.deltaCut * optics.sigma);
 
 % A more transparent alignment/barcode extraction routine
 nmol = length(kymos);
 newBars = cell(1,nmol);
+nanid = zeros(1,nmol);
 for i = 1:nmol
   initbar = nanmean(kymos{i},1);
   newBars{i}.rawBarcode = initbar(~isnan(initbar));
+  nanid(i) = find(~isnan(initbar),1,'first');
   bitmaskLen = length(newBars{i}.rawBarcode);
   newBars{i}.rawBitmask = ones(1,bitmaskLen);
   newBars{i}.rawBitmask([1:min(edgeLen,bitmaskLen),max(bitmaskLen - edgeLen + 1,1):end]) = 0;
@@ -35,6 +37,7 @@ for i = 1:nmol
   end
 end
 newBars(delId) = [];
+nanid(delId) = [];
 fprintf('%i viable barcodes found.\n',length(newBars));
 
 barStats.lengthAverage = mean(cellfun(@(x) length(x.rawBarcode),newBars));

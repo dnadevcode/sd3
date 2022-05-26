@@ -13,7 +13,7 @@ function [] = sdd_gui()
 %       utilPath2 = fullfile(mfolders{1:end - 1}, '+SAD');
 
      
-      
+      processFolders = 1; % whether to process single files or folders
 
       warning(''); % empty warning
       addpath(genpath(fullfile(mfolders{1:end - 1})));
@@ -45,7 +45,7 @@ function [] = sdd_gui()
     hPanelImport = uitab(tsHCC, 'title', 'Dot import tab');
 
     % make into loop
-   checkItems =  {'Show score histograms','Show detected molecules','Save detected molecules','Save barcodes and dots','Auto-threshold EdgeScore','Auto-threshold DotScore','(todo) 2D Dot-detection'};
+   checkItems =  {'Show score histograms','Show detected molecules','Save detected molecules','Save barcodes and dots','Auto-threshold EdgeScore','Auto-threshold DotScore','Spline dot-detection'};
 
    % checkbox for things to plot and threshold
     for i=1:length(checkItems)
@@ -76,8 +76,8 @@ function [] = sdd_gui()
     uicontrol('Parent', hPanelImport, 'Style', 'text','String',{'Minimum molecule eccentricity'},'Units', 'normal', 'Position', [0 0.3 0.2 0.03]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     uicontrol('Parent', hPanelImport, 'Style', 'text','String',{'Minimum molecule-to-convex-hull ratio'},'Units', 'normal', 'Position', [0 0.2 0.2 0.03]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
 
-    sliderList{1} = uicontrol('Parent', hPanelImport, 'Style', 'slider','Value',0.5,'Units', 'normal', 'Position', [0 0.25 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
-    sliderList{2} = uicontrol('Parent', hPanelImport, 'Style', 'slider','Value',0.5,'Units', 'normal', 'Position', [0 0.15 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    sliderList{1} = uicontrol('Parent', hPanelImport, 'Style', 'slider','Value',0.8,'SliderStep',[0.05 0.1],'Units', 'normal', 'Position', [0 0.25 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    sliderList{2} = uicontrol('Parent', hPanelImport, 'Style', 'slider','Value',0.4,'SliderStep',[0.05 0.1],'Units', 'normal', 'Position', [0 0.15 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     sliderValue{1} = uicontrol('Parent', hPanelImport, 'Style', 'edit','String','0.8','Units', 'normal', 'Position', [0.25 0.25 0.1 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     sliderValue{2} = uicontrol('Parent', hPanelImport, 'Style', 'edit','String','0.4','Units', 'normal', 'Position', [0.25 0.15 0.1 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
 
@@ -87,9 +87,15 @@ function [] = sdd_gui()
     addlistener(sliderList{1}, 'Value', 'PostSet',fun);
     fun2 = @(~,e)set(sliderValue{2} ,'String',num2str(get(e.AffectedObject,'Value')));
     addlistener(sliderList{2}, 'Value', 'PostSet',fun2);
+        
+%     funV = @(~,e)set(sliderList{1} ,'Value',str2double(get(e.AffectedObject,'String')));
+%     addlistener(sliderValue{1}, 'Value', 'PostSet',funV);
+%     funV2 = @(~,e)set(sliderList{2} ,'Value',str2double(get(e.AffectedObject,'String')));
+%     addlistener(sliderValue{2}, 'Value', 'PostSet',funV2);
 
     dotImport = uicontrol('Parent', hPanelImport, 'Style', 'edit','String',fullfile(pwd,'testfolder'),'Units', 'normal', 'Position', [0 0.9 0.5 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
-    dotButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Browse'},'Callback',@selection,'Units', 'normal', 'Position', [0.7 0.9 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    dotButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Browse folder'},'Callback',@selection,'Units', 'normal', 'Position', [0.6 0.9 0.15 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    dotButtonFile = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Browse file'},'Callback',@selection2,'Units', 'normal', 'Position', [0.75 0.9 0.15 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
 
     runButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Run'},'Callback',@run,'Units', 'normal', 'Position', [0.7 0.2 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     clearButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Clear visual results'},'Callback',@clear_results,'Units', 'normal', 'Position', [0.7 0.1 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
@@ -99,7 +105,20 @@ function [] = sdd_gui()
     function selection(src, event)
         [rawNames] = uigetdir(pwd,strcat(['Select folder with file(s) to process']));
         dotImport.String = rawNames;
+        processFolders = 1;
+
     end    
+
+    function selection2(src, event)
+        [FILENAME, PATHNAME] = uigetfile(fullfile(pwd,'*.*'),strcat(['Select file(s) to process']),'MultiSelect','on');
+        dotImport.String = fullfile(PATHNAME,FILENAME);
+        if ~iscell(dotImport.String)
+            dotImport.String  = {dotImport.String};
+        end
+        processFolders = 0;
+
+    end    
+
 
     function clear_results(src, event)
         tsHCC.SelectedTab
@@ -113,7 +132,6 @@ function [] = sdd_gui()
         sets.logSigmaNm =  str2double(textList{2}.String);
         sets.barFlag =   textList{3}.String{1};
         sets.dotFlag =   textList{4}.String{1};
-        sets.dotDet2D =   textList{5}.String{1}; % detects dots locally 2D
 
         sets.lowLim = exp(str2double(textList{5}.String));
         
@@ -123,8 +141,8 @@ function [] = sdd_gui()
         sets.lengthLims = [ str2double(textList{9}.String)  str2double(textList{10}.String)];
         sets.dotMargin = str2double(textList{11}.String);
 
-        sets.elim =  sliderList{1}.Value;
-        sets.ratlim =  sliderList{2}.Value;
+        sets.elim =  str2double(sliderValue{1}.String);
+        sets.ratlim =  str2double(sliderValue{2}.String);
 
         sets.showScores = itemsList{1}.Value;
         sets.showMolecules = itemsList{2}.Value;
@@ -132,6 +150,7 @@ function [] = sdd_gui()
         sets.saveBars = itemsList{4}.Value;
         sets.autoThreshBars = itemsList{5}.Value;
         sets.autoThreshDots = itemsList{6}.Value; 
+        sets.extractionMethod =   itemsList{7}.Value+1; % detects dots on spline
 
         
         % parameters not set by GUI
@@ -143,8 +162,11 @@ function [] = sdd_gui()
         sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
 
     
-        
-        dataFolders = search_folder(sets.folder);
+        if  processFolders
+            dataFolders = search_folder(sets.folder);
+        else
+            dataFolders = sets.folder;
+        end
 
         for i = 1:numel(dataFolders)       
             % MAIN FUNCTION

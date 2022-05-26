@@ -23,28 +23,9 @@ function [kymo, boundaries] = get_dot_kymo(mol,k,b,sPer)
       enX = m;
     end
     
-    % extra v0.1: updated so that the correct X length is taken.
-    % also define bounds for X, start
-    if stY >= 1 && stY <= n
-        stX = 1;
-    else
-        if k > 0
-            stX = -(n-b)/k;
-        elseif k < 0
-            stX = -(1-b)/k;            
-        end
-    end
-    
-    % and stop
-    if enY >= 1 && enY <= n
-        enX = m; % should we take last or second to last?
-    else
-        if k > 0
-            enX = -(1-b)/k;
-        elseif k < 0
-            enX = -(n-b)/k;            
-        end
-    end
+
+    stX = -(stY-b)/k;
+    enX = -(enY-b)/k;
     
     % boundaries for the molecule within the cut-out window
     boundaries = [stY enY stX enX];

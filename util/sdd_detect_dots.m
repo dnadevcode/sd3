@@ -61,10 +61,14 @@ function [dots, pmin] = sdd_detect_dots(dotBars, optics, dotMargin, pmin, length
 %     logBgPixels(logBgPixels<0)=0;
 %     logBgPixels(~isnan(logBgPixels))
 %     logBgPixels =logBgPixels(~isnan(logBgPixels);
-    pmin = 3*nanstd(logBgPixels(:)); % for correctness. should take same number as when averaging for extracting barcode
+    pmin = 2*nanstd(logBgPixels(:)); % for correctness. should take same number as when averaging for extracting barcode
 %     bgscores = [movmean(logBgPixels, 2 * w * newsig + 1, 1, 'omitnan');
 %                   movmean(logBgPixels, 2 * w * newsig + 1, 2, 'omitnan')];
 %     pmin = nanmax(bgscores(:));%/bgMedian;
+    axes(tiles.bgScores);
+%     figure(5 + (imageNumber - 1) * 5)
+    hbg = histogram(logBgPixels(:), 20);
+    title([imageName, ' bg intensities'])
   end
 
   medint = median(allscores(allscores > pmin));
@@ -88,12 +92,17 @@ function [dots, pmin] = sdd_detect_dots(dotBars, optics, dotMargin, pmin, length
     text(1.1 * pmin, 2/3 * max(h2.Values), mess, 'FontSize', 14)
     hold off
     
-    % Alternative: all dot intensities
+    % Alternative: all intensities after filt
+        axes(tiles.dotScoresFilt);
+%     figure(5 + (imageNumber - 1) * 5)
+    hfilt = histogram(allscores(allscores > pmin), 20);
+    title([imageName, ' dot scores filtered'])
   end
 
   % Locate peak positions in images with "high" scores
   totdots = 0;
   marginDots = 0;
+  totInt = 0; % total intensity
 
   for i = 1:numel(dotBars)
     mask = peaks{i}.scores > pmin;
@@ -109,6 +118,7 @@ function [dots, pmin] = sdd_detect_dots(dotBars, optics, dotMargin, pmin, length
     dots{i}.rightOffset = peaks{i}.rightOffset;
 
     dots{i}.rejected = length(dotBars{i}) <= 2*dotMargin;
+    totInt = totInt + sum(dots{i}.val);
 
     if dots{i}.N > 0 && actions.showDotPeaks
       logBar = -imfilter(dotBars{i}, filt);
@@ -135,7 +145,7 @@ function [dots, pmin] = sdd_detect_dots(dotBars, optics, dotMargin, pmin, length
 
   end
 
-  fprintf('Found %i dots.\n', totdots);
+  fprintf('Found %i dots with total intensity (after bg substr) %f.\n', totdots, totInt);
   fprintf('Rejected %i dots due to vicinity to molecule end.\n', marginDots);
 end
 

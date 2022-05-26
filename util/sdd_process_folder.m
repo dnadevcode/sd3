@@ -96,9 +96,12 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
         hTabgroup = uitabgroup('Parent',hPanelResult{i});
 
         hResScores= uitab(hTabgroup, 'title',strcat('Scores'));
-        t = tiledlayout(hResScores,1,2,'TileSpacing','tight','Padding','tight');
+        t = tiledlayout(hResScores,2,2,'TileSpacing','tight','Padding','tight');
         tiles.molScores = nexttile(t);
         tiles.dotScores = nexttile(t);
+        tiles.dotScoresFilt = nexttile(t);
+        tiles.bgScores = nexttile(t);
+
         hResplot = uitab(hTabgroup, 'title',strcat('Detected molecules'));
         t = tiledlayout(hResplot,1,2,'TileSpacing','tight','Padding','tight');
         tiles.molDet = nexttile(t);
@@ -108,6 +111,8 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
         hResFilt = uitab(hTabgroup, 'title',strcat('Filtered'));
         t = tiledlayout(hResFilt,1,2,'TileSpacing','tight','Padding','tight');
         tiles.logFilt = nexttile(t);
+        tiles.bg = nexttile(t);
+
 
 %         t = tiledlayout(hPanelResult,4,2,'TileSpacing','tight','Padding','tight');
 %         tiles.molScores = nexttile(t);
@@ -137,13 +142,22 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     if isempty(bgPixels2)
         bgPixels2 = bgPixels;
     end
+    
+%     sets.extractionMethod = 2;
     % Extract barcodes
     [barcodes, dotScoreLim] = sdd_extract_barcodes(movies, optics, lengthLims, i, runNo, bgPixels2, sets, tiles);
 
 %   % plot
-%       idx=16
-%       figure,imagesc(movies.molM{idx})
+%       idx=5
+%       figure,imagesc(movies.dotM{idx})
+% %         imagesc(movies.molM{idx})
+% 
 %       hold on
+%       plot(barcodes.xy{idx}{2},barcodes.xy{idx}{1},'redx')
+%       pos = barcodes.dots{idx}.locations+barcodes.nanid(idx);
+% %       plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'blackx')
+% %             plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
+
 %       plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
 % %     %   
 %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
@@ -152,7 +166,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 
     if sets.showMolecules
       % Mark barcodes in molecule image
-      sdd_mark_bars(movies, barcodes,tiles);
+      sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
     end
 
     % Calculate p-values for specific sequence

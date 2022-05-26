@@ -5,18 +5,41 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
   sPer = round(optics.sigma); % Number of pixel width of molecule "kymograph"
   %%%%%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%%%%
 
+  extractionMethod = sets.extractionMethod;
   % Convert images to kymographs
-  [kymos, barcodes.lineParams] = get_kymos_from_movies(movies.molM, movies.bwM, sPer);
+  [kymos, barcodes.lineParams, barcodes.xy] = get_kymos_from_movies(movies.molM, movies.bwM, sPer,extractionMethod);
 
+%%  
+%     figure,
+%     idx= 37;
+%     mol = movies.molM{idx};
+%     xF = barcodes.xy{idx}{1};
+%     yF = barcodes.xy{idx}{2};
+%     
+%         tiledlayout(1,2);nexttile
+%         imagesc(mol')
+%           nexttile
+%         imagesc(mol')
+%             hold on
+%             
+%             plot(xF,yF,'redx')
+% %             
+%         colormap(gray)
+      %%  
+        
 %   % plot
-%     idx=16
+%     idx=1
 %     figure,
 %     tiledlayout(1,2);nexttile
-%     imagesc(movies.molM{idx})
-%     nexttile
-%     imagesc(movies.dotM{idx})
-%     hold on
-%     plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
+%     if extractionMethod == 2
+% %         imagesc(movies.molM{idx}');
+%     else
+%         imagesc(movies.molM{idx})
+%         nexttile
+%         imagesc(movies.dotM{idx})
+%         hold on
+%         plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
+%     end
 %     colormap(gray)
 
 %     %   
@@ -24,14 +47,18 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %     sPer = 0;
     
   % Extract barcodes from kymographs
-    [barcodes.expBars, barcodes.expStats, barcodes.delid] = trans_bar_extr(kymos, optics, sets, sets);
+    [barcodes.expBars, barcodes.expStats, barcodes.delid,barcodes.nanid] = trans_bar_extr(kymos, optics, sets, sets);
     barcodes.idx = 1:length(movies.molM);
     barcodes.idx( barcodes.delid) = [];
   if isfield(movies, 'dotM')
       
+      if   extractionMethod ==1
     % Extract dotBarcodes from their images
-    [barcodes.dotBars,barcodes.boundaries] = cellfun(@(x,y) get_dot_kymo(x, y(1) , y(2), sPer) ,movies.dotM, barcodes.lineParams,'un',false);
-
+        [barcodes.dotBars,barcodes.boundaries] = cellfun(@(x,y) get_dot_kymo(x, y(1) , y(2), sPer) ,movies.dotM, barcodes.lineParams,'un',false);
+      else
+    % curved molecule
+        [barcodes.dotBars,barcodes.boundaries] = cellfun(@(x,y) get_curved_kymo(x, y{1} , y{2}, sPer) ,movies.dotM, barcodes.xy,'un',false);
+      end
 %     [barcodes.dotBars, lineParams2] = get_kymos_from_movies(movies.dotM, movies.bwM, sPer);
     barcodes.dotBars(barcodes.delid) = [];
     % todo: SFW detection here - but for this need to remove noise first
@@ -46,10 +73,12 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
   else
     dotScoreMin = 'NA';
   end
-% 
-%     idx = 16;
+%%  also for spline
+%     idx = 1;
 %     figure
 %     imagesc(movies.dotM{idx})
+% %         imagesc(movies.molM{idx})
+% 
 %     hold on
 %     plot(barcodes.boundaries{idx}(3):barcodes.boundaries{idx}(4),-barcodes.lineParams{idx}(1)*(barcodes.boundaries{idx}(3):barcodes.boundaries{idx}(4))+barcodes.lineParams{idx}(2),'red')
 %     angle = atan(barcodes.lineParams{idx}(1));
@@ -67,7 +96,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %             %         text(x-5,y-5,str,'Color','white');
 %     end
 %     colormap(gray)
-
+%%
   if sets.saveBars
     saveIdx = 0;
 

@@ -2,10 +2,12 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
   nImage = numel(output);
   fragLengthRangeBp = sets.fragLengthRangeBp;
 
-  % Extract all barcode lengths and dot numbers
+  % Extract all barcode lengths and dot numbers and vals
   imBarLengthAll = cell(1, nImage);
   imDotsAll = cell(1, nImage);
   imDotsRejected = cell(1, nImage);
+  imDotsValsAll = cell(1, nImage);
+
   imBars = zeros(1, nImage);
   imHasDots = zeros(1, nImage);
 
@@ -16,21 +18,26 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
     nDots = zeros(1, nBars);
     barLength = zeros(1, nBars);
     rejectedDotBars = false(1, nBars);
+    dotInt = zeros(1, nBars);
 
     for j = 1:nBars
 
       if imHasDots(i)
         nDots(j) = output{i}.dots{j}.N;
         rejectedDotBars(j) = output{i}.dots{j}.rejected;
+        dotInt(j) = sum(output{i}.dots{j}.val);
       end
 
       barLength(j) = numel(output{i}.expBars{j}.rawBarcode) * optics.pixelSize / 1000;
     end
 
+    imDotsValsAll{i} = dotInt;
     imBarLengthAll{i} = barLength;
     imDotsRejected{i} = rejectedDotBars;
     imDotsAll{i} = nDots;
   end
+  
+  dotIntAll  = cellfun(@sum, imDotsValsAll);
 
   imBarLength = cellfun(@sum, imBarLengthAll);
   imDotBarLength = cellfun(@(a, b) sum(a(not(b))), imBarLengthAll, imDotsRejected);
@@ -68,6 +75,8 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
 
   if any(imHasDots)
     fprintf(fid, '\n Total number of dots    : %i \n', sum(imDots));
+    fprintf(fid, '\n Total intensity of dots   : %i \n', sum(dotIntAll));
+
     fprintf(fid, '\n Average dots/micron     : %.6f \n', sum(imDots) / sum(imDotBarLength));
   end
 
@@ -76,7 +85,7 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
   fprintf(fid, '----------------------------------------------------------------------- \n');
   fprintf(fid, '----------------------------------------------------------------------- \n');
 
-  if nImage > 1
+  if nImage >= 1
     % Print results for each image in folder
     for i = 1:nImage
       fprintf(fid, '\nFor image %s', output{i}.name);
@@ -121,6 +130,10 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
         fprintf(fid, '\n Minimum dot score       : %s \n', dotThresh);
         fprintf(fid, '\n Total number of dots    : %i \n', imDots(i));
         fprintf(fid, '\n Average dots/micron     : %.6f \n', imDotsPerLength(i));
+        fprintf(fid, '\n Intensity of dots    : %.6f \n', dotIntAll(i));
+
+%             fprintf(fid, '\n Total intensity of dots   : %i \n', sum(dotIntAll));
+
       end
 
       fprintf(fid, '----------------------------------------------- \n');
@@ -138,6 +151,8 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
   fprintf(fid, ' Molecule eccentricity limit : %.2f \n', experiment.elim);
   fprintf(fid, ' Min. mol-to-convex-hull     : %.2f \n', experiment.ratlim);
   fprintf(fid, ' Min. dot to end distance    : %.1f pixels \n', experiment.dotMargin);
+    fprintf(fid, ' Mol extraction method    : %.1f \n', sets.extractionMethod);
+
   fprintf(fid, [' Optics settings             : NA = %.2f,' ...
               ' pixel size = %.2f nm, \n' ...
               '   wavelength = %.2f nm, sigma_psf = %.2f nm, sigma_LoG = %.2f nm. \n'], ...

@@ -196,11 +196,27 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
   scores = nan(1, length(B));
 
   % Background stuff
-  bgPixels = imAverage(L ==0);
+  bgPixels = imAverage(L ==0);    
   bgMean = trimmean(bgPixels(:), 10);
+  
+    if length(bgPixels) > 10000
+        bgPixels(bgPixels>bgMean+2*std(bgPixels)) = [];
+    end
+
   bgCutOut = nan(size(imAverage));
   bgCutOut(L ==0) = imAverage(L ==0);
   
+%     if sets.showMolecules
+%         %     figure(1 + (imageNumber - 1) * 5)
+%         %     t = tiledlayout(hPanelResult,4,2,'TileSpacing','tight','Padding','tight');
+%         axes(tiles.bg);
+%         imagesc(bgCutOut)
+%         colormap(gray)
+%         %     ax1 = uiaxes(hPanelResult);
+%         %     imshow(logim, 'InitialMagnification', 'fit','Parent',ax1)
+%         title([imageName, ' bg pixels'])
+%     end
+% 
 
 
   if sigmaBgLim > 0
@@ -288,12 +304,38 @@ end
   end
 
   if hasDots
+    movies.dotFigNum = dotFigNum;
     movies.dotM = dotM;
     bgCutOut2 = nan(size(dotIm)); % background
     bgCutOut2(L ==0) = dotIm(L ==0);
 
     if sets.showMolecules
-      movies.dotFigNum = dotFigNum;
+    %     figure(1 + (imageNumber - 1) * 5)
+    %     t = tiledlayout(hPanelResult,4,2,'TileSpacing','tight','Padding','tight');
+    axes(tiles.bg);
+    imagesc(bgCutOut2);
+    colormap(gray);
+    %     ax1 = uiaxes(hPanelResult);
+    %     imshow(logim, 'InitialMagnification', 'fit','Parent',ax1)
+    title([imageName, ' bg pixels'])
+    end
+
+    
+    bgMean2 =  trimmean(bgCutOut2(:), 10);
+    if length(bgCutOut2(:)) > 10000
+        bgCutOut2 = bgCutOut2(bgCutOut2<bgMean2+2*nanstd(bgCutOut2(:)));
     end
 
   end
+% 
+%   
+%     % Background stuff
+%   bgPixels = imAverage(L ==0);    
+%   bgMean = trimmean(bgPixels(:), 10);
+%   
+% 
+%   bgCutOut = nan(size(imAverage));
+%   bgCutOut(L ==0) = imAverage(L ==0);
+%   
+% 
+% 
