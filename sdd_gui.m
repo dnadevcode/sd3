@@ -49,7 +49,7 @@ function [] = sdd_gui()
 
    % checkbox for things to plot and threshold
     for i=1:length(checkItems)
-        itemsList{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','String',{checkItems{i}},'Units', 'normal', 'Position', [0.45 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+        itemsList{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value',1,'String',{checkItems{i}},'Units', 'normal', 'Position', [0.45 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
     
     % parameters with initial values

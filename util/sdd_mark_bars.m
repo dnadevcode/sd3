@@ -11,10 +11,13 @@ function sdd_mark_bars(movies,barcodes,tiles,extractionMethod)
     if nargin < 4
         extractionMethod = 1;
     end
+ 
     % center to the bottom of the molecule.
-    voffList = zeros(1,length(barcodes.dots));
+    voffList = zeros(1,length(barcodes.expBars));
 
 if isfield(movies,'dotFigNum')
+    
+   
     axes(tiles.dotDet);
     hold on
     for molIdx = 1:length(barcodes.dots)

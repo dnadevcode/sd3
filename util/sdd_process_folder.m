@@ -62,6 +62,8 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     %         break;
     %     end
     barName = fullfile(folderName, ['barcodes_run', num2str(runNo)]);
+    kymoName = fullfile(folderName, ['kymos_run', num2str(runNo)]);
+
     dotName = fullfile(folderName, ['dotbars_run', num2str(runNo)]);
     molName = fullfile(folderName, ['molecules_run', num2str(runNo)]);
     resName = fullfile(folderName, ['results_run', num2str(runNo), '.txt']);
@@ -69,13 +71,16 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     dotbarExist = isfolder(dotName);
     moleculesExist = isfolder(molName);
     resExist = isfile(resName);
-    outputExist = barcodeExist || dotbarExist || moleculesExist || resExist;
+    kymoExist = isfolder(kymoName);
+    outputExist = barcodeExist || dotbarExist || moleculesExist || resExist || kymoExist;
   end
   
 
 
   if sets.saveMolecules
     mkdir(molName)
+    mkdir(kymoName)
+
   end
 
   if sets.saveBars

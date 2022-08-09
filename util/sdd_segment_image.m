@@ -223,8 +223,10 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
     bgStd = sqrt(trimmean(bgPixels(:).^2, 10) - bgMean.^2);
   end
 
-  bgSubtractedIm = registeredIm - bgMean;
-  bgSubtractedIm(bgSubtractedIm <= 0) = nan;
+  bgSubtractedIm = cellfun(@(x) x- bgMean,registeredIm,'un',false);
+  for ix=1:length(bgSubtractedIm)
+      bgSubtractedIm{ix}(bgSubtractedIm{ix} <= 0) = nan;
+  end
   
     if sets.showMolecules
         axes(tiles.molDet);

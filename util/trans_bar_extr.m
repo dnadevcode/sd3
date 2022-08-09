@@ -13,6 +13,7 @@ for i = 1:nmol
   bitmaskLen = length(newBars{i}.rawBarcode);
   newBars{i}.rawBitmask = ones(1,bitmaskLen);
   newBars{i}.rawBitmask([1:min(edgeLen,bitmaskLen),max(bitmaskLen - edgeLen + 1,1):end]) = 0;
+  newBars{i}.kymo = [nan(size(kymos{i},1),1) kymos{i}(:,~isnan(initbar)) nan(size(kymos{i},1),1)];
 end
 
 % if actions.getConsensus == 1

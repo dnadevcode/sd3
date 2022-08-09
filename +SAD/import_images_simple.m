@@ -16,7 +16,11 @@ for i = 1:numel(list)
   isBar = not(isempty(strfind(list(i).name, barFlag))) || isempty(barFlag);
   if isFile && isBar
     try
-      images{end+1}.registeredIm = imread(filename);
+        numMols = length(imfinfo(filename));
+        for idxTf=1:numMols
+            registeredIm{idxTf} =  imread(filename,idxTf);
+        end
+        images{end+1}.registeredIm = registeredIm;
     catch
       fprintf('Could not interpret %s as an image.\n', list(i).name);
       continue

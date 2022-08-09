@@ -107,10 +107,14 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
         saveIdx = saveIdx + 1;
       end
 
-      bc = barcodes.expBars{i}.rawBarcode;
+      bc = kymos{i};
       saveName = regexprep(movies.imageName, '[.]\S{1,4}', '');
       folderName = subsref(dir(sets.targetFolder), substruct('.', 'folder'));
       imwrite(uint16(bc), fullfile(folderName, ['barcodes_run', num2str(runNo)], [saveName, 'barcode', num2str(saveIdx), '.tif']));
+      
+      
+      km = barcodes.expBars{i}.kymo;
+      imwrite(uint16(km), fullfile(folderName, ['kymos_run', num2str(runNo)], [saveName, 'kymo', num2str(saveIdx), '.tif']));
 
       if isfield(movies, 'dotM')
         db = barcodes.dotBars{i};

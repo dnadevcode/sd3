@@ -18,18 +18,20 @@ for i=1:length(molM)
       kymos{i} = get_kymo(molM{i}, k , b, sPer);
       lineParams{i} = [k b];
   else
-      [f,xF,yF] = get_curve_parameters(bwM{i},molM{i});
-      tempKm = [];
+      [f,xF,yF] = get_curve_parameters(bwM{i},molM{i}(:,:,1));
+      tempKm =  zeros(size(molM{i},3),length(xF));
         for lIdx=1:length(xF)
-            Vq = interp2(molM{i}',xF(lIdx),yF(lIdx),'linear'); % Could change interpolation method
-           	tempKm(1,lIdx) = Vq; % could be nansum
+            for tIdx =1:size(molM{i},3)
+                Vq = interp2(molM{i}(:,:,tIdx)',xF(lIdx),yF(lIdx),'linear'); % Could change interpolation method
+                tempKm(tIdx,lIdx) = Vq; % could be nansum
+            end
         end
         % also find the longest part without nan's, and bitmask the rest out 
 %         bwconncomp(isnan( kymos{i)
         connCompoments = bwconncomp(~isnan(tempKm));
         conCompLengths = cellfun(@(x) length(x),connCompoments.PixelIdxList);
         [maxL, maxId] = max(conCompLengths);
-        kymos{i} = nan(1,length(tempKm));
+        kymos{i} = nan(size(tempKm));
         kymos{i}(connCompoments.PixelIdxList{maxId}) = tempKm(connCompoments.PixelIdxList{maxId});
         lineParams{i} = f;
         xyPars{i} ={xF, yF};
