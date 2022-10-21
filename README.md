@@ -3,9 +3,40 @@ Barcode and dot extractor for DNA stretced on glass
 
 # How to use
 With GUI:
-Run `sdd_gui` (old:sdd_dots_gui). The GUI calls the `dnarec_folder_scan` routine which allows for analysis of large data sets.
+Run `sdd_gui` (old:sdd_dots_gui). The GUI asks for a number of parameters and then runs `sdd_process_folder` routine which allows for analysis of large data sets.
 Information about some specific settings can be found below.
 
+folder
+pxnm
+logSigmaNm
+barFlag
+dotFlag
+lowLim        
+dotScoreMin
+widthLims
+lengthLims
+dotMargin - edge margin for dots
+elim - minimum molecule eccentricity
+ratlim - minimum molecule to convex hull ratio
+showScores - show molecule edge and dot score histograms
+showMolecules - show molecules in image
+saveMolecules - save molecules in output folder
+saveBars - save barcodes in output folder
+autoThreshBars - calculate auto threshold for molecules
+autoThreshDots - calculate autothreshold for dots
+        
+Some hardcoded parameters
+highLim = inf; % Arbitrary higher bound not utilized at this point. (ignore this for now)
+sigmaBgLim = 0; % Set lower limit for number of standard deviations in molecule intensity from the background
+edgeMargin = 3; % Minimum distance (in pixels) from image edge for a molecule to be included in the analysis.
+deltaCut = 1; % Number of sigma_psf uncertainty for extract_barcodes.
+showDotPeaks = 0;
+fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
+
+
+
+
+OLD:
 Without GUI:
 The analysis is initiated via by the dnarec_skel routine (Type `dnarec_skel`) in Matlab.
 Inside the `dnarec_skel.m` file, the target folder (with the images) is specified in the `experiment.targetFolder` parameter in the first section.

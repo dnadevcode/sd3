@@ -9,7 +9,12 @@ nanid = zeros(1,nmol);
 for i = 1:nmol
   initbar = nanmean(kymos{i},1);
   newBars{i}.rawBarcode = initbar(~isnan(initbar));
-  nanid(i) = find(~isnan(initbar),1,'first');
+  try
+      nanid(i) = find(~isnan(initbar),1,'first');
+  catch
+      nanid(i) = 1;
+  end
+  
   bitmaskLen = length(newBars{i}.rawBarcode);
   newBars{i}.rawBitmask = ones(1,bitmaskLen);
   newBars{i}.rawBitmask([1:min(edgeLen,bitmaskLen),max(bitmaskLen - edgeLen + 1,1):end]) = 0;

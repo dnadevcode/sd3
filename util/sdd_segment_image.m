@@ -87,13 +87,29 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
     title([imageName, ' LoG filtered'])
   end
 
-  thedges = imbinarize(logim, 0);
+    thedges = imbinarize(logim, 0);
     thedges(1:end,[ 1 end]) = 1; % things around the boundary should also be considered
     thedges([ 1 end],1:end) = 1;
 
   [B, L] = bwboundaries(thedges, 'holes');
-  B(1)=[];  %remove first
-  L = L-1;
+  
+  % assume background is the biggest detected feature, then order does not
+  % matter. TODO:If not true, introduce a check for consistency with respect to
+  % intensity. Check 1 max, 2 max, 3rd max
+  
+  % make this quicker?
+%   featureSizes = arrayfun(@(x) sum(L==x,'all'),1:length(B));
+%     featureSizes = arrayfun(@(x) size(B,1),1:length(B));
+  featureSizes = arrayfun(@(x) sum(L==x,'all'),0:10);
+
+  [a,b] = sort(featureSizes,'desc');
+  % mean of top sizes
+%   [minMean,pos] = min(arrayfun(@(x) mean(imAverage(L==x)),b(1:min(5,end))));
+  
+  % first feature is usually background, but in case 
+%   B(1)=[];  %remove first
+  L(L==b(1)-1) = 0;
+%   B(b(1)-1) = [];
 %   L(1)=[];
 
   % Calculate edge score around all edges

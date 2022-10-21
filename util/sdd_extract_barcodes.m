@@ -11,7 +11,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 
 %%  
 %     figure,
-%     idx= 37;
+%     idx= 5;
 %     mol = movies.molM{idx};
 %     xF = barcodes.xy{idx}{1};
 %     yF = barcodes.xy{idx}{2};
@@ -21,14 +21,14 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %           nexttile
 %         imagesc(mol')
 %             hold on
-%             
-%             plot(xF,yF,'redx')
 % %             
+%             plot(xF,yF,'redx')
+% % %             
 %         colormap(gray)
       %%  
         
 %   % plot
-%     idx=1
+%     idx=2
 %     figure,
 %     tiledlayout(1,2);nexttile
 %     if extractionMethod == 2
@@ -74,7 +74,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
     dotScoreMin = 'NA';
   end
 %%  also for spline
-%     idx = 1;
+%     idx = 2;
 %     figure
 %     imagesc(movies.dotM{idx})
 % %         imagesc(movies.molM{idx})
