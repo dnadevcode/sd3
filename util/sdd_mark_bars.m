@@ -25,8 +25,8 @@ if isfield(movies,'dotFigNum')
         str = sprintf('Mol. %i',curIdx);
         angle = atan(barcodes.lineParams{curIdx}(1));
         % 
-        vOff = barcodes.boundaries{molIdx}(1);
-        hOff = barcodes.boundaries{molIdx}(3);
+        vOff = barcodes.boundaries{curIdx}(1);
+        hOff = barcodes.boundaries{curIdx}(3);
 
         voffList(molIdx) = vOff;
         text(movies.pos{curIdx}(2),movies.pos{curIdx}(1)+vOff,str,'Color','white');%
@@ -37,8 +37,8 @@ if isfield(movies,'dotFigNum')
                 y = movies.pos{curIdx}(1)+vOff+dy-1;%barcodes.lineParams{molIdx}(2)+dy-1;
                 x = movies.pos{curIdx}(2)+hOff+dx;
             else
-                y =  movies.pos{curIdx}(1)+barcodes.xy{molIdx}{1}(barcodes.dots{molIdx}.locations(j)+barcodes.nanid(molIdx))-1;
-                x =  movies.pos{curIdx}(2)+barcodes.xy{molIdx}{2}(barcodes.dots{molIdx}.locations(j)+barcodes.nanid(molIdx))-1;
+                y =  movies.pos{curIdx}(1)+barcodes.xy{curIdx}{1}(barcodes.dots{molIdx}.locations(j)+barcodes.nanid(molIdx))-1;
+                x =  movies.pos{curIdx}(2)+barcodes.xy{curIdx}{2}(barcodes.dots{molIdx}.locations(j)+barcodes.nanid(molIdx))-1;
             end
 %             y = movies.pos{curIdx}(1)+vOff+dy-1;%barcodes.lineParams{molIdx}(2)+dy-1;
 %             x = movies.pos{curIdx}(2)+hOff+dx;

@@ -47,7 +47,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %     sPer = 0;
     
   % Extract barcodes from kymographs
-    [barcodes.expBars, barcodes.expStats, barcodes.delid,barcodes.nanid] = trans_bar_extr(kymos, optics, sets, sets);
+    [barcodes.expBars, barcodes.expStats, barcodes.delid, barcodes.nanid] = trans_bar_extr(kymos, optics, sets, sets);
     barcodes.idx = 1:length(movies.molM);
     barcodes.idx( barcodes.delid) = [];
   if isfield(movies, 'dotM')
@@ -61,6 +61,10 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
       end
 %     [barcodes.dotBars, lineParams2] = get_kymos_from_movies(movies.dotM, movies.bwM, sPer);
     barcodes.dotBars(barcodes.delid) = [];
+%     barcodes.xy( barcodes.delid) = [];
+%     barcodes.boundaries( barcodes.delid) = [];
+%     barcodes.lineParams( barcodes.delid) = [];
+
     % todo: SFW detection here - but for this need to remove noise first
     
     % old:
@@ -98,6 +102,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %     colormap(gray)
 %%
   if sets.saveBars
+    addpath(genpath(sets.targetFolder));
     saveIdx = 0;
 
     for i = 1:length(barcodes.expBars)
