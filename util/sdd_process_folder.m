@@ -79,11 +79,10 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 
   if sets.saveMolecules
     mkdir(molName)
-    mkdir(kymoName)
-
   end
 
   if sets.saveBars
+    mkdir(kymoName)
     mkdir(barName)
     mkdir(dotName)
   end
