@@ -102,7 +102,8 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %     colormap(gray)
 %%
   if sets.saveBars
-    addpath(genpath(sets.targetFolder));
+    addpath(genpath( subsref(dir(sets.targetFolder), substruct('.', 'folder'))));
+
     saveIdx = 0;
 
     for i = 1:length(barcodes.expBars)
