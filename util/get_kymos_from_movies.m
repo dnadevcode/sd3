@@ -32,7 +32,10 @@ for i=1:length(molM)
         conCompLengths = cellfun(@(x) length(x),connCompoments.PixelIdxList);
         [maxL, maxId] = max(conCompLengths);
         kymos{i} = nan(size(tempKm));
+        try
         kymos{i}(connCompoments.PixelIdxList{maxId}) = tempKm(connCompoments.PixelIdxList{maxId});
+        catch
+        end
         lineParams{i} = f;
         xyPars{i} ={xF, yF};
   end
