@@ -38,7 +38,7 @@ function [dots, pmin] = sdd_detect_dots(dotBars, optics, dotMargin, pmin, length
 
       for j = 1:numel(peaklocs)
         idx = max(1, round(peaklocs(j) - w * newsig)):min(numel(dotBars{i}), round(peaklocs(j) + w * newsig));
-        peaks{i}.scores(j) = mean(dotBars{i}(idx));% / bgMedian; % why
+        peaks{i}.scores(j) = nanmean(dotBars{i}(idx));% / bgMedian; % why
 %         divide by background? better substract?
       end
 

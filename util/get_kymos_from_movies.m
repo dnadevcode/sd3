@@ -18,11 +18,11 @@ for i=1:length(molM)
       kymos{i} = get_kymo(molM{i}, k , b, sPer);
       lineParams{i} = [k b];
   else
-      [f,xF,yF] = get_curve_parameters(bwM{i},molM{i}(:,:,1));
-      tempKm =  zeros(size(molM{i},3),length(xF));
+      [f,xF,yF,distance] = get_curve_parameters_spline(bwM{i},molM{i}(:,:,1));
+        tempKm =  zeros(size(molM{i},3),length(xF));
         for lIdx=1:length(xF)
             for tIdx =1:size(molM{i},3)
-                Vq = interp2(molM{i}(:,:,tIdx)',xF(lIdx),yF(lIdx),'linear'); % Could change interpolation method
+                Vq = interp2(molM{i}(:,:,tIdx)',yF(lIdx),xF(lIdx),'linear'); % Could change interpolation method
                 tempKm(tIdx,lIdx) = Vq; % could be nansum
             end
         end
@@ -37,7 +37,7 @@ for i=1:length(molM)
         catch
         end
         lineParams{i} = f;
-        xyPars{i} ={xF, yF};
+        xyPars{i} ={yF,xF};
   end
   %    import PD.Core.Extraction.save_kymos;
   %    save_kymos( kymos{i}, fold, i-1  )
@@ -47,6 +47,41 @@ end
     plotExample = 0;
     if plotExample ==1
         %%
+%         i=21
+%         out = bwskel(bwM{i}==1,'MinBranchLength',20);
+%     
+% %         nonnans = find(out==1);
+% %         [row, col] = ind2sub(size(out), nonnans);
+% %         mat = molM{i}(:,:,1);
+% %         weight = mat(nonnans);
+% %         f=fit(row,col,'smoothingspline','Weights',weight);% make sure that the line is calculated in y direction (possible issue otherwise, need some tests..)
+% %         figure,plot(1:size(molM{idx},2),f(1:size(molM{idx},2)))
+% %     figure,imagesc(out)
+%         [coor1 coor2]=find(out==1); % Finding all the co-ordinates for the corresponding component
+%         yy1 = smooth(coor2,coor1,0.5,'loess');
+% %         yqs = spline(coor2,coor1,1:1:length(coor1));
+% %         figure,plot(coor2,yy1)
+% %         figure,imagesc(molM{i})
+% % %         figure,imagesc(bwM{i})
+% %         hold on
+% %         plot(coor2,yy1,'red')
+% % %         
+%         [curve, goodness, output] = fit(coor2,yy1,'smoothingspline');% ,'SmoothingParam',0.5
+% %         figure,plot(curve,coor2,coor1)
+%         
+%         figure,imagesc(molM{i})
+%         hold on
+%         plot(curve)
+        % now sample every px
+        %%
+%         BW = poly2mask(coor1,coor2,120,120);
+        
+          distance = zeros(1,length(yy1)-1);
+        for i=1:length(yy1)-1
+           distance(i) = sqrt((yy1(i+1)-yy1(i))^2+(coor2(i+1)-coor2(i))^2); % straight line distance
+        end
+
+%         plot(f(1:size(molM{idx},2)),1:size(molM{idx},2),'red')
         idx=1
 %            [k,b] = get_line_parameters(bwM{i});
 %       kymos{i} = get_kymo(molM{i}, k , b, sPer);

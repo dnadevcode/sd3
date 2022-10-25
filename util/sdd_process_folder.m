@@ -151,21 +151,25 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     % Extract barcodes
     [barcodes, dotScoreLim] = sdd_extract_barcodes(movies, optics, lengthLims, i, runNo, bgPixels2, sets, tiles);
 
-%   % plot
-%       idx=5
-%       figure,imagesc(movies.dotM{idx})
-% %         imagesc(movies.molM{idx})
+%   % plot molecule with mask
+%       if sets.saveMolecules
 % 
-%       hold on
-%       plot(barcodes.xy{idx}{2},barcodes.xy{idx}{1},'redx')
-%       pos = barcodes.dots{idx}.locations+barcodes.nanid(idx);
-% %       plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'blackx')
-% %             plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
-
-%       plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
-% %     %   
-%     imwrite(uint16(movies.dotM{idx}),'ex.tif')
-%     sPer = 0;
+%           idx=5
+%           figure,imagesc(movies.dotM{barcodes.idx(idx)})
+%     %         imagesc(movies.molM{barcodes.idx(idx)})
+% 
+%           hold on
+%           plot(barcodes.xy{barcodes.idx(idx)}{2},barcodes.xy{barcodes.idx(idx)}{1},'redx')
+%           pos = barcodes.dots{idx}.locations+barcodes.nanid(idx);
+%     %       plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'blackx')
+%     %             plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
+% 
+%           plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
+%     % %     %   
+%         colormap(gray)
+% %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
+% %     sPer = 0;
+%       end
     
 
     if sets.showMolecules

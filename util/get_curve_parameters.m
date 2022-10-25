@@ -1,9 +1,13 @@
-function [f, xF, yF] = get_curve_parameters( bw,mat )
+function [f, xF, yF, distance] = get_curve_parameters( bw,mat )
 
     % gets line parameters
     nonnans = find(~isnan(mat));
     [row, col] = ind2sub(size(bw), nonnans);
     weight = mat(nonnans);
+    
+    % possible change: find skeletonized version of bw, that should go
+    % through the center
+    
 
     % use PCA to determine the flow of the molecule (this will determine  which
     % direction should we fit a line to.
@@ -53,6 +57,11 @@ function [f, xF, yF] = get_curve_parameters( bw,mat )
 
         xF = xvals(idxPx);
         yF = yvals(idxPx);
+        
+        distance = zeros(1,length(xF)-1);
+        for i=1:length(xF)-1
+           distance(i) = sqrt((xF(i+1)-xF(i))^2+(yF(i+1)-yF(i))^2); % straight line distance
+        end
 
 
 %    figure

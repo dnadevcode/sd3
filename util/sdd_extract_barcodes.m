@@ -67,6 +67,12 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 
     % todo: SFW detection here - but for this need to remove noise first
     
+    if extractionMethod == 2
+        numavgPts = length(round(-669/509 * optics.sigma):round(669/509 * optics.sigma));
+        bgPixels = movmean(bgPixels,  numavgPts);
+    end
+
+        
     % old:
     [barcodes.dots, dotScoreMin] = sdd_detect_dots(barcodes.dotBars, optics, sets.dotMargin, sets.dotScoreMin, lengthLims, imageNumber, movies.imageName, sets, bgPixels,tiles);
 %     if sets.dotDet2D % detect 2d dots      
@@ -82,7 +88,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %     figure
 %     imagesc(movies.dotM{idx})
 % %         imagesc(movies.molM{idx})
-% 
+% % 
 %     hold on
 %     plot(barcodes.boundaries{idx}(3):barcodes.boundaries{idx}(4),-barcodes.lineParams{idx}(1)*(barcodes.boundaries{idx}(3):barcodes.boundaries{idx}(4))+barcodes.lineParams{idx}(2),'red')
 %     angle = atan(barcodes.lineParams{idx}(1));

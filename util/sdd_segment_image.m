@@ -324,7 +324,16 @@ end
   if hasDots
     movies.dotFigNum = dotFigNum;
     movies.dotM = dotM;
+
+%     dotIm = images.dotIm;
+%     dotIm = double(dotIm);
+%     dotIm  = medfilt2(dotIm, [4 4]); % average, ideally over the same number of pixels as 
+%     mask = (imdilate(L~=0, ones(5)));
+%     dotIm(mask) = nan;
+    
     bgCutOut2 = nan(size(dotIm)); % background
+%     bgCutOut2(~mask) = dotIm(~mask);
+
     bgCutOut2(L ==0) = dotIm(L ==0);
 
     if sets.showMolecules
@@ -338,7 +347,7 @@ end
     title([imageName, ' bg pixels'])
     end
 
-    
+    bgCutOut2 = bgCutOut2(~isnan(bgCutOut2));
     bgMean2 =  trimmean(bgCutOut2(:), 10);
     if length(bgCutOut2(:)) > 10000
         bgCutOut2 = bgCutOut2(bgCutOut2<bgMean2+2*nanstd(bgCutOut2(:)));
