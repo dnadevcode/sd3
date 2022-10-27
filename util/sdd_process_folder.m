@@ -153,23 +153,23 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 
 %   % plot molecule with mask
 %       if sets.saveMolecules
-% 
-%           idx=5
+% % 
+%           idx=find(barcodes.idx==4)
 %           figure,imagesc(movies.dotM{barcodes.idx(idx)})
 %     %         imagesc(movies.molM{barcodes.idx(idx)})
 % 
 %           hold on
 %           plot(barcodes.xy{barcodes.idx(idx)}{2},barcodes.xy{barcodes.idx(idx)}{1},'redx')
-%           pos = barcodes.dots{idx}.locations+barcodes.nanid(idx);
-%     %       plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'blackx')
+% %           pos = barcodes.dots{idx}.locations+barcodes.nanid(idx);
+% %           plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'blackx')
 %     %             plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
 % 
-%           plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
+% %           plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
 %     % %     %   
 %         colormap(gray)
-% %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
-% %     sPer = 0;
-%       end
+% % %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
+% % %     sPer = 0;
+% %       end
     
 
     if sets.showMolecules

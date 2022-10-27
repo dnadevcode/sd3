@@ -131,6 +131,17 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
         fprintf(fid, '\n Total number of dots    : %i \n', imDots(i));
         fprintf(fid, '\n Average dots/micron     : %.6f \n', imDotsPerLength(i));
         fprintf(fid, '\n Intensity of dots    : %.6f \n', dotIntAll(i));
+        try
+            for jj=1:length(output{i}.dots)
+                if ~isempty(output{i}.dots{jj}.val) 
+                    fprintf(fid, strcat(['\n Mol ' num2str(jj) ' : %s,\n depth : %s']), regexprep(num2str(output{i}.dots{jj}.val),'\s+',','),...
+                        regexprep(num2str(output{i}.dots{jj}.depth),'\s+',',')); 
+                end
+            end
+                    fprintf(fid, '\n');
+
+        catch
+        end
 
 %             fprintf(fid, '\n Total intensity of dots   : %i \n', sum(dotIntAll));
 

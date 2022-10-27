@@ -13,8 +13,8 @@ se = strel('disk',5);
 dilatedBW = imdilate(circles,se);
 %     dilatedBW = circles;
 [centers] = imfindcircles(dilatedBW,[rMin rMax]);
-
-% figure,imagesc(circles)
+ 
+% figure,imagesc(imDenoised)
 % hold on
 % for i=1:size(centers,1)
 %     plot(centers(i,1),centers(i,2),'redx')

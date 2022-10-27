@@ -17,7 +17,7 @@ function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat )
 %         plot(curve)
     % find distances between points
     
-            xd = 0.01;
+        xd = 0.01;
         xvals = 1:xd:size(mat,2);
         yvals = curve(1:xd:size(mat,2));
         allD = zeros(1,length(xvals)-1);
