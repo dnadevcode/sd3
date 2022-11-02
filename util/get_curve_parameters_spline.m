@@ -5,11 +5,14 @@ function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat )
 
     % smoothen the skeleton
     [coor1 coor2]=find(out==1); % Finding all the co-ordinates for the corresponding component
-    yy1 = smooth(coor2,coor1,0.5,'loess');
+    
+    if length(coor1) > 3 % what is minimum number of points required
+        yy1 = smooth(coor2,coor1,0.5,'loess');
+        [curve, goodness, output] = fit(coor2,yy1,'smoothingspline');% ,'SmoothingParam',0.5
+
 
     % finally fit a spline//either x or y coord, depending which gives more
     % accurate!
-    [curve, goodness, output] = fit(coor2,yy1,'smoothingspline');% ,'SmoothingParam',0.5
 %     [curve, goodness, output] = fit([coor2,yy1], ones(length(coor2),1),'lowess','Span',0.5);% ,'SmoothingParam',0.5
 
 %         figure,imagesc(mat)
@@ -45,6 +48,13 @@ function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat )
         for i=1:length(xF)-1
            distance(i) = sqrt((xF(i+1)-xF(i))^2+(yF(i+1)-yF(i))^2); % straight line distance
         end
+        
+    else
+        curve = nan;
+        xF = nan;
+        yF = nan;
+        distance = nan;
+    end
 
         
         

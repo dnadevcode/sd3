@@ -12,13 +12,14 @@ xyPars = cell(1, length(molM));
 %import PD.Core.Extraction.get_kymo;
 %%
 for i=1:length(molM)
+%     i
   % get line parameters
   if method ==1
       [k,b] = get_line_parameters(bwM{i});
       kymos{i} = get_kymo(molM{i}, k , b, sPer);
       lineParams{i} = [k b];
   else
-      [f,xF,yF,distance] = get_curve_parameters_spline(bwM{i},molM{i}(:,:,1));
+        [f,xF,yF,distance] = get_curve_parameters_spline(bwM{i},molM{i}(:,:,1));
         tempKm =  zeros(size(molM{i},3),length(xF));
         for lIdx=1:length(xF)
             for tIdx =1:size(molM{i},3)
@@ -42,7 +43,7 @@ for i=1:length(molM)
   %    import PD.Core.Extraction.save_kymos;
   %    save_kymos( kymos{i}, fold, i-1  )
 end
-
+%%
     %   % plot
     plotExample = 0;
     if plotExample ==1

@@ -52,15 +52,21 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
     barcodes.idx( barcodes.delid) = [];
   if isfield(movies, 'dotM')
       
+
       if   extractionMethod ==1
     % Extract dotBarcodes from their images
         [barcodes.dotBars,barcodes.boundaries] = cellfun(@(x,y) get_dot_kymo(x, y(1) , y(2), sPer) ,movies.dotM, barcodes.lineParams,'un',false);
+        barcodes.dotBars(barcodes.delid) = [];
+
       else
     % curved molecule
+        barcodes.xy(barcodes.delid) = []; % so it doesn't need to compute those
+        movies.dotM(barcodes.delid) = [];
         [barcodes.dotBars,barcodes.boundaries] = cellfun(@(x,y) get_curved_kymo(x, y{1} , y{2}, sPer) ,movies.dotM, barcodes.xy,'un',false);
       end
+      
+
 %     [barcodes.dotBars, lineParams2] = get_kymos_from_movies(movies.dotM, movies.bwM, sPer);
-    barcodes.dotBars(barcodes.delid) = [];
 %     barcodes.xy( barcodes.delid) = [];
 %     barcodes.boundaries( barcodes.delid) = [];
 %     barcodes.lineParams( barcodes.delid) = [];
