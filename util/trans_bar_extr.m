@@ -6,19 +6,26 @@ edgeLen = round(sets.deltaCut * optics.sigma);
 nmol = length(kymos);
 newBars = cell(1,nmol);
 nanid = zeros(1,nmol);
+nanidlast = zeros(1,nmol);
+
 for i = 1:nmol
   initbar = nanmean(kymos{i},1);
-  newBars{i}.rawBarcode = initbar(~isnan(initbar));
   try
-      nanid(i) = find(~isnan(initbar),1,'first');
+    nanid(i) = find(~isnan(initbar),1,'first');
+    nanidlast(i) = find(~isnan(initbar),1,'last');
+    newBars{i}.rawBarcode = initbar(nanid(i):nanidlast(i)); 
   catch
       nanid(i) = 1;
+      nanidlast(i) = 1;
+      newBars{i}.rawBarcode = [];
   end
+  
+
   
   bitmaskLen = length(newBars{i}.rawBarcode);
   newBars{i}.rawBitmask = ones(1,bitmaskLen);
   newBars{i}.rawBitmask([1:min(edgeLen,bitmaskLen),max(bitmaskLen - edgeLen + 1,1):end]) = 0;
-  newBars{i}.kymo = [nan(size(kymos{i},1),1) kymos{i}(:,~isnan(initbar)) nan(size(kymos{i},1),1)];
+  newBars{i}.kymo = [nan(size(kymos{i},1),1) kymos{i}(:,nanid(i):nanidlast(i)) nan(size(kymos{i},1),1)];
 end
 
 % if actions.getConsensus == 1

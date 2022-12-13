@@ -125,7 +125,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
         saveIdx = saveIdx + 1;
       end
 
-      bc = kymos{i};
+      bc = barcodes.expBars{i}.rawBitmask;
       saveName = regexprep(movies.imageName, '[.]\S{1,4}', '');
       folderName = subsref(dir(sets.targetFolder), substruct('.', 'folder'));
       imwrite(uint16(bc), fullfile(folderName, ['barcodes_run', num2str(runNo)], [saveName, 'barcode', num2str(saveIdx), '.tif']));
