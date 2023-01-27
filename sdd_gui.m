@@ -98,8 +98,11 @@ function [] = sdd_gui()
     dotButtonFile = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Browse file'},'Callback',@selection2,'Units', 'normal', 'Position', [0.75 0.9 0.15 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
 
     runButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Run'},'Callback',@run,'Units', 'normal', 'Position', [0.7 0.2 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    
     clearButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Clear visual results'},'Callback',@clear_results,'Units', 'normal', 'Position', [0.7 0.1 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
 
+    selectGood = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'select Good'},'Callback',@select_good,'Units', 'normal', 'Position', [0.7 0.3 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    set(selectGood, 'Enable', 'off');
     %% Browse folder
     
     function selection(src, event)
@@ -180,8 +183,17 @@ function [] = sdd_gui()
   
   
         end  
+        set(selectGood, 'Enable', 'on');
+
                      
-    end    
+    end
+
+%     function select_good(src, event)
+%         % select good molecules from output / save in filtered results
+%         % output
+%         [allKymos] = goodbadtool(numImages,fold,foldOut)
+%         
+%     end
     
 end
 

@@ -6,6 +6,7 @@ function [allKymos] = goodbadtool(numImages,fold,foldOut)
     %
     %   Saves all good files into good folder, bad into bad folder
     
+    fold = 'testfolder\molecules_run27';
     import UI.select_image;
     
     if nargin< 1
