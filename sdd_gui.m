@@ -11,8 +11,9 @@ function [] = sdd_gui()
       mfolders = split(mFilePath, {'\', '/'});
 %       utilPath = fullfile(mfolders{1:end - 1}, 'util');
 %       utilPath2 = fullfile(mfolders{1:end - 1}, '+SAD');
+    outputRes = []; % for selecting good/bad
+    savePath = [];
 
-     
       processFolders = 1; % whether to process single files or folders
 
       warning(''); % empty warning
@@ -174,10 +175,12 @@ function [] = sdd_gui()
         for i = 1:numel(dataFolders)       
             % MAIN FUNCTION
             [output,hPanelResult] = sdd_process_folder(dataFolders{i}, sets, tsHCC);
-
-            folderName = subsref(dir(dataFolders{i}), substruct('.', 'folder'));
-            savePath = fullfile(folderName, 'dnarecoutput');
-            save(savePath, 'output')
+            if ~isempty(output)
+                outputRes = output;
+                folderName = subsref(dir(dataFolders{i}), substruct('.', 'folder'));
+                savePath = fullfile(folderName, 'dnarecoutput');
+                save(savePath, 'output')
+            end
 %             save(savePath, 'actions', '-append')
 %             save(savePath, 'experiment', '-append')
   
@@ -188,12 +191,23 @@ function [] = sdd_gui()
                      
     end
 
-%     function select_good(src, event)
-%         % select good molecules from output / save in filtered results
-%         % output
-%         [allKymos] = goodbadtool(numImages,fold,foldOut)
-%         
-%     end
+    function select_good(src, event)
+        % select good molecules from output / save in filtered results
+        % output
+        import UI.goodbadtool;
+        [outputNew] = goodbadtool([4 1],outputRes{1}.molRunFold,savePath,outputRes{1}.molRunFold);
+        
+        sets = outputRes{1}.settings;
+        
+        import SAD.dnarec_print
+        resultsName = dnarec_print(outputNew, sets, sets, outputRes{1}.optics,outputRes{1}.runNo, sets,1);
+        
+        fprintf('\n-------------------------------------------------------------------\n');
+        fprintf('Filtered results saved in %s', resultsName);
+        fprintf('\n-------------------------------------------------------------------\n');
+
+        
+    end
     
 end
 

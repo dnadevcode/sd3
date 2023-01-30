@@ -180,12 +180,19 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     % Calculate p-values for specific sequence
     %	output = functions.bc_analyse(barcodes,optics);i
     output{i} = barcodes;
+    output{i}.trueedge = movies.trueedge;
+    output{i}.pos = movies.pos;
+
     output{i}.name = imageNames{i};
     output{i}.lengthLims = lengthLims;
     output{i}.widthLims = widthLims;
     output{i}.molScoreLim = molScoreLim;
     output{i}.dotScoreLim = dotScoreLim;
     output{i}.median = median(cleanImages.imAverage(:));
+    output{i}.settings = sets;
+    output{i}.molRunFold = movies.molRunName;
+     output{i}.optics = optics;
+      output{i}.runNo = movies.runNo;
   end
 
   import SAD.dnarec_print

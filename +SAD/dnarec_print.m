@@ -1,4 +1,9 @@
-function printName = dnarec_print(output, experiment, actions, optics, runNo, sets)
+function printName = dnarec_print(output, experiment, actions, optics, runNo, sets,filtered)
+    % prints results as txt
+    
+    if nargin < 7
+        filtered = 0;
+    end
   nImage = numel(output);
   fragLengthRangeBp = sets.fragLengthRangeBp;
 
@@ -46,7 +51,7 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
   imDotsPerLength = imDots ./ imDotBarLength;
 
   % Initiate printing - make file with corrects filename - make new file if old is present
-  printName = print_version(nImage, experiment, output{1}.name, runNo);
+  printName = print_version(nImage, experiment, output{1}.name, runNo, filtered);
 
   % Print overall results
   fid = fopen(printName, 'w');
@@ -174,7 +179,7 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
 
 end
 
-function printName = print_version(nImage, experiment, firstName, runNo)
+function printName = print_version(nImage, experiment, firstName, runNo,filtered)
 
   if nImage > 1
     % [~, nameType] = fileparts(experiment.targetFolder);
@@ -184,9 +189,17 @@ function printName = print_version(nImage, experiment, firstName, runNo)
     % nameType = regexprep(nameType, '[.]\S{1,4}', '');
     folderName = fileparts(experiment.targetFolder);
   end
+  
+  if nargin < 5
+      filtered = 0;
+  end
 
   % nameType = [nameType,'results_run'];
-  nameType = 'results_run';
+  if filtered
+        nameType = 'results_filtered';
+  else
+      nameType = 'results_run';
+  end
   version = runNo;
   printName = fullfile(folderName, [nameType, num2str(version), '.txt']);
 end

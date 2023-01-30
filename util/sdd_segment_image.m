@@ -316,7 +316,10 @@ end
   movies.molM = molM;
   movies.bwM = bwM;
   movies.pos = pos;
-
+  movies.trueedge = trueedge;
+  movies.molRunName = fullfile(folderName, ['molecules_run',num2str(runNo)]);
+  movies.runNo = runNo;
+  
   if sets.showMolecules
     movies.molFigNum = molFigNum;
   end

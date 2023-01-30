@@ -1,4 +1,4 @@
-function [allKymos] = goodbadtool(numImages,fold,foldOut)
+function [outputNew, allKymos] = goodbadtool(numImages,fold, data, foldOut)
     %   Args:
     %   numImages - array of number of images to display in x and y ,
     %   fold - folder with input images
@@ -6,11 +6,17 @@ function [allKymos] = goodbadtool(numImages,fold,foldOut)
     %
     %   Saves all good files into good folder, bad into bad folder
     
-    fold = 'testfolder\molecules_run27';
+    if nargin <2 
+        fold = 'testfolder\molecules_run1';
+        data = 'testfolder\dnarecoutput';
+        foldOut = 'output';
+    end
+    
+    load(data)
     import UI.select_image;
     
     if nargin< 1
-        numImages = [4 4]; % grid for images
+        numImages = [5 1]; % grid for images
     end
 
     if nargin < 2
@@ -32,17 +38,35 @@ function [allKymos] = goodbadtool(numImages,fold,foldOut)
     folds = {listing(:).folder};
     files = cellfun(@(x,y) fullfile(x,y),folds,tiffs,'UniformOutput',false);
     
+    nameMol = zeros(1,length(listing));
+    idxMov = zeros(1,length(listing));
+
+    for i=1:length(listing) 
+        spltName = strsplit(listing(i).name,'_mol_');
+        nameMov = spltName{1};
+        spltName2 = strsplit(spltName{2},'.');
+        nameMol(i) = str2num(spltName2{1});
+        names = cellfun(@(x) x.name,output,'un',false);
+        idxMov(i) = find(cellfun(@(x) ~isempty(strfind(x,nameMov)),names));        
+    end
+
+% %            listing     
+                
 %     i=1;
     selected = [];
-    for i=1:numImagesToShow:length(files)-numImagesToShow+1
-       selected = [selected; (i-1)+select_image(files,i,numImages(1),numImages(2))]; 
+    for i=1:numImagesToShow:length(listing)-numImagesToShow+1
+        try
+            selected = [selected; (i-1)+select_image(listing,output,i,nameMol,idxMov,numImages(1),numImages(2))]; 
+        end
     end
     iLast = i+numImagesToShow;
     if isempty(i)
         iLast = 1;
     end
     if (iLast< length(files))
-        selected = [selected; iLast-1+select_image(files,iLast,numImages(1),numImages(2))]; 
+        try
+            selected = [selected; iLast-1+select_image(listing,output,iLast,numImages(1),numImages(2))]; 
+        end
     end
     
     allKymos = zeros(1,length(files));
@@ -54,6 +78,8 @@ function [allKymos] = goodbadtool(numImages,fold,foldOut)
     % delete(fullfile(foldOut,'good/','*.tif'));
     % delete(fullfile(foldOut,'bad/','*.tif'));
     % 
+    outputNew = cell(1,length(output));
+    
     for i = 1:length(files)
         if allKymos(i) == 1
             copyfile(files{i},fullfile(foldOut,'good/',tiffs{i}))
@@ -61,6 +87,34 @@ function [allKymos] = goodbadtool(numImages,fold,foldOut)
             copyfile(files{i},fullfile(foldOut,'bad/',tiffs{i}))
         end
     end
+    
+    goodBars = find(allKymos);
+    
+    outputNew = cell(1,length(outputNew));
+    
+    for i=1:length(output);
+        curMols = find(nameMol(goodBars) == i);
+        outputNew{i}.lineParams = output{i}.lineParams(curMols);
+        outputNew{i}.xy = output{i}.xy(curMols);
+        outputNew{i}.expBars = output{i}.expBars(curMols);
+        %  outputNew{i}.expBars = delid;
+        outputNew{i}.nanid = output{i}.nanid(curMols);
+        outputNew{i}.idx = output{i}.idx(curMols);
+        outputNew{i}.dotBars = output{i}.dotBars(curMols);
+        outputNew{i}.boundaries = output{i}.boundaries(curMols);
+        outputNew{i}.dots = output{i}.dots(curMols);
+        outputNew{i}.trueedge = output{i}.trueedge(curMols);
+        outputNew{i}.pos = output{i}.pos(curMols);
+        outputNew{i}.name = output{i}.name;
+        outputNew{i}.lengthLims = output{i}.lengthLims;
+        outputNew{i}.widthLims = output{i}.widthLims;
+        outputNew{i}.molScoreLim = output{i}.molScoreLim;
+        outputNew{i}.dotScoreLim = output{i}.dotScoreLim;
+        outputNew{i}.settings = output{i}.settings;
+    end
+    
+
+ 
 
 
 end

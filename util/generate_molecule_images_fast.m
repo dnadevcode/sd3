@@ -37,17 +37,24 @@ for k = 1:cellLength
   bwMov(mask == 1) = 1;
   
   if actions.saveMolecules
-    molSaveName = fullfile(folder, ['molecules_run',num2str(runNo)], [imageName,'_mol',num2str(k),'mov.tif']);
-    imwrite(uint16(molMov(:,:,1)),molSaveName);
-    for i = 2:length(registeredIm)
-      imwrite(uint16(molMov(:,:,i)),molSaveName,'writemode','append');
+    [~,de,~] = fileparts(imageName);
+%     de= strcat(de,['_mov=_' num2str(k) '_']);
+    molSaveName = fullfile(folder, ['molecules_run',num2str(runNo)], [de,'_mol_',num2str(k),'.tif']);
+
+    imwrite(uint16(regCut(:,:,1)),molSaveName);
+
+    if ~isempty(dotCut)
+      imwrite(uint16(dotCut),molSaveName,'writemode','append');
     end
+    
     if ~isempty(dotMov)
-      dotSaveName = fullfile(folder, ['molecules_run',num2str(runNo)], [imageName,'_dot',num2str(k),'mov.tif']);
-      imwrite(uint16(dotMov),dotSaveName);
+      imwrite(uint16(dotMov),molSaveName,'writemode','append');
     end
-    bwSaveName = fullfile(folder, ['molecules_run',num2str(runNo)], [imageName,'_bwmol',num2str(k),'mov.tif']);
-    imwrite(uint16(bwMov(:,:,1)),bwSaveName);
+        imwrite(uint16(bwMov(:,:,1)),molSaveName,'writemode','append');
+        imwrite(uint16(molMov(:,:,1)),molSaveName,'writemode','append');
+    for i = 2:length(registeredIm)
+        imwrite(uint16(molMov(:,:,i)),molSaveName,'writemode','append');
+    end
   end
   %	 pos{k} = D{k}(1,:);
   pos{k} = [yMin xMin];
