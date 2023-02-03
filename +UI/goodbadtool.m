@@ -59,13 +59,18 @@ function [outputNew, allKymos] = goodbadtool(numImages,fold, data, foldOut)
             selected = [selected; (i-1)+select_image(listing,output,i,nameMol,idxMov,numImages(1),numImages(2))]; 
         end
     end
-    iLast = i+numImagesToShow;
-    if isempty(i)
+    if ~isempty(1:numImagesToShow:length(listing)-numImagesToShow+1)
+        iLast = i+numImagesToShow;
+    else
         iLast = 1;
     end
-    if (iLast< length(files))
+    
+%     if isempty(i)
+%         iLast = 1;
+%     end
+    if (iLast < length(files))
         try
-            selected = [selected; iLast-1+select_image(listing,output,iLast,numImages(1),numImages(2))]; 
+            selected = [selected; iLast-1+select_image(listing,output,iLast,nameMol,idxMov,numImages(1),numImages(2))]; 
         end
     end
     
@@ -93,7 +98,7 @@ function [outputNew, allKymos] = goodbadtool(numImages,fold, data, foldOut)
     outputNew = cell(1,length(outputNew));
     
     for i=1:length(output);
-        curMols = find(nameMol(goodBars) == i);
+        curMols = find(idxMov(goodBars) == i);
         outputNew{i}.lineParams = output{i}.lineParams(curMols);
         outputNew{i}.xy = output{i}.xy(curMols);
         outputNew{i}.expBars = output{i}.expBars(curMols);

@@ -32,7 +32,7 @@ function [] = sdd_gui()
     %     dnarec_folder_scan(app.PathInput.Value, sets); / before.
 
     % create tabbed figure
-    hFig = figure('Name', 'SDD-dots GUI', ...
+    hFig = figure('Name', 'SDD-dots GUI v0.5.6', ...
         'Units', 'normalized', ...
         'OuterPosition', [0 0 1 1], ...
         'NumberTitle', 'off', ...
@@ -108,7 +108,7 @@ function [] = sdd_gui()
     
     function selection(src, event)
         [rawNames] = uigetdir(pwd,strcat(['Select folder with file(s) to process']));
-        dotImport.String = rawNames;
+        dotImport.String = strcat(rawNames,filesep);
         processFolders = 1;
 
     end    
