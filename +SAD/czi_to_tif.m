@@ -3,20 +3,32 @@ function [] = czi_to_tif(cziFold,bfcovertPath)
     
     if nargin < 2
     %     cziFold 
-        bfcovertPath = '..\..\..\postdoc\CODES\bftools\bftools\bfconvert';
+        bfcovertPath = 'bfconvert';
     end
+  
+    
     data = dir(fullfile(cziFold,'*.czi'));
-    % data = dir('C:\Users\Lenovo\postdoc\DATA\DOTS\images\images\*.czi');
-    % data = dir('C:\Users\Lenovo\postdoc\DATA\DOTS\test3\*.czi');
 
     for i=1:length(data)
         name =fullfile(data(i).folder,data(i).name);
-        command = strcat([bfcovertPath ' '  name ' ' strcat(name,'.tif')]);
+        
+        [fd,fm,fe] = fileparts(name);
+        nameNew = strrep(name,fe,'.tif');
+
+        command = strcat([bfcovertPath ' '  name ' ' nameNew]);
+        
+        if exist(nameNew,'file')
+            delete(nameNew); % in case already exists tif, remove 
+        end
+    
         [a,b] = system(command);
-        ch1 = imread(strcat(name,'.tif'),1);
-        imwrite(ch1,strcat(name,'_C=1.tif'));
-        ch2 = imread(strcat(name,'.tif'),2);
-        imwrite(ch2,strcat(name,'_C=0.tif'));
+        ch1 = imread(nameNew,1);
+        imwrite(ch1,strrep(name,fe,'_C=0.tif'));
+        ch2 = imread(nameNew,2);
+        imwrite(ch2,strrep(name,fe,'_C=1.tif'));
+        
+        delete(nameNew); % in case already exists tif, remove 
+
     end
 
 end

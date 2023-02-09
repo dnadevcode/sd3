@@ -1,8 +1,10 @@
 function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCutOut2] = sdd_segment_image(images, imageName, imageNumber, runNo, sets, tiles)
-
+    % sdd_segment_image - segments image
+    %
+    %
+    %   
   registeredIm = images.registeredIm;
   imAverage = images.imAverage;
-  %imDenoised = images.imDenoised;
   centers = images.centers;
   hasDots = isfield(images, 'dotIm');
 
@@ -12,12 +14,6 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
       bgCutOut2 = [];
   end
 
-  % if isfield(sets,'opticsFile')
-  %     opticsDir = dir(sets.opticsFile);
-  %     folder = [opticsDir(1).folder,'/'];
-  % else
-  %     folder = sets.targetFolder;
-  % end
 
   foundOptics = 0;
   optics = struct();
@@ -52,27 +48,19 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
   if not(foundOptics)
     throw(MException('segment:optics', 'No optics file or optics settings found'))
   end
+  
+ % Filter image with LoG filter 
+[filt, dist] = wd_calc(optics.sigma); 
 
-  % if imageNumber == 1
-  %     fprintf('Width of point spread function estimated to be %.2f pixels.\n',optics.sigma);
-  % end
 
-  % Use _some_ scoring to segment the image as a BW image with molecules in white
-  %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
-  % edgePx = 3; %Arbitrary minimum distance to edge (filters away regions that are less than edgePx pixels from the edge of the image)
-  %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
 
   tic;
-  % Filter image with LoG filter
-  n = ceil(6 * optics.logSigma);
-  n = n + 1 -mod(n, 2);
-  filt = fspecial('log', n, optics.logSigma);
-
   if ~isa(imAverage, 'double')
     imAverage = double(imAverage);
     fprintf('Averaged image has been converted to type "double"\n');
   end
 
+  % log filter
   logim = imfilter(imAverage, filt);
 
   % Find zero crossing contours
@@ -86,54 +74,80 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
 %     imshow(logim, 'InitialMagnification', 'fit','Parent',ax1)
     title([imageName, ' LoG filtered'])
   end
+  
+    % Calculate edge score around all edges
+    [~, Gdir] = imgradient(logim);
 
     thedges = imbinarize(logim, 0);
+%     thedges = imclose(thedges, true(ceil( optics.logSigma))); % made this dependent on logSigma
+
     thedges(1:end,[ 1 end]) = 1; % things around the boundary should also be considered
     thedges([ 1 end],1:end) = 1;
 
-  [B, L] = bwboundaries(thedges, 'holes');
-  
-  % assume background is the biggest detected feature, then order does not
-  % matter. TODO:If not true, introduce a check for consistency with respect to
-  % intensity. Check 1 max, 2 max, 3rd max
-  
-  % make this quicker?
-%   featureSizes = arrayfun(@(x) sum(L==x,'all'),1:length(B));
-%     featureSizes = arrayfun(@(x) size(B,1),1:length(B));
-  featureSizes = arrayfun(@(x) sum(L==x,'all'),0:10);
+    % boundaries
+    [B, L] = bwboundaries(1-thedges, 'noholes'); % holes in thedges is noholes in 1-thedges
 
-  [a,b] = sort(featureSizes,'desc');
-  % mean of top sizes
-%   [minMean,pos] = min(arrayfun(@(x) mean(imAverage(L==x)),b(1:min(5,end))));
+%     tic % all lengths min
+    allFeatLengths =  cellfun(@(x) max(max(x)-min(x)),B); % bar length at least this times sqrt(2)
+%     allPxNum = cellfun(@(x) size(x,1),B);
+%     toc
+    % lengths and repetitions
+%     allFeatLengths =  cellfun(@(x) sqrt(sum((max(x)-min(x)).^2)),B);
+%     numRepetitionsX  = cellfun(@(x) size(x,1)./length(unique(x(:,1))),B); % something quicker than unique?
+
+%     numRepetitionsX  = cellfun(@(x) size(x,1)./length(unique(x(:,1))),B); % something quicker than unique?
+%     numRepetitionsY  = cellfun(@(x) size(x,1)./length(unique(x(:,2))),B);
+%     toc
+%     numAllowedCrossings = 6; % number of allowed crossings, i.e. how wiggly we allow molecule to be
+    % remove regions which do not satisfy initial length constrains
+    acceptedMols = logical((allFeatLengths>=sets.lengthLims(1)).*(allFeatLengths<=sets.lengthLims(2)));
+    B = B(acceptedMols);
+    
+    molPos = find(acceptedMols);
+%     
+%     figure
+%     hold on
+%     for i =1:length(B)
+%         plot(B{i}(:,2),B{i}(:,1))
+% %         text(B{i}(1,1),B{i}(1,2),num2str(i))
+%     end
+%     set( gca, 'ydir', 'reverse' )
+%     toc
+    % L needs to be relabeled.
   
-  % first feature is usually background, but in case 
-%   B(1)=[];  %remove first
-  L(L==b(1)-1) = 0;
-%   B(b(1)-1) = [];
-%   L(1)=[];
+  
+    % now remove some of the features before calculating scores. Also size
+    % of num  points can't be 2x
 
-  % Calculate edge score around all edges
-  [~, Gdir] = imgradient(logim);
-  dist = wd_calc(optics.sigma); % Very simple function - perhaps do elsewhere.
-  meh = zeros(1, length(B));
-  stat = @(h) mean(h); % This should perhaps be given from the outside
-  fprintf('Total number of regions: %i.\n', length(B));
 
+%     shortFeats = cellfun(@(x) length(unique(x(:,1))) <= sets.MaxNumPts,B);
+%     B = B(shortFeats);
+
+        
+        
+  fprintf('Total number of regions: %i regions found in %.1f sec.\n', length(B),toc);
+  
+  
+    meh = zeros(1, length(B));
+    stat = @(h) mean(h); % This should perhaps be given from the outside
+
+    tic
   for k = 1:length(B)% Filter out any regions with artifacts in them
+%     k / only if some centers to remove
+%     if not(isempty(centers))
+%       in = inpolygon(centers(:, 1), centers(:, 2), B{k}(:, 2), B{k}(:, 1));
+%     else
+%       in = 0;
+%     end
 
-    if not(isempty(centers))
-      in = inpolygon(centers(:, 1), centers(:, 2), B{k}(:, 2), B{k}(:, 1));
-    else
-      in = 0;
-    end
-
-    if ~in
+%     if ~in
       meh(k) = edge_score(B{k}, logim, Gdir, dist, stat); %/optics.sigma^3;% What is the point of this division? //Erik
-    else
-      meh(k) = -Inf;
-    end
+%     else
+%       meh(k) = -Inf;
+%     end
 
   end
+  fprintf('Edge scores calculated in %.1f sec.\n',toc);
 
   % If showScores, show histogram of log of region scores
   if sets.showScores
@@ -178,13 +192,33 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
   lengthLims = sets.lengthLims;
   widthLims = sets.widthLims;
   sigmaBgLim = sets.sigmaBgLim;
+  
+   
 
   if sets.autoThreshBars
-    logEdgeScores = log(meh(meh > 1));
-    lowestScore = min(logEdgeScores);
-    [autoThreshRel, em] = graythresh(logEdgeScores(:) - lowestScore);
-    autoThresh = exp(autoThreshRel * (max(logEdgeScores) - lowestScore) + lowestScore);
-    lowLim = autoThresh;
+      sets.autoThreshBarsold = 0;
+     if sets.autoThreshBarsold
+        logEdgeScores = log(meh(meh > 1));
+        lowestScore = min(logEdgeScores);
+        [autoThreshRel, em] = graythresh(logEdgeScores(:) - lowestScore);
+        autoThresh = exp(autoThreshRel * (max(logEdgeScores) - lowestScore) + lowestScore);
+        lowLim = autoThresh;
+     else
+           % calculate some edge scores for random locations
+        nmrand = 1000;
+        randMeh = zeros(1, nmrand);
+        dim = size(logim,[1 2]);
+                nPt = sets.lengthLims(1);%sets.lengthLims(1);
+
+        indices = randsample(dim(1)*dim(2),nPt*nmrand);
+
+        for k = 1:nmrand% Filter out any regions with artifacts in them
+            [I J] = ind2sub(dim,indices(nPt*(k-1)+1:nPt*k));
+            randMeh(k) = edge_score([I J], logim, Gdir, 5, stat); %how many points along the gradient to take?
+        end
+       lowLim = mean(randMeh)+3*std(randMeh); % might be some variation
+
+     end
   end
 
   if sets.showScores
@@ -244,17 +278,18 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
       bgSubtractedIm{ix}(bgSubtractedIm{ix} <= 0) = nan;
   end
   
-    if sets.showMolecules
-        axes(tiles.molDet);
-        hold on
-    end
+if sets.showMolecules
+    axes(tiles.molDet);
+    hold on
+end
         % what to do with the first??
 for k = 1:length(B)% Filter any edges with lower scores than lim
+%     k
     acc = mol_filt(B{k}, meh(k), lowLim, highLim, elim, ratlim, lengthLims, widthLims);
 
     if sigmaBgLim > 0
-      numPixelsInMol = sum(L == k, 'all');
-      intensAcc = sum(imAverage(L == k)) >= numPixelsInMol * bgMean + sqrt(numPixelsInMol) * sigmaBgLim * bgStd;
+      numPixelsInMol = sum(L == molPos(k), 'all');
+      intensAcc = sum(imAverage(L == molPos(k))) >= numPixelsInMol * bgMean + sqrt(numPixelsInMol) * sigmaBgLim * bgStd;
     else
       intensAcc = 1;
     end
@@ -263,12 +298,11 @@ for k = 1:length(B)% Filter any edges with lower scores than lim
       accepted = accepted + 1;
       trueedge{accepted} = D{k};
       scores(k) = meh(k);
-      newL(L == k) = accepted;
+      newL(L == molPos(k)) = accepted;
 
       if sets.showMolecules
 %         figure(molFigNum)
-
-        plot(trueedge{accepted}(:, 2), trueedge{accepted}(:, 1));
+            plot(trueedge{accepted}(:, 2), trueedge{accepted}(:, 1));
       end
 
     else
@@ -327,16 +361,8 @@ end
   if hasDots
     movies.dotFigNum = dotFigNum;
     movies.dotM = dotM;
-
-%     dotIm = images.dotIm;
-%     dotIm = double(dotIm);
-%     dotIm  = medfilt2(dotIm, [4 4]); % average, ideally over the same number of pixels as 
-%     mask = (imdilate(L~=0, ones(5)));
-%     dotIm(mask) = nan;
     
     bgCutOut2 = nan(size(dotIm)); % background
-%     bgCutOut2(~mask) = dotIm(~mask);
-
     bgCutOut2(L ==0) = dotIm(L ==0);
 
     if sets.showMolecules
@@ -357,15 +383,5 @@ end
     end
 
   end
-% 
-%   
-%     % Background stuff
-%   bgPixels = imAverage(L ==0);    
-%   bgMean = trimmean(bgPixels(:), 10);
-%   
-% 
-%   bgCutOut = nan(size(imAverage));
-%   bgCutOut(L ==0) = imAverage(L ==0);
-%   
-% 
-% 
+  
+end

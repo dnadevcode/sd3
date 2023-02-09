@@ -32,7 +32,7 @@ function [] = sdd_gui()
     %     dnarec_folder_scan(app.PathInput.Value, sets); / before.
 
     % create tabbed figure
-    hFig = figure('Name', 'SDD-dots GUI v0.5.6', ...
+    hFig = figure('Name', 'SDD-dots GUI v0.6.0', ...
         'Units', 'normalized', ...
         'OuterPosition', [0 0 1 1], ...
         'NumberTitle', 'off', ...
@@ -164,7 +164,7 @@ function [] = sdd_gui()
         sets.deltaCut = 1; % Number of sigma_psf uncertainty for extract_barcodes.
         sets.showDotPeaks = 0;
         sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
-
+        sets.rLims = [12 23]; % lims for circles in an image.
     
         if  processFolders
             dataFolders = search_folder(sets.folder);

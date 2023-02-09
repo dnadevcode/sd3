@@ -133,9 +133,13 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
         tiles = [];
     end
  
-    % Denoise images and remove artifacts
-    cleanImages = denoise_images(images{i}.registeredIm,sets);
-
+    % Detect centers (no denoising)
+    cleanImages.registeredIm = images{i}.registeredIm;
+    cleanImages.imAverage =  averageImages(images{i}.registeredIm);
+    cleanImages.centers = [];
+    %     cleanImages = denoise_images(images{i}.registeredIm,sets);
+    
+    
     if isfield(images{i}, 'dotIm')
       cleanImages.dotIm = images{i}.dotIm;
     end
