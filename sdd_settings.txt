@@ -1,0 +1,23 @@
+130     | Pixel size(nm) 
+300     | Width of LoG filter (nm)
+C=0     | Molecule image flag
+C=1     | Dots image flag
+0       | Minimum log(EdgeScore)
+10      | Minimum DotScore
+1       | Minimum width (px)
+Inf     | Maximum width (px)
+50      | Minimum length (px)
+Inf     | Maximum length (px)
+2       | Edge margin for dots
+0.8     | Minimum molecule eccentricity
+0.4     | Minimum molecule-to-convex-hull ratio
+1       | Show score histograms
+1       | Show detected molecules
+1       | Save detected molecules
+1       | Save barcodes and dots
+1       | Auto-threshold EdgeScore
+1       | Auto-threshold DotScore
+1       | Spline dot-detection
+
+
+

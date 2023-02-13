@@ -137,8 +137,9 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     cleanImages.registeredIm = images{i}.registeredIm;
     cleanImages.imAverage =  averageImages(images{i}.registeredIm);
     cleanImages.centers = [];
-    %     cleanImages = denoise_images(images{i}.registeredIm,sets);
-    
+    if sets.denoiseImages
+        cleanImages = denoise_images(images{i}.registeredIm,sets);
+    end
     
     if isfield(images{i}, 'dotIm')
       cleanImages.dotIm = images{i}.dotIm;
@@ -174,12 +175,10 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 % % %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
 % % %     sPer = 0;
 % %       end
+
+
     
 
-    if sets.showMolecules
-      % Mark barcodes in molecule image
-      sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
-    end
 
     % Calculate p-values for specific sequence
     %	output = functions.bc_analyse(barcodes,optics);i
@@ -195,8 +194,20 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     output{i}.median = median(cleanImages.imAverage(:));
     output{i}.settings = sets;
     output{i}.molRunFold = movies.molRunName;
-     output{i}.optics = optics;
-      output{i}.runNo = movies.runNo;
+    output{i}.optics = optics;
+    output{i}.runNo = movies.runNo;
+    
+    % csv print:
+  import SAD.csv_print
+  resultsName = csv_print(output, sets, runNo, i);
+
+      
+    
+    if sets.showMolecules
+      % Mark barcodes in molecule image
+      sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
+    end
+    
   end
 
   import SAD.dnarec_print

@@ -7,8 +7,9 @@ function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat )
     [coor1 coor2]=find(out==1); % Finding all the co-ordinates for the corresponding component
     
     if length(coor1) > 3 % what is minimum number of points required
-        yy1 = smooth(coor2,coor1,0.5,'loess');
-        [curve, goodness, output] = fit(coor2,yy1,'smoothingspline');% ,'SmoothingParam',0.5
+        try
+            yy1 = smooth(coor2,coor1,0.5,'loess');
+            [curve, goodness, output] = fit(coor2,yy1,'smoothingspline');% ,'SmoothingParam',0.5
 
 
     % finally fit a spline//either x or y coord, depending which gives more
@@ -47,6 +48,13 @@ function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat )
         distance = zeros(1,length(xF)-1);
         for i=1:length(xF)-1
            distance(i) = sqrt((xF(i+1)-xF(i))^2+(yF(i+1)-yF(i))^2); % straight line distance
+        end
+        
+        catch
+            curve = nan;
+            xF = nan;
+            yF = nan;
+            distance = nan;
         end
         
     else

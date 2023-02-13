@@ -9,6 +9,9 @@ function [] = sdd_gui()
 
       mFilePath = mfilename('fullpath');
       mfolders = split(mFilePath, {'\', '/'});
+        [fd,fe]= fileparts(mFilePath);
+   setsTable  = readtable(fullfile(fd,'sdd_settings.txt'),'Format','%s%s');
+
 %       utilPath = fullfile(mfolders{1:end - 1}, 'util');
 %       utilPath2 = fullfile(mfolders{1:end - 1}, '+SAD');
     outputRes = []; % for selecting good/bad
@@ -32,7 +35,7 @@ function [] = sdd_gui()
     %     dnarec_folder_scan(app.PathInput.Value, sets); / before.
 
     % create tabbed figure
-    hFig = figure('Name', 'SDD-dots GUI v0.6.0', ...
+    hFig = figure('Name', 'SDD-dots GUI v0.6.1', ...
         'Units', 'normalized', ...
         'OuterPosition', [0 0 1 1], ...
         'NumberTitle', 'off', ...
@@ -56,8 +59,10 @@ function [] = sdd_gui()
     % parameters with initial values
    textItems =  {'Pixel size(nm)','Width of LoG filter (nm)','Molecule image flag','Dots image flag','Minimum log(EdgeScore)','Minimum DotScore',...
        'Minimum width (px)', 'Maximum width (px)','Minimum length (px)','Maximum length (px)','Edge margin for dots'};
-   values =  {'130','300','C=0','C=1','0','10',...
-       '1', 'Inf','50','Inf','2'};
+   
+    values = setsTable.Var1(1:11);
+%    values =  {'130','300','C=0','C=1','0','10',...
+%        '1', 'Inf','50','Inf','2'};
    
     for i=1:6 % these will be in two columns
         positionsText{i} =   [0.2-0.2*mod(i,2) .88-0.1*ceil(i/2) 0.2 0.03];
@@ -71,7 +76,7 @@ function [] = sdd_gui()
 
     for i=1:length(textItems)
         textListT{i} = uicontrol('Parent', hPanelImport, 'Style', 'text','String',{textItems{i}},'Units', 'normal', 'Position', positionsText{i},'HorizontalAlignment','Left');%, 'Max', Inf, 'Min', 0);  [left bottom width height]
-        textList{i} = uicontrol('Parent', hPanelImport, 'Style', 'edit','String',{values{i}},'Units', 'normal', 'Position', positionsBox{i});%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+        textList{i} = uicontrol('Parent', hPanelImport, 'Style', 'edit','String',{strip(values{i})},'Units', 'normal', 'Position', positionsBox{i});%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
    
     uicontrol('Parent', hPanelImport, 'Style', 'text','String',{'Minimum molecule eccentricity'},'Units', 'normal', 'Position', [0 0.3 0.2 0.03]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
@@ -165,6 +170,7 @@ function [] = sdd_gui()
         sets.showDotPeaks = 0;
         sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
         sets.rLims = [12 23]; % lims for circles in an image.
+        sets.denoiseImages = 0;
     
         if  processFolders
             dataFolders = search_folder(sets.folder);

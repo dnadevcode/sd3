@@ -34,7 +34,8 @@ showDotPeaks = 0;
 fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
 
 
-
+# 
+sdd_settings.md contains default settings for the parameters (shown in the GUI)
 
 OLD:
 Without GUI:
