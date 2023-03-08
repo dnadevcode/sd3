@@ -47,11 +47,16 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
   imBarLength = cellfun(@sum, imBarLengthAll);
   imDotBarLength = cellfun(@(a, b) sum(a(not(b))), imBarLengthAll, imDotsRejected);
   imDots = cellfun(@(a, b) sum(a(not(b))), imDotsAll, imDotsRejected);
+  allDots = horzcat(imDotsAll{:});
+allBarlength = horzcat(imBarLengthAll{:}); 
+%     imDotsBar = cellfun(@(a, b) a(not(b)), imDotsAll, imDotsRejected);
+
   % Calculate the average dot per micrometer in each image
   imDotsPerLength = imDots ./ imDotBarLength;
 
   % Initiate printing - make file with corrects filename - make new file if old is present
   printName = print_version(nImage, experiment, output{1}.name, runNo, filtered);
+
 
   % Print overall results
   fid = fopen(printName, 'w');
@@ -59,24 +64,28 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
   fprintf(fid, '\n Total number of barcodes: %i \n', sum(imBars));
   fprintf(fid, '\n Total length of barcodes: %.1f micrometer \n', sum(imBarLength));
   fprintf(fid, '\n Average length of barcodes: %.1f micrometer \n', mean(horzcat(imBarLengthAll{:})));
-  fprintf(fid, '\n Number of barcodes of lengths 0-%.1f micrometer: %.0f \n', ...
-    fragLengthRangeBp(1), get_num_frags_in_range(horzcat(imBarLengthAll{:}), ...
-    0, fragLengthRangeBp(1)));
+    [numBars,locations] = get_num_frags_in_range(horzcat(imBarLengthAll{:}), ...
+    0, fragLengthRangeBp(1));
+  fprintf(fid, '\n Number of barcodes of lengths 0-%.1f micrometer: %.0f ( %.3f dots/micron)\n', ...
+    fragLengthRangeBp(1), numBars, sum(allDots(locations))/sum(allBarlength(locations)));
 
   if length(fragLengthRangeBp) > 1
 
     for j = 2:length(fragLengthRangeBp)
-      fprintf(fid, ' Number of barcodes of lengths %.1f-%.1f micrometer: %.0f \n', ...
+        [numBars,locations] = get_num_frags_in_range(horzcat(imBarLengthAll{:}), ...
+        fragLengthRangeBp(j - 1), fragLengthRangeBp(j));
+        fprintf(fid, ' Number of barcodes of lengths %.1f-%.1f micrometer: %.0f ( %.3f dots/micron) \n', ...
         fragLengthRangeBp(j - 1), fragLengthRangeBp(j), ...
-        get_num_frags_in_range(horzcat(imBarLengthAll{:}), ...
-        fragLengthRangeBp(j - 1), fragLengthRangeBp(j)));
+        numBars,...
+        sum(allDots(locations))/sum(allBarlength(locations))); % dots/micron
     end
 
   end
 
-  fprintf(fid, ' Number of barcodes of lengths >%.1f micrometer: %.0f \n', ...
-    fragLengthRangeBp(end), get_num_frags_in_range(horzcat(imBarLengthAll{:}), ...
-    fragLengthRangeBp(end), inf));
+    [numBars,locations] = get_num_frags_in_range(horzcat(imBarLengthAll{:}), ...
+    fragLengthRangeBp(end), inf);
+    fprintf(fid, ' Number of barcodes of lengths >%.1f micrometer: %.0f ( %.3f dots/micron) \n', ...
+    fragLengthRangeBp(end), numBars, sum(allDots(locations))/sum(allBarlength(locations)));
 
   if any(imHasDots)
     fprintf(fid, '\n Total number of dots    : %i \n', sum(imDots));
@@ -204,6 +213,7 @@ function printName = print_version(nImage, experiment, firstName, runNo,filtered
   printName = fullfile(folderName, [nameType, num2str(version), '.txt']);
 end
 
-function numFrags = get_num_frags_in_range(barLengths, lower, upper)
-  numFrags = length(barLengths(barLengths > lower & barLengths <= upper));
+function [numFrags,locations] = get_num_frags_in_range(barLengths, lower, upper)
+    locations = barLengths > lower & barLengths <= upper;
+    numFrags = length(barLengths(locations));
 end

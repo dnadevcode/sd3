@@ -1,17 +1,24 @@
 function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLims, imageNumber, runNo, bgPixels, sets,tiles)
+    % sdd_extract_barcodes
+    %
+    %   Args:
+    %         movies - movie structure
+    %
+    %   Returns:
+    %       barcodes - detected barcodes
+    %       dotScoreMin - minimum dot score threshold
 
-  %import PD.Core.Extraction.get_kymos_from_movies;
-  %%%%%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%%%%
   sPer = round(optics.sigma); % Number of pixel width of molecule "kymograph"
   %%%%%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%%%%
 
   extractionMethod = sets.extractionMethod;
   % Convert images to kymographs
-  [kymos, barcodes.lineParams, barcodes.xy] = get_kymos_from_movies(movies.molM, movies.bwM, sPer,extractionMethod);
+  [kymos, barcodes.lineParams, barcodes.xy] = get_kymos_from_movies(movies.molM, movies.bwM, sPer, extractionMethod);
 
 %%  
 %     figure,
-%     idx= 5;
+%     idx = 3;
 %     mol = movies.molM{idx};
 %     xF = barcodes.xy{idx}{1};
 %     yF = barcodes.xy{idx}{2};
@@ -75,7 +82,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
     
     if extractionMethod == 2
         numavgPts = length(round(-669/509 * optics.sigma):round(669/509 * optics.sigma));
-        bgPixels = movmean(bgPixels,  numavgPts);
+        bgPixels = movmean(bgPixels,  numavgPts); % but for method 2, we take a single point?
     end
 
         

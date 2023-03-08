@@ -1,5 +1,5 @@
 function [kymos, lineParams, xyPars] = get_kymos_from_movies( molM, bwM, sPer, method)
-% this function gets kymos from movies
+    % get_kymos_from_movies this function gets kymos from movies
 
 if nargin < 4
     method = 1;
@@ -8,17 +8,15 @@ kymos = cell(1, length(molM));
 lineParams = cell(1, length(molM));
 xyPars = cell(1, length(molM));
 
-%import PD.Core.Extraction.get_line_parameters;
-%import PD.Core.Extraction.get_kymo;
+
 %%
 for i=1:length(molM)
-%     i
   % get line parameters
-  if method ==1
-      [k,b] = get_line_parameters(bwM{i});
-      kymos{i} = get_kymo(molM{i}, k , b, sPer);
-      lineParams{i} = [k b];
-  else
+    if method ==1
+        [k,b] = get_line_parameters(bwM{i});
+        kymos{i} = get_kymo(molM{i}, k , b, sPer);
+        lineParams{i} = [k b];
+    else  % we take only center row for the spline detection // can we update this to also use sPer?
         [f,xF,yF,distance] = get_curve_parameters_spline(bwM{i},molM{i}(:,:,1));
         tempKm =  zeros(size(molM{i},3),length(xF));
         for lIdx=1:length(xF)
@@ -28,20 +26,17 @@ for i=1:length(molM)
             end
         end
         % also find the longest part without nan's, and bitmask the rest out 
-%         bwconncomp(isnan( kymos{i)
         connCompoments = bwconncomp(~isnan(tempKm));
         conCompLengths = cellfun(@(x) length(x),connCompoments.PixelIdxList);
         [maxL, maxId] = max(conCompLengths);
         kymos{i} = nan(size(tempKm));
         try
-        kymos{i}(connCompoments.PixelIdxList{maxId}) = tempKm(connCompoments.PixelIdxList{maxId});
+            kymos{i}(connCompoments.PixelIdxList{maxId}) = tempKm(connCompoments.PixelIdxList{maxId});
         catch
         end
         lineParams{i} = f;
         xyPars{i} ={yF,xF};
-  end
-  %    import PD.Core.Extraction.save_kymos;
-  %    save_kymos( kymos{i}, fold, i-1  )
+    end
 end
 %%
     %   % plot
@@ -50,14 +45,14 @@ end
         %%
 %         i=21
 %         out = bwskel(bwM{i}==1,'MinBranchLength',20);
-%     
-% %         nonnans = find(out==1);
-% %         [row, col] = ind2sub(size(out), nonnans);
-% %         mat = molM{i}(:,:,1);
-% %         weight = mat(nonnans);
-% %         f=fit(row,col,'smoothingspline','Weights',weight);% make sure that the line is calculated in y direction (possible issue otherwise, need some tests..)
-% %         figure,plot(1:size(molM{idx},2),f(1:size(molM{idx},2)))
-% %     figure,imagesc(out)
+    
+%         nonnans = find(out==1);
+%         [row, col] = ind2sub(size(out), nonnans);
+%         mat = molM{i}(:,:,1);
+%         weight = mat(nonnans);
+%         f=fit(row,col,'smoothingspline','Weights',weight);% make sure that the line is calculated in y direction (possible issue otherwise, need some tests..)
+%         figure,plot(1:size(molM{idx},2),f(1:size(molM{idx},2)))
+%     figure,imagesc(out)
 %         [coor1 coor2]=find(out==1); % Finding all the co-ordinates for the corresponding component
 %         yy1 = smooth(coor2,coor1,0.5,'loess');
 % %         yqs = spline(coor2,coor1,1:1:length(coor1));
@@ -128,8 +123,6 @@ end
         % then at each point, we can draw a diagonal (line) between two
         % points, and perpendicular to that will give us the perpendicular
         % points for the kymo
-
-%         norm(
     end
 end
 
