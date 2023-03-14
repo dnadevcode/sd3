@@ -1,4 +1,4 @@
-function sdd_mark_bars(movies,barcodes,tiles,extractionMethod)
+function [dotLocsGlobal] = sdd_mark_bars(movies,barcodes,tiles,extractionMethod)
     % sdd_mark_bars
     %
     % marks result visually of detected molecules.
@@ -14,6 +14,7 @@ function sdd_mark_bars(movies,barcodes,tiles,extractionMethod)
  
     % center to the bottom of the molecule.
     voffList = zeros(1,length(barcodes.expBars));
+    dotLocsGlobal = cell(1,length(barcodes.expBars));
 
 if isfield(movies,'dotFigNum')
     
@@ -33,7 +34,7 @@ if isfield(movies,'dotFigNum')
             hOff = barcodes.boundaries{molIdx}(3);
         end
         voffList(molIdx) = vOff;
-        text(movies.pos{curIdx}(2),movies.pos{curIdx}(1)+vOff,str,'Color','white');%
+        text(movies.pos{curIdx}(2),movies.pos{curIdx}(1)+vOff,str,'Color','white','Clipping','on');%
         for j = 1:numel(barcodes.dots{molIdx}.locations)
             if extractionMethod == 1
                 dy = -sin(angle)*(barcodes.dots{molIdx}.locations(j)-1+barcodes.dots{molIdx}.leftOffset);
@@ -44,12 +45,13 @@ if isfield(movies,'dotFigNum')
                 y =  movies.pos{curIdx}(1)+barcodes.xy{molIdx}{1}(barcodes.dots{molIdx}.locations(j)+barcodes.nanid(molIdx))-1;
                 x =  movies.pos{curIdx}(2)+barcodes.xy{molIdx}{2}(barcodes.dots{molIdx}.locations(j)+barcodes.nanid(molIdx))-1;
             end
+            dotLocsGlobal{molIdx}{j} = [x,y];
 %             y = movies.pos{curIdx}(1)+vOff+dy-1;%barcodes.lineParams{molIdx}(2)+dy-1;
 %             x = movies.pos{curIdx}(2)+hOff+dx;
 
             plot(x,y,'rx'); % maybe too much to plot also this info
             str = sprintf('I = %.1f', barcodes.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
-            text(x-5,y-5,str,'Color','white');
+            text(x-5,y-5,str,'Color','white','Clipping','on');
         end
     end
   

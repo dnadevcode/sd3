@@ -11,24 +11,24 @@ tic;
 %  end
 
 %% Remove circles
-optics.logSigma = sets.logSigmaNm / sets.pxnm;
+% optics.logSigma = sets.logSigmaNm / sets.pxnm;
 % dilateSize = 2;
 % dilateSize = 0;
 rLims = [12 23];
 % rLims = [ceil(6 * optics.logSigma) 23];
-  
+resizefactor = 1;
 % resizefactor = 1/10; % resize factor in order to speed up calculation
 % rLims(1) = round(rLims(1)*resizefactor)+dilateSize;
 
 % original size
-sz = round(size(imAverage)*resizefactor);
+% sz = round(size(imAverage)*resizefactor);
 % scale image down:
 % imScaled = imresize(imAverage,sz);
 
 % expect the circles to have higher intensity than all else
 lim = multithresh(imAverage,2);
 
-circles = imScaled > lim(2);
+circles = imAverage > lim(2);
 
 % se = strel('disk',dilateSize); % dilate circles by a disk
 % dilatedBW = imdilate(circles,se);

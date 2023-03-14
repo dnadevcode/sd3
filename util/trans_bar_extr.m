@@ -1,6 +1,6 @@
-function [newBars,barStats,delId,nanid] = trans_bar_extr(kymos,optics,actions,sets)
+function [newBars,barStats,delId,nanid] = trans_bar_extr(kymos,sets)
 
-edgeLen = round(sets.deltaCut * optics.sigma);
+edgeLen = round(sets.deltaCut * sets.sigma);
 
 % A more transparent alignment/barcode extraction routine
 nmol = length(kymos);

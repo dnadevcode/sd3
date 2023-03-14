@@ -1,8 +1,14 @@
-function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCutOut2] = sdd_segment_image(images, imageName, imageNumber, runNo, sets, tiles)
+function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOut2] = sdd_segment_image(images, imageName, imageNumber, runNo, sets, tiles)
     % sdd_segment_image - segments image
     %
     %
-    %   
+    %   Args:
+    %       images, imageName, imageNumber, runNo, sets, tiles
+    %
+    %   Returns:
+    %       movies, scores, optics, lengthLims, lowLim, widthLims,
+    %       bgCutOut, bgCutOut2
+
   registeredIm = images.registeredIm;
   imAverage = images.imAverage;
   centers = images.centers;
@@ -16,32 +22,32 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
 
 
   foundOptics = 0;
-  optics = struct();
+%   optics = struct();
 
   if isfield(sets, 'opticsFile') && (isfile(sets.opticsFile) || isfile(fullfile(sets.targetFolder, sets.opticsFile)))
 
     try
-      [optics.NA, optics.pixelSize, optics.waveLength] = get_optic_params(fullfile(sets.targetFolder, sets.opticsFile));
+      [sets.NA, sets.pixelSize, sets.waveLength] = get_optic_params(fullfile(sets.targetFolder, sets.opticsFile));
     catch
-      [optics.NA, optics.pixelSize, optics.waveLength] = get_optic_params(sets.opticsFile);
+      [sets.NA, sets.pixelSize, sets.waveLength] = get_optic_params(sets.opticsFile);
     end
 
-    optics.sigma = 1.22 * optics.waveLength / (2 * optics.NA) / optics.pixelSize; % Calculate width of PSF
-    optics.logSigma = optics.sigma;
+    sets.sigma = 1.22 * sets.waveLength / (2 * sets.NA) / sets.pixelSize; % Calculate width of PSF
+    sets.logSigma = sets.sigma;
     foundOptics = 1;
   else
-    optics.NA = nan;
-    optics.waveLength = nan;
+    sets.NA = nan;
+    sets.waveLength = nan;
   end
 
   if isfield(sets, 'logSigmaNm') && isfield(sets, 'pxnm')
 
     if not(foundOptics)
-      optics.sigma = sets.logSigmaNm / sets.pxnm;
+      sets.sigma = sets.logSigmaNm / sets.pxnm;
     end
 
-    optics.logSigma = sets.logSigmaNm / sets.pxnm;
-    optics.pixelSize = sets.pxnm;
+    sets.logSigma = sets.logSigmaNm / sets.pxnm;
+    sets.pixelSize = sets.pxnm;
     foundOptics = 1;
   end
 
@@ -50,7 +56,7 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
   end
   
  % Filter image with LoG filter 
-[filt, dist] = wd_calc(optics.sigma); 
+[filt, dist] = wd_calc(sets.sigma); 
 
 
 
@@ -133,7 +139,7 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
 
     tic
   for k = 1:length(B)% Filter out any regions with artifacts in them
-%     k / only if some centers to remove
+%     k / only if some centers to remove // % check this later to save time
 %     if not(isempty(centers))
 %       in = inpolygon(centers(:, 1), centers(:, 2), B{k}(:, 2), B{k}(:, 1));
 %     else
@@ -145,7 +151,6 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
 %     else
 %       meh(k) = -Inf;
 %     end
-
   end
   fprintf('Edge scores calculated in %.1f sec.\n',toc);
 
@@ -208,7 +213,7 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
         nmrand = 1000;
         randMeh = zeros(1, nmrand);
         dim = size(logim,[1 2]);
-                nPt = sets.lengthLims(1);%sets.lengthLims(1);
+        nPt = sets.lengthLims(1);%sets.lengthLims(1);
 
         indices = randsample(dim(1)*dim(2),nPt*nmrand);
 
@@ -236,6 +241,12 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
 
     text(1.1 * log(lowLim), 2/3 * max(h1.Values), mess, 'FontSize', 14)
     hold off
+    if sets.autoThreshBarsold==0&&sets.autoThreshBars
+        axes(tiles.dotScoresFilt);
+        histogram(randMeh)
+        title([imageName, ' edge score background histogram'])
+    end
+
   end
 
   % Filter molecules via the tweak parameters above
@@ -256,19 +267,6 @@ function [movies, scores, optics, lengthLims, lowLim, widthLims, bgCutOut, bgCut
   bgCutOut = nan(size(imAverage));
   bgCutOut(L ==0) = imAverage(L ==0);
   
-%     if sets.showMolecules
-%         %     figure(1 + (imageNumber - 1) * 5)
-%         %     t = tiledlayout(hPanelResult,4,2,'TileSpacing','tight','Padding','tight');
-%         axes(tiles.bg);
-%         imagesc(bgCutOut)
-%         colormap(gray)
-%         %     ax1 = uiaxes(hPanelResult);
-%         %     imshow(logim, 'InitialMagnification', 'fit','Parent',ax1)
-%         title([imageName, ' bg pixels'])
-%     end
-% 
-
-
   if sigmaBgLim > 0
     bgStd = sqrt(trimmean(bgPixels(:).^2, 10) - bgMean.^2);
   end
@@ -282,10 +280,10 @@ if sets.showMolecules
     axes(tiles.molDet);
     hold on
 end
-        % what to do with the first??
+
+stats = cell(1,length(B));
 for k = 1:length(B)% Filter any edges with lower scores than lim
-%     k
-    acc = mol_filt(B{k}, meh(k), lowLim, highLim, elim, ratlim, lengthLims, widthLims);
+     [acc, stats{k}, img]  = mol_filt(B{k}, meh(k), lowLim, highLim, elim, ratlim, lengthLims, widthLims);
 
     if sigmaBgLim > 0
       numPixelsInMol = sum(L == molPos(k), 'all');
@@ -311,9 +309,9 @@ for k = 1:length(B)% Filter any edges with lower scores than lim
 
 end
   
-      if sets.showMolecules
-          hold off
-      end
+  if sets.showMolecules
+      hold off
+  end
 
 
   trueedge(accepted + 1:end) = [];
@@ -353,6 +351,7 @@ end
   movies.trueedge = trueedge;
   movies.molRunName = fullfile(folderName, ['molecules_run',num2str(runNo)]);
   movies.runNo = runNo;
+  movies.stats = stats;
   
   if sets.showMolecules
     movies.molFigNum = molFigNum;

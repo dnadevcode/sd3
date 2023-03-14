@@ -18,6 +18,8 @@ Inf     | Maximum length (px)
 1       | Auto-threshold EdgeScore
 1       | Auto-threshold DotScore
 1       | Spline dot-detection
+5       | numSigmasAutoThresh
+randomBars        | autoThreshDotsMethod (options - randomBars,meanstd)
 
 
 

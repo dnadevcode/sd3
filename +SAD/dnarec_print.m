@@ -1,4 +1,4 @@
-function printName = dnarec_print(output, experiment, actions, optics, runNo, sets,filtered)
+function printName = dnarec_print(output, sets, runNo,filtered)
     % prints results as txt
     
     if nargin < 7
@@ -33,7 +33,7 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
         dotInt(j) = sum(output{i}.dots{j}.val);
       end
 
-      barLength(j) = numel(output{i}.expBars{j}.rawBarcode) * optics.pixelSize / 1000;
+      barLength(j) = numel(output{i}.expBars{j}.rawBarcode) * sets.pixelSize / 1000;
     end
 
     imDotsValsAll{i} = dotInt;
@@ -42,20 +42,22 @@ function printName = dnarec_print(output, experiment, actions, optics, runNo, se
     imDotsAll{i} = nDots;
   end
   
-  dotIntAll  = cellfun(@sum, imDotsValsAll);
+    dotIntAll  = cellfun(@sum, imDotsValsAll);
+    
+    imBarLength = cellfun(@sum, imBarLengthAll);
+    imDotBarLength = cellfun(@(a, b) sum(a(not(b))), imBarLengthAll, imDotsRejected);
+    imDots = cellfun(@(a, b) sum(a(not(b))), imDotsAll, imDotsRejected);
+    allDots = horzcat(imDotsAll{:});
+    allDotsRej = horzcat(imDotsRejected{:});
 
-  imBarLength = cellfun(@sum, imBarLengthAll);
-  imDotBarLength = cellfun(@(a, b) sum(a(not(b))), imBarLengthAll, imDotsRejected);
-  imDots = cellfun(@(a, b) sum(a(not(b))), imDotsAll, imDotsRejected);
-  allDots = horzcat(imDotsAll{:});
-allBarlength = horzcat(imBarLengthAll{:}); 
-%     imDotsBar = cellfun(@(a, b) a(not(b)), imDotsAll, imDotsRejected);
-
-  % Calculate the average dot per micrometer in each image
-  imDotsPerLength = imDots ./ imDotBarLength;
-
-  % Initiate printing - make file with corrects filename - make new file if old is present
-  printName = print_version(nImage, experiment, output{1}.name, runNo, filtered);
+    allBarlength = horzcat(imBarLengthAll{:}); 
+    %     imDotsBar = cellfun(@(a, b) a(not(b)), imDotsAll, imDotsRejected);
+    
+    % Calculate the average dot per micrometer in each image
+    imDotsPerLength = imDots ./ imDotBarLength;
+    
+    % Initiate printing - make file with corrects filename - make new file if old is present
+    printName = print_version(nImage, sets, output{1}.name, runNo, filtered);
 
 
   % Print overall results
@@ -67,7 +69,7 @@ allBarlength = horzcat(imBarLengthAll{:});
     [numBars,locations] = get_num_frags_in_range(horzcat(imBarLengthAll{:}), ...
     0, fragLengthRangeBp(1));
   fprintf(fid, '\n Number of barcodes of lengths 0-%.1f micrometer: %.0f ( %.3f dots/micron)\n', ...
-    fragLengthRangeBp(1), numBars, sum(allDots(locations))/sum(allBarlength(locations)));
+    fragLengthRangeBp(1), numBars, sum(allDots(logical(locations.*~(allDotsRej))))/sum(allBarlength(locations)));
 
   if length(fragLengthRangeBp) > 1
 
@@ -77,7 +79,7 @@ allBarlength = horzcat(imBarLengthAll{:});
         fprintf(fid, ' Number of barcodes of lengths %.1f-%.1f micrometer: %.0f ( %.3f dots/micron) \n', ...
         fragLengthRangeBp(j - 1), fragLengthRangeBp(j), ...
         numBars,...
-        sum(allDots(locations))/sum(allBarlength(locations))); % dots/micron
+        sum(allDots(logical(locations.*~(allDotsRej))))/sum(allBarlength(locations))); % dots/micron
     end
 
   end
@@ -85,7 +87,7 @@ allBarlength = horzcat(imBarLengthAll{:});
     [numBars,locations] = get_num_frags_in_range(horzcat(imBarLengthAll{:}), ...
     fragLengthRangeBp(end), inf);
     fprintf(fid, ' Number of barcodes of lengths >%.1f micrometer: %.0f ( %.3f dots/micron) \n', ...
-    fragLengthRangeBp(end), numBars, sum(allDots(locations))/sum(allBarlength(locations)));
+    fragLengthRangeBp(end), numBars, sum(allDots(logical(locations.*~(allDotsRej))))/sum(allBarlength(locations)));
 
   if any(imHasDots)
     fprintf(fid, '\n Total number of dots    : %i \n', sum(imDots));
@@ -104,7 +106,7 @@ allBarlength = horzcat(imBarLengthAll{:});
     for i = 1:nImage
       fprintf(fid, '\nFor image %s', output{i}.name);
 
-      if actions.autoThreshBars
+      if sets.autoThreshBars
         molThresh = [num2str(output{i}.molScoreLim) '(Auto)'];
       else
         molThresh = [num2str(output{i}.molScoreLim) '(Manual)'];
@@ -135,7 +137,7 @@ allBarlength = horzcat(imBarLengthAll{:});
 
       if imHasDots(i)
 
-        if actions.autoThreshDots
+        if sets.autoThreshDots
           dotThresh = [num2str(output{i}.dotScoreLim) '(Auto)'];
         else
           dotThresh = [num2str(output{i}.dotScoreLim) '(Manual)'];
@@ -170,20 +172,20 @@ allBarlength = horzcat(imBarLengthAll{:});
   fprintf(fid, 'Analysis settings:\n');
   lengthLims = output{1}.lengthLims;
   widthLims = output{1}.widthLims;
-  fprintf(fid, ' Minimum molecule score      : %.3g (User set value) \n', experiment.lowLim);
-  fprintf(fid, ' Minimum dot score           : %.3g (User set value) \n', experiment.dotScoreMin);
+  fprintf(fid, ' Minimum molecule score      : %.3g (User set value) \n', sets.lowLim);
+  fprintf(fid, ' Minimum dot score           : %.3g (User set value) \n', sets.dotScoreMin);
   fprintf(fid, ' Molecule length limits      : %.1f - %.1f pixels \n', lengthLims(1), lengthLims(2));
   fprintf(fid, ' Molecule width limits       : %.1f - %.1f pixels \n', widthLims(1), widthLims(2));
-  fprintf(fid, ' Molecule eccentricity limit : %.2f \n', experiment.elim);
-  fprintf(fid, ' Min. mol-to-convex-hull     : %.2f \n', experiment.ratlim);
-  fprintf(fid, ' Min. dot to end distance    : %.1f pixels \n', experiment.dotMargin);
+  fprintf(fid, ' Molecule eccentricity limit : %.2f \n', sets.elim);
+  fprintf(fid, ' Min. mol-to-convex-hull     : %.2f \n', sets.ratlim);
+  fprintf(fid, ' Min. dot to end distance    : %.1f pixels \n', sets.dotMargin);
     fprintf(fid, ' Mol extraction method    : %.1f \n', sets.extractionMethod);
 
   fprintf(fid, [' Optics settings             : NA = %.2f,' ...
               ' pixel size = %.2f nm, \n' ...
               '   wavelength = %.2f nm, sigma_psf = %.2f nm, sigma_LoG = %.2f nm. \n'], ...
-    optics.NA, optics.pixelSize, optics.waveLength, ...
-    optics.sigma * optics.pixelSize, optics.logSigma * optics.pixelSize);
+    sets.NA, sets.pixelSize, sets.waveLength, ...
+    sets.sigma * sets.pixelSize, sets.logSigma * sets.pixelSize);
   fclose(fid);
 
 end

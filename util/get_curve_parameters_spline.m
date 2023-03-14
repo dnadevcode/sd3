@@ -1,50 +1,79 @@
-function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat )
+function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat,smoothingPar,MinBranchLength)
+    %
+    %   Args: bw,mat, smoothingPar, MinBranchLength
+    %
+    %   Returns:
+    %       curve,xF,yF,distance
+    if nargin < 3
+        smoothingPar = 0.1; % how much to smoothen the skeleton
+        MinBranchLength = 20; % minimum branch length
+    end
 
-    % skeletonize
-    out = bwskel(bw==1,'MinBranchLength',20);
+    % skeletonize, i.e. remove branches
+    out = bwskel(bw==1,'MinBranchLength',MinBranchLength);
 
-    % smoothen the skeleton
-    [coor1 coor2]=find(out==1); % Finding all the co-ordinates for the corresponding component
-    
+    % make sure barcode flows left to right and not top to bottom
+    if sum(sum(out,1)>1) > 1 %size(out,1)>size(out,2) % todo: deal with cases where flow close to horizontal/vertical
+       flowVertical = 1;
+    else
+        flowVertical = 0;
+    end
+
+    if flowVertical
+        out = out';
+    end
+    CC = bwconncomp(out);
+    [coor1, coor2] = ind2sub(size(out),CC.PixelIdxList{1});
+    % alternative    [coor1, coor2] = find(out==1); % Finding all the co-ordinates for the corresponding component
+
+    xd = 0.01; % step size
+
     if length(coor1) > 3 % what is minimum number of points required
         try
-            yy1 = smooth(coor2,coor1,0.5,'loess');
+            yy1 = smooth(coor2,coor1,smoothingPar,'loess');
+        
             [curve, goodness, output] = fit(coor2,yy1,'smoothingspline');% ,'SmoothingParam',0.5
+            
+            % find distances between points
+%                   figure,imagesc(mat')
+%             hold on
+%             plot(curve)
+            
+        if flowVertical
+            yvals  = 1:xd:size(mat,1);
+            xvals = curve(1:xd:size(mat,1));
+        else
+            xvals = 1:xd:size(mat,2);
+            yvals = curve(1:xd:size(mat,2));
+        end
 
-
-    % finally fit a spline//either x or y coord, depending which gives more
-    % accurate!
-%     [curve, goodness, output] = fit([coor2,yy1], ones(length(coor2),1),'lowess','Span',0.5);% ,'SmoothingParam',0.5
-
-%         figure,imagesc(mat)
-%         hold on
-%         plot(curve)
-    % find distances between points
-    
-        xd = 0.01;
-        xvals = 1:xd:size(mat,2);
-        yvals = curve(1:xd:size(mat,2));
+        % all distances
         allD = zeros(1,length(xvals)-1);
         for i=1:length(xvals)-1
            allD(i) = sqrt((xvals(i+1)-xvals(i))^2+(yvals(i+1)-yvals(i))^2); % straight line distance
         end
+        % cummulative distance
         distAlong = cumsum(allD);
-        % 
+        % pixel positions
         pxPos = 0:floor(sum(allD));
         idxPx = zeros(1,length(pxPos));
         idxPx(1)=1;
         for idpxPos = 1:pxPos(end)
             idxPx(idpxPos+1) = find(distAlong >= idpxPos ,1,'first');
         end
-%         find
 
-        xF = xvals(idxPx);
-        yF = yvals(idxPx);
+%         if flowVertical
+%             xF = yvals(idxPx);
+%             yF = xvals(idxPx);
+%         else
+            xF = xvals(idxPx);
+            yF = yvals(idxPx);
+%         end
         
 %          figure,imagesc(mat)
 %         hold on
-%         plot(xF,yF)
-        
+%         plot(xF,yF,'x')
+%         
         distance = zeros(1,length(xF)-1);
         for i=1:length(xF)-1
            distance(i) = sqrt((xF(i+1)-xF(i))^2+(yF(i+1)-yF(i))^2); % straight line distance
@@ -65,7 +94,7 @@ function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat )
     end
 
         
-        
+
 %     % gets line parameters
 %     nonnans = find(~isnan(mat));
 %     [row, col] = ind2sub(size(bw), nonnans);

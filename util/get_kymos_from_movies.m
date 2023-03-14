@@ -1,43 +1,41 @@
-function [kymos, lineParams, xyPars] = get_kymos_from_movies( molM, bwM, sPer, method)
+function [kymos, lineParams, xyPars,distance] = get_kymos_from_movies( molM, bwM, sPer, method)
     % get_kymos_from_movies this function gets kymos from movies
-
-if nargin < 4
-    method = 1;
-end
-kymos = cell(1, length(molM));
-lineParams = cell(1, length(molM));
-xyPars = cell(1, length(molM));
-
-
-%%
-for i=1:length(molM)
-  % get line parameters
-    if method ==1
-        [k,b] = get_line_parameters(bwM{i});
-        kymos{i} = get_kymo(molM{i}, k , b, sPer);
-        lineParams{i} = [k b];
-    else  % we take only center row for the spline detection // can we update this to also use sPer?
-        [f,xF,yF,distance] = get_curve_parameters_spline(bwM{i},molM{i}(:,:,1));
-        tempKm =  zeros(size(molM{i},3),length(xF));
-        for lIdx=1:length(xF)
-            for tIdx =1:size(molM{i},3)
-                Vq = interp2(molM{i}(:,:,tIdx)',yF(lIdx),xF(lIdx),'linear'); % Could change interpolation method
-                tempKm(tIdx,lIdx) = Vq; % could be nansum
-            end
-        end
-        % also find the longest part without nan's, and bitmask the rest out 
-        connCompoments = bwconncomp(~isnan(tempKm));
-        conCompLengths = cellfun(@(x) length(x),connCompoments.PixelIdxList);
-        [maxL, maxId] = max(conCompLengths);
-        kymos{i} = nan(size(tempKm));
-        try
-            kymos{i}(connCompoments.PixelIdxList{maxId}) = tempKm(connCompoments.PixelIdxList{maxId});
-        catch
-        end
-        lineParams{i} = f;
-        xyPars{i} ={yF,xF};
+    
+    %   Args:
+    %       molM - molecule movie
+    %       bwM - molecule bitmask
+    %       sPer - how many pixels to take perpendicularly
+    %       method - extraction method
+    %
+    %   Returns:
+    %       kymos - extracted kymograph
+    %       lineParams - line parameters for extracted kymograph
+    %       xyPars - xy parameters for extracted kymo
+    
+    if nargin < 4
+        method = 1;
     end
-end
+
+    % These will be returned as output
+    kymos = cell(1, length(molM));
+    lineParams = cell(1, length(molM));
+    xyPars = cell(1, length(molM));
+    distance =  cell(1, length(molM));
+
+    import Core.LineExtraction.fit_line_method;
+    import Core.LineExtraction.fit_spline_method;
+
+    %%
+    switch method
+        case 1 %"linear"
+            [kymos,lineParams] = fit_line_method(molM,bwM,sPer);
+        case 2 % spline
+             [kymos,lineParams,xyPars,distance] = fit_spline_method(molM,bwM,sPer);
+%         case 2 % match-pairs
+        otherwise
+            error('No valid alignment method selected');
+    end
+    
 %%
     %   % plot
     plotExample = 0;

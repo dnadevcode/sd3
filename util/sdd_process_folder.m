@@ -63,7 +63,6 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     %     end
     barName = fullfile(folderName, ['barcodes_run', num2str(runNo)]);
     kymoName = fullfile(folderName, ['kymos_run', num2str(runNo)]);
-
     dotName = fullfile(folderName, ['dotbars_run', num2str(runNo)]);
     molName = fullfile(folderName, ['molecules_run', num2str(runNo)]);
     resName = fullfile(folderName, ['results_run', num2str(runNo), '.txt']);
@@ -74,8 +73,6 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     kymoExist = isfolder(kymoName);
     outputExist = barcodeExist || dotbarExist || moleculesExist || resExist || kymoExist;
   end
-  
-
 
   if sets.saveMolecules
     mkdir(molName)
@@ -100,7 +97,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
         hTabgroup = uitabgroup('Parent',hPanelResult{i});
 
         hResScores= uitab(hTabgroup, 'title',strcat('Scores'));
-        t = tiledlayout(hResScores,2,2,'TileSpacing','tight','Padding','tight');
+        t = tiledlayout(hResScores,2,2,'TileSpacing','compact','Padding','compact');
         tiles.molScores = nexttile(t);
         tiles.dotScores = nexttile(t);
         tiles.dotScoresFilt = nexttile(t);
@@ -116,19 +113,6 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
         t = tiledlayout(hResFilt,1,2,'TileSpacing','tight','Padding','tight');
         tiles.logFilt = nexttile(t);
         tiles.bg = nexttile(t);
-
-
-%         t = tiledlayout(hPanelResult,4,2,'TileSpacing','tight','Padding','tight');
-%         tiles.molScores = nexttile(t);
-%         tiles.dotScores = nexttile(t);
-%         tiles.molDet = nexttile(t,[2 1]);
-%         tiles.dotDet = nexttile(t,[2 1]);
-%         linkaxes([ tiles.molDet tiles.dotDet  ])
-%         tiles.logFilt = nexttile(t);
-
-%     if sets.showMolecules %create tile layout if plotting the results
-% %         t = tiledlayout(hPanelResult,3,2,'TileSpacing','tight','Padding','tight');
-%     else
     else
         tiles = [];
     end
@@ -146,7 +130,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     end
 
     % Segment image
-    [movies, ~, optics, lengthLims, molScoreLim, widthLims, bgPixels, bgPixels2] = sdd_segment_image(cleanImages, imageNames{i}, i, runNo,sets,tiles);
+    [movies, ~, sets, lengthLims, molScoreLim, widthLims, bgPixels, bgPixels2] = sdd_segment_image(cleanImages, imageNames{i}, i, runNo,sets,tiles);
 
     if isempty(bgPixels2)
         bgPixels2 = bgPixels;
@@ -154,7 +138,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     
 %     sets.extractionMethod = 2;
     % Extract barcodes
-    [barcodes, dotScoreLim] = sdd_extract_barcodes(movies, optics, lengthLims, i, runNo, bgPixels2, sets, tiles);
+    [barcodes, dotScoreLim] = sdd_extract_barcodes(movies, sets, lengthLims, i, runNo, bgPixels2, tiles);
 
 %   % plot molecule with mask
 %       if sets.saveMolecules
@@ -194,7 +178,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     output{i}.median = median(cleanImages.imAverage(:));
     output{i}.settings = sets;
     output{i}.molRunFold = movies.molRunName;
-    output{i}.optics = optics;
+%     output{i}.optics = optics;
     output{i}.runNo = movies.runNo;
     
     % csv print:
@@ -205,13 +189,13 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     
     if sets.showMolecules
       % Mark barcodes in molecule image
-      sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
+      [output{i}.dotLocsGlobal] = sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
     end
     
   end
 
   import SAD.dnarec_print
-  resultsName = dnarec_print(output, sets, sets, optics, runNo, sets);
+  resultsName = dnarec_print(output, sets, runNo);
   fprintf('\n-------------------------------------------------------------------\n');
   fprintf('Analysis complete\n');
   fprintf('Results saved in %s', resultsName);

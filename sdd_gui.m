@@ -35,7 +35,7 @@ function [] = sdd_gui()
     %     dnarec_folder_scan(app.PathInput.Value, sets); / before.
 
     % create tabbed figure
-    hFig = figure('Name', 'SDD-dots GUI v0.6.1', ...
+    hFig = figure('Name', 'SDD-dots GUI v0.7', ...
         'Units', 'normalized', ...
         'OuterPosition', [0 0 1 1], ...
         'NumberTitle', 'off', ...
@@ -160,6 +160,9 @@ function [] = sdd_gui()
         sets.autoThreshBars = itemsList{5}.Value;
         sets.autoThreshDots = itemsList{6}.Value; 
         sets.extractionMethod =   itemsList{7}.Value+1; % detects dots on spline
+    
+        sets.numSigmasAutoThresh =  str2double(setsTable.Var1{21});
+        sets.autoThreshDotsMethod =  strtrim(setsTable.Var1{22}); % autothresh method
 
         
         % parameters not set by GUI
@@ -206,7 +209,7 @@ function [] = sdd_gui()
         sets = outputRes{1}.settings;
         
         import SAD.dnarec_print
-        resultsName = dnarec_print(outputNew, sets, sets, outputRes{1}.optics,outputRes{1}.runNo, sets,1);
+        resultsName = dnarec_print(outputNew, sets,outputRes{1}.runNo,1);
         
         fprintf('\n-------------------------------------------------------------------\n');
         fprintf('Filtered results saved in %s', resultsName);

@@ -1,4 +1,4 @@
-function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLims, imageNumber, runNo, bgPixels, sets,tiles)
+function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims, imageNumber, runNo, bgPixels,tiles)
     % sdd_extract_barcodes
     %
     %   Args:
@@ -9,16 +9,16 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
     %       dotScoreMin - minimum dot score threshold
 
 %%%%%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%%%%
-  sPer = round(optics.sigma); % Number of pixel width of molecule "kymograph"
+  sPer = round(sets.sigma); % Number of pixel width of molecule "kymograph"
   %%%%%%%%%%%%%%%%% TWEAK PARAMETER %%%%%%%%%%%%%%%%%
 
   extractionMethod = sets.extractionMethod;
   % Convert images to kymographs
-  [kymos, barcodes.lineParams, barcodes.xy] = get_kymos_from_movies(movies.molM, movies.bwM, sPer, extractionMethod);
+  [kymos, barcodes.lineParams, barcodes.xy,barcodes.distance] = get_kymos_from_movies(movies.molM, movies.bwM, sPer, extractionMethod);
 
 %%  
 %     figure,
-%     idx = 3;
+%     idx = 1;
 %     mol = movies.molM{idx};
 %     xF = barcodes.xy{idx}{1};
 %     yF = barcodes.xy{idx}{2};
@@ -34,8 +34,8 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %         colormap(gray)
       %%  
         
-%   % plot
-%     idx=2
+% %   % plot
+%     idx=1
 %     figure,
 %     tiledlayout(1,2);nexttile
 %     if extractionMethod == 2
@@ -54,7 +54,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 %     sPer = 0;
     
   % Extract barcodes from kymographs
-    [barcodes.expBars, barcodes.expStats, barcodes.delid, barcodes.nanid] = trans_bar_extr(kymos, optics, sets, sets);
+    [barcodes.expBars, barcodes.expStats, barcodes.delid, barcodes.nanid] = trans_bar_extr(kymos, sets);
     barcodes.idx = 1:length(movies.molM);
     barcodes.idx( barcodes.delid) = [];
   if isfield(movies, 'dotM')
@@ -80,14 +80,13 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, optics, lengthLi
 
     % todo: SFW detection here - but for this need to remove noise first
     
-    if extractionMethod == 2
-        numavgPts = length(round(-669/509 * optics.sigma):round(669/509 * optics.sigma));
-        bgPixels = movmean(bgPixels,  numavgPts); % but for method 2, we take a single point?
-    end
+%     if extractionMethod == 2
+%         numavgPts = length(round(-669/509 * sets.sigma):round(669/509 * sets.sigma));
+%         bgPixels = movmean(bgPixels,  numavgPts); % but for method 2, we take a single point?
+%     end
 
-        
     % old:
-    [barcodes.dots, dotScoreMin] = sdd_detect_dots(barcodes.dotBars, optics, sets.dotMargin, sets.dotScoreMin, lengthLims, imageNumber, movies.imageName, sets, bgPixels,tiles);
+    [barcodes.dots, dotScoreMin] = sdd_detect_dots(barcodes.dotBars, sets, imageNumber, movies.imageName, bgPixels,tiles);
 %     if sets.dotDet2D % detect 2d dots      
 %         % for each point need to find 
 %         %%
