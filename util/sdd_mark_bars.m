@@ -36,27 +36,30 @@ if isfield(movies,'dotFigNum')
         voffList(molIdx) = vOff;
         text(movies.pos{curIdx}(2),movies.pos{curIdx}(1)+vOff,str,'Color','white','Clipping','on');%
         for j = 1:numel(barcodes.dots{molIdx}.locations)
-            if extractionMethod == 1
-                dy = -sin(angle)*(barcodes.dots{molIdx}.locations(j)-1+barcodes.dots{molIdx}.leftOffset);
-                dx = cos(angle)*(barcodes.dots{molIdx}.locations(j)-1+barcodes.dots{molIdx}.leftOffset);
-                y = movies.pos{curIdx}(1)+vOff+dy-1;%barcodes.lineParams{molIdx}(2)+dy-1;
-                x = movies.pos{curIdx}(2)+hOff+dx;
-            else
-                y =  movies.pos{curIdx}(1)+barcodes.xy{molIdx}{1}(barcodes.dots{molIdx}.locations(j)+barcodes.nanid(molIdx))-1;
-                x =  movies.pos{curIdx}(2)+barcodes.xy{molIdx}{2}(barcodes.dots{molIdx}.locations(j)+barcodes.nanid(molIdx))-1;
+            try
+                if extractionMethod == 1
+                    dy = -sin(angle)*(barcodes.dots{molIdx}.locations(j)-1+barcodes.dots{molIdx}.leftOffset);
+                    dx = cos(angle)*(barcodes.dots{molIdx}.locations(j)-1+barcodes.dots{molIdx}.leftOffset);
+                    y = movies.pos{curIdx}(1)+vOff+dy-1;%barcodes.lineParams{molIdx}(2)+dy-1;
+                    x = movies.pos{curIdx}(2)+hOff+dx;
+                else
+                    y =  movies.pos{curIdx}(1)+barcodes.xy{molIdx}{1}(barcodes.dots{molIdx}.locations(j)+barcodes.dots{molIdx}.leftOffset)-1;
+                    x =  movies.pos{curIdx}(2)+barcodes.xy{molIdx}{2}(barcodes.dots{molIdx}.locations(j)+barcodes.dots{molIdx}.leftOffset)-1;
+                end
+                dotLocsGlobal{molIdx}{j} = [x,y];
+    %             y = movies.pos{curIdx}(1)+vOff+dy-1;%barcodes.lineParams{molIdx}(2)+dy-1;
+    %             x = movies.pos{curIdx}(2)+hOff+dx;
+    
+                plot(x,y,'rx'); % maybe too much to plot also this info
+                str = sprintf('I = %.1f', barcodes.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
+                text(x-5,y-5,str,'Color','white','Clipping','on');
+            catch
+                warning(['Mol_', num2str(molIdx), ' dot_', num2str(j), ' not plotted correctly']);
             end
-            dotLocsGlobal{molIdx}{j} = [x,y];
-%             y = movies.pos{curIdx}(1)+vOff+dy-1;%barcodes.lineParams{molIdx}(2)+dy-1;
-%             x = movies.pos{curIdx}(2)+hOff+dx;
-
-            plot(x,y,'rx'); % maybe too much to plot also this info
-            str = sprintf('I = %.1f', barcodes.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
-            text(x-5,y-5,str,'Color','white','Clipping','on');
         end
     end
   
     hold off
-    
 end
       
 
@@ -79,7 +82,7 @@ hold on
  for molIdx = 1:length(barcodes.expBars)
     curIdx = barcodes.idx(molIdx);
     str = sprintf('Mol. %i',curIdx);
-    text(movies.pos{curIdx}(2),movies.pos{curIdx}(1)+voffList(molIdx),str,'Color','white');
+    text(movies.pos{curIdx}(2),movies.pos{curIdx}(1)+voffList(molIdx),str,'Color','white','Clipping','on');
   end
 
 hold off

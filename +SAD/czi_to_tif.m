@@ -15,7 +15,7 @@ function [] = czi_to_tif(cziFold,bfcovertPath)
         [fd,fm,fe] = fileparts(name);
         nameNew = strrep(name,fe,'.tif');
 
-        command = strcat([bfcovertPath ' '  name ' ' nameNew]);
+        command = strcat([bfcovertPath ' "'  name '" "' nameNew '"']);
         
         if exist(nameNew,'file')
             delete(nameNew); % in case already exists tif, remove 

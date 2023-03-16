@@ -15,22 +15,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     hPanelResult = [];
 
 
-%   mFilePath = mfilename('fullpath');
-%   mfolders = split(mFilePath, {'\', '/'});
-%   utilPath = fullfile(mfolders{1:end - 2}, 'util');
-% 
-%   if strcmp(mFilePath(1), '/')
-%     utilPath = strcat('/', utilPath);
-%   end
-% 
-%   addpath(utilPath);
-%   [~, lwid] = lastwarn;
-% 
-%   if strcmp(lwid, 'MATLAB:mpath:nameNonexistentOrNotADirectory')
-%     error('Unexpected error when asserting source folder path.')
-%   end
 
-  % addpath('util/lldev/src/MATLAB/');
   import SAD.dnarec_print
 
   % Perform preliminary check to see if all required files are accessible
@@ -143,7 +128,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 %   % plot molecule with mask
 %       if sets.saveMolecules
 % % 
-%           idx=find(barcodes.idx==4)
+%           idx=find(barcodes.idx==5)
 %           figure,imagesc(movies.dotM{barcodes.idx(idx)})
 %     %         imagesc(movies.molM{barcodes.idx(idx)})
 % 
@@ -156,9 +141,9 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 % %           plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
 %     % %     %   
 %         colormap(gray)
-% % %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
-% % %     sPer = 0;
-% %       end
+% % % %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
+% % % %     sPer = 0;
+% % %       end
 
 
     
@@ -189,7 +174,10 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     
     if sets.showMolecules
       % Mark barcodes in molecule image
-      [output{i}.dotLocsGlobal] = sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
+        [output{i}.dotLocsGlobal] = sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
+        tb = axtoolbar(tiles.dotDet , 'default');
+        btn = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
+        btn.ButtonPushedFcn = @callbackDetailedPlot;
     end
     
   end
@@ -214,4 +202,16 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
   % else
   % 	fprintf('Preliminary check failed. Analysis aborted.\n');
   % 	output = NaN;
+
+
+  
+    
+    function callbackDetailedPlot(src, event)
+        answer = inputdlg('Select molecule(s) to analyse in detail:',...
+             'Mol analysis', [1 50]);
+        user_val = str2num(answer{1});
+        import Core.AnalysisPlot.detailed_analysis_plot;
+        detailed_analysis_plot(movies,barcodes,user_val)
+
+    end
 end

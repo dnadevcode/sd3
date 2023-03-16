@@ -1,11 +1,11 @@
-function [kymo, boundaries] = get_curved_kymo(mol,xF,yF, sPer)
+function [kymo, boundaries] = get_curved_kymo(mol, xF, yF, sPer)
     % get_kymo - extract kymo from a movie
     % based on line parameters k,b and perpendicular length sPer
     % the line equations is  y = kx+b, and the normal equation is
     % todo: more complicated features, using spline.
     
 
-    tempKm = [];
+    tempKm = zeros(1,length(xF));
     for lIdx=1:length(xF)
         Vq = interp2(mol',xF(lIdx),yF(lIdx),'linear'); % Could change interpolation method
         tempKm(1,lIdx) = Vq; % could be nansum

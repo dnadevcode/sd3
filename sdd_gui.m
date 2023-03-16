@@ -5,65 +5,56 @@ function [] = sdd_gui()
     
     % create a simpler version of sdd gui that possibly shows output in the
     % same GUI.
-    
+        
+    %% Add source files to path and initialize settings
+    mFilePath = mfilename('fullpath');
+    mfolders = split(mFilePath, {'\', '/'});
+    [fd, fe] = fileparts(mFilePath);
+    % read settings txt
+    setsTable  = readtable(fullfile(fd,'sdd_settings.txt'),'Format','%s%s%s');
 
-      mFilePath = mfilename('fullpath');
-      mfolders = split(mFilePath, {'\', '/'});
-        [fd,fe]= fileparts(mFilePath);
-   setsTable  = readtable(fullfile(fd,'sdd_settings.txt'),'Format','%s%s');
-
-%       utilPath = fullfile(mfolders{1:end - 1}, 'util');
-%       utilPath2 = fullfile(mfolders{1:end - 1}, '+SAD');
     outputRes = []; % for selecting good/bad
     savePath = [];
 
-      processFolders = 1; % whether to process single files or folders
-
-      warning(''); % empty warning
-      addpath(genpath(fullfile(mfolders{1:end - 1})));
-%       addpath(utilPath2);
-
-      [~, lwid] = lastwarn;
-
-      if strcmp(lwid, 'MATLAB:mpath:nameNonexistentOrNotADirectory')
+    processFolders = 1; % whether to process single files or folders
+    
+    warning(''); % empty warning
+    addpath(genpath(fullfile(mfolders{1:end - 1})));
+    
+    [~, lwid] = lastwarn;
+    
+    if strcmp(lwid, 'MATLAB:mpath:nameNonexistentOrNotADirectory')
         error('Unexpected error when asserting source folder path.')
-      end
-    
-    % GUI eventually calls dnarec_folder_scan with all the input settings
-    % for the SDD-dots
-    
-    %     dnarec_folder_scan(app.PathInput.Value, sets); / before.
+    end
 
+    %% Generate UI
     % create tabbed figure
-    hFig = figure('Name', 'SDD-dots GUI v0.7', ...
+    hFig = figure('Name', 'SDD-dots GUI v0.7.1', ...
         'Units', 'normalized', ...
         'OuterPosition', [0 0 1 1], ...
         'NumberTitle', 'off', ...
         'MenuBar', 'none', ...
         'ToolBar', 'figure' ...
     );
+
     hPanel = uipanel('Parent', hFig);
     h = uitabgroup('Parent',hPanel);
     t1 = uitab(h, 'title', 'SDD');
     tsHCC = uitabgroup('Parent',t1);
     hPanelImport = uitab(tsHCC, 'title', 'Dot import tab');
 
-    % make into loop
-   checkItems =  {'Show score histograms','Show detected molecules','Save detected molecules','Save barcodes and dots','Auto-threshold EdgeScore','Auto-threshold DotScore','Spline dot-detection'};
+    % Checklist as a loop
+    checkItems = setsTable.Var2(14:20);
 
    % checkbox for things to plot and threshold
-    for i=1:length(checkItems)
+    for i = 1:length(checkItems)
         itemsList{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value',1,'String',{checkItems{i}},'Units', 'normal', 'Position', [0.45 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
     
     % parameters with initial values
-   textItems =  {'Pixel size(nm)','Width of LoG filter (nm)','Molecule image flag','Dots image flag','Minimum log(EdgeScore)','Minimum DotScore',...
-       'Minimum width (px)', 'Maximum width (px)','Minimum length (px)','Maximum length (px)','Edge margin for dots'};
-   
+    textItems =  setsTable.Var2(1:11);    
     values = setsTable.Var1(1:11);
-%    values =  {'130','300','C=0','C=1','0','10',...
-%        '1', 'Inf','50','Inf','2'};
-   
+
     for i=1:6 % these will be in two columns
         positionsText{i} =   [0.2-0.2*mod(i,2) .88-0.1*ceil(i/2) 0.2 0.03];
         positionsBox{i} =   [0.2-0.2*mod(i,2) .83-0.1*ceil(i/2) 0.15 0.05];
@@ -180,18 +171,18 @@ function [] = sdd_gui()
         else
             dataFolders = sets.folder;
         end
-
+    
+        outputRes = cell(1,numel(dataFolders));
         for i = 1:numel(dataFolders)       
             % MAIN FUNCTION
             [output,hPanelResult] = sdd_process_folder(dataFolders{i}, sets, tsHCC);
             if ~isempty(output)
-                outputRes = output;
+                outputRes{i} = output;
                 folderName = subsref(dir(dataFolders{i}), substruct('.', 'folder'));
-                savePath = fullfile(folderName, 'dnarecoutput');
+                savePath = fullfile(folderName, ['dnarecoutput_',num2str(i)]);
                 save(savePath, 'output')
             end
-%             save(savePath, 'actions', '-append')
-%             save(savePath, 'experiment', '-append')
+
   
   
         end  

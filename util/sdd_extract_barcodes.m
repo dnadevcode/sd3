@@ -69,7 +69,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims
     % curved molecule
         barcodes.xy(barcodes.delid) = []; % so it doesn't need to compute those
         movies.dotM(barcodes.delid) = [];
-        [barcodes.dotBars,barcodes.boundaries] = cellfun(@(x,y) get_curved_kymo(x, y{1} , y{2}, sPer) ,movies.dotM, barcodes.xy,'un',false);
+        [barcodes.dotBars,barcodes.boundaries] = cellfun(@(x,y) get_curved_kymo(x, y{1} , y{2}, sPer), movies.dotM, barcodes.xy,'un',false);
       end
       
 
