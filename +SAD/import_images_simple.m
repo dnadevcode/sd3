@@ -1,4 +1,11 @@
 function [images,names] = import_images_simple(experiment)
+    % Import images from an experiment
+    %
+    %   Args:
+    %       experiment - name of the file/folder
+    %   Returns:
+    %       images - loaded to mat
+    %       names - names of images
 tic;
 folder = experiment.targetFolder;
 fprintf('Analyzing data from the %s folder,\n',folder)
@@ -12,6 +19,40 @@ names = {};
 for i = 1:numel(list)
   % Check if the file ends in 'C=1.tif'
   filename = fullfile(list(i).folder, list(i).name);
+  if isequal(filename(end-2:end),'czi')
+      % use bfopen to load czi
+      try
+          T = evalc(['data = bfopen(''', filename, ''');']);
+      catch
+          bfmatlabFold = uigetdir('pwd','Select folder with bfmatlab');
+          addpath(genpath(bfmatlabFold));
+          try
+              T = evalc(['data = bfopen(''', filename, ''');']);
+          catch
+              warning('Failed to import czi file');
+          end
+
+      end
+        try
+            images{end+1}.registeredIm = {double(data{1,1}{1,1})}; % Here just single frame
+            [f1,f2,fend] = fileparts(filename);
+
+            names{end+1} = f2; 
+            try
+              images{end}.dotIm = double(data{1,1}{2,1});
+            catch
+            end
+            
+            try % if three channel
+              images{end}.dotIm2 = double(data{1,1}{3,1});
+            catch
+            end
+            data = [];
+        catch
+        end
+
+  else
+      % loading a tiff
   isFile = isfile(filename);
   isBar = not(isempty(strfind(list(i).name, barFlag))) || isempty(barFlag);
   if isFile && isBar
@@ -36,6 +77,7 @@ for i = 1:numel(list)
     elseif isempty(barFlag) && isempty(dotFlag)
       images{end}.dotIm = images{end}.registeredIm;
     end
+  end
   end
 end
 

@@ -111,7 +111,11 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     end
     
     if isfield(images{i}, 'dotIm')
-      cleanImages.dotIm = images{i}.dotIm;
+        cleanImages.dotIm = images{i}.dotIm;
+        if sets.denoiseDotImages
+            SE = strel("rectangle",[20 20])
+            cleanImages.dotIm  = imtophat(double(cleanImages.dotIm ),SE);
+        end
     end
 
     % Segment image

@@ -29,7 +29,7 @@ function [] = sdd_gui()
 
     %% Generate UI
     % create tabbed figure
-    hFig = figure('Name', 'SDD-dots GUI v0.7.1', ...
+    hFig = figure('Name', 'SDD-dots GUI v0.7.2', ...
         'Units', 'normalized', ...
         'OuterPosition', [0 0 1 1], ...
         'NumberTitle', 'off', ...
@@ -48,7 +48,12 @@ function [] = sdd_gui()
 
    % checkbox for things to plot and threshold
     for i = 1:length(checkItems)
-        itemsList{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value',1,'String',{checkItems{i}},'Units', 'normal', 'Position', [0.45 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+        itemsList{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{13+i}),'String',{checkItems{i}},'Units', 'normal', 'Position', [0.45 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    end
+
+    checkItems2 = setsTable.Var2(23);
+    for i = 1:length(checkItems2)
+        itemsList2{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{23}),'String',{checkItems2{i}},'Units', 'normal', 'Position', [0.6 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
     
     % parameters with initial values
@@ -91,9 +96,11 @@ function [] = sdd_gui()
 %     addlistener(sliderValue{2}, 'Value', 'PostSet',funV2);
 
     dotImport = uicontrol('Parent', hPanelImport, 'Style', 'edit','String',fullfile(pwd,'testfolder'),'Units', 'normal', 'Position', [0 0.9 0.5 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
-    dotButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Browse folder'},'Callback',@selection,'Units', 'normal', 'Position', [0.6 0.9 0.15 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
-    dotButtonFile = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Browse file'},'Callback',@selection2,'Units', 'normal', 'Position', [0.75 0.9 0.15 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    set(dotImport, 'Min', 0, 'Max', 25)% limit to 10 files via gui;
 
+    dotButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Browse folder'},'Callback',@selection,'Units', 'normal', 'Position', [0.6 0.9 0.1 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    dotButtonFile = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Browse file'},'Callback',@selection2,'Units', 'normal', 'Position', [0.7 0.9 0.1 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+    dotButtonUI = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'uigetfiles'},'Callback',@selection3,'Units', 'normal', 'Position', [0.8 0.9 0.1 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     runButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Run'},'Callback',@run,'Units', 'normal', 'Position', [0.7 0.2 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     
     clearButton = uicontrol('Parent', hPanelImport, 'Style', 'pushbutton','String',{'Clear visual results'},'Callback',@clear_results,'Units', 'normal', 'Position', [0.7 0.1 0.2 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
@@ -118,6 +125,17 @@ function [] = sdd_gui()
         processFolders = 0;
 
     end    
+
+    function selection3(src, event)
+        [FILENAME] = uipickfiles;
+        dotImport.String = FILENAME';
+        if ~iscell(dotImport.String)
+            dotImport.String  = {dotImport.String};
+        end
+        processFolders = 0;
+
+    end    
+
 
 
     function clear_results(src, event)
@@ -151,6 +169,7 @@ function [] = sdd_gui()
         sets.autoThreshBars = itemsList{5}.Value;
         sets.autoThreshDots = itemsList{6}.Value; 
         sets.extractionMethod =   itemsList{7}.Value+1; % detects dots on spline
+        sets.denoiseDotImages =  itemsList2{1}.Value;
     
         sets.numSigmasAutoThresh =  str2double(setsTable.Var1{21});
         sets.autoThreshDotsMethod =  strtrim(setsTable.Var1{22}); % autothresh method
@@ -165,6 +184,9 @@ function [] = sdd_gui()
         sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
         sets.rLims = [12 23]; % lims for circles in an image.
         sets.denoiseImages = 0;
+%         sets.denoiseDotImages = 1;
+%         sets.denoiseDotImages =  str2double(setsTable.Var1{23}); % whether to denoise dot images
+
     
         if  processFolders
             dataFolders = search_folder(sets.folder);
