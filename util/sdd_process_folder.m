@@ -147,7 +147,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 %         colormap(gray)
 % % % %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
 % % % %     sPer = 0;
-% % %       end
+%       end
 
 
     

@@ -96,7 +96,7 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims
     dotScoreMin = 'NA';
   end
 %%  also for spline
-%     idx = 2;
+%     idx = 1;
 %     figure
 %     imagesc(movies.dotM{idx})
 % %         imagesc(movies.molM{idx})

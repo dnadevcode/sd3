@@ -169,17 +169,33 @@ function printName = dnarec_print(output, sets, runNo,filtered)
 
   end
 
+  % save all settings
+
   fprintf(fid, 'Analysis settings:\n');
   lengthLims = output{1}.lengthLims;
   widthLims = output{1}.widthLims;
-  fprintf(fid, ' Minimum molecule score      : %.3g (User set value) \n', sets.lowLim);
+  fprintf(fid, ' Pixel size    : %.2f nm (User set value) \n',  sets.pixelSize);
+  fprintf(fid, ' Width of LoG filter (nm)    : %.2f nm (User set value) \n',  sets.logSigma * sets.pixelSize);
+  %
+  fprintf(fid, ' Molecule image flag    : %s (User set value) \n',  sets.barFlag);
+  fprintf(fid, ' Dot image flag   : %s (User set value) \n',  sets.dotFlag);
+  %
+  fprintf(fid, ' Minimum log(EdgeScore)      : %.3g (User set value) \n', log(sets.lowLim));
   fprintf(fid, ' Minimum dot score           : %.3g (User set value) \n', sets.dotScoreMin);
   fprintf(fid, ' Molecule length limits      : %.1f - %.1f pixels \n', lengthLims(1), lengthLims(2));
   fprintf(fid, ' Molecule width limits       : %.1f - %.1f pixels \n', widthLims(1), widthLims(2));
   fprintf(fid, ' Molecule eccentricity limit : %.2f \n', sets.elim);
   fprintf(fid, ' Min. mol-to-convex-hull     : %.2f \n', sets.ratlim);
   fprintf(fid, ' Min. dot to end distance    : %.1f pixels \n', sets.dotMargin);
-    fprintf(fid, ' Mol extraction method    : %.1f \n', sets.extractionMethod);
+  fprintf(fid, ' Mol extraction method    : %.1f (1-line, 2-spline)\n', sets.extractionMethod);
+  fprintf(fid, ' autoThreshBars    : %.2f  (User set value) \n',  sets.autoThreshBars);
+  fprintf(fid, ' autoThreshDots    : %.2f  (User set value) \n',  sets.autoThreshDots);
+
+  fprintf(fid, ' showScores    : %.2f  (User set value) \n',  sets.showScores);
+  fprintf(fid, ' showMolecules    : %.2f  (User set value) \n',  sets.showMolecules);
+  fprintf(fid, ' saveMolecules    : %.2f  (User set value) \n',  sets.saveMolecules);
+  fprintf(fid, ' saveBars    : %.2f  (User set value) \n',  sets.saveBars);
+  fprintf(fid, ' remove non-uniform noise    : %.2f  (User set value) \n',  sets.denoiseImages);
 
   fprintf(fid, [' Optics settings             : NA = %.2f,' ...
               ' pixel size = %.2f nm, \n' ...
