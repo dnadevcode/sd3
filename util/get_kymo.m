@@ -1,4 +1,4 @@
-function [kymo, boundaries] = get_kymo(mol,k,b,sPer)
+function [kymo, boundaries,xyPars] = get_kymo(mol,k,b,sPer)
     % get_kymo - extract kymo from a movie
     % based on line parameters k,b and perpendicular length sPer
     % the line equations is  y = kx+b, and the normal equation is
@@ -23,8 +23,11 @@ function [kymo, boundaries] = get_kymo(mol,k,b,sPer)
       enX = m;
     end
     
-    stX = -(stY-b)/k;
-    enX = -(enY-b)/k;
+    if k~=0 % double check this ...
+        stX = -(stY-b)/k;
+        enX = -(enY-b)/k;
+    end
+
 
     
     % boundaries for the molecule within the cut-out window
@@ -34,25 +37,36 @@ function [kymo, boundaries] = get_kymo(mol,k,b,sPer)
     % y,x px between start and stop
     yl = enY - stY;
     xl = enX - stX;
-% if k  == 0
-%   xl = 0;
-% else
-%   xl =  yl/k;
-% end
-lenPx = ceil(sqrt(xl^2 + yl^2))+1; % total number of pixels
+    % if k  == 0
+    %   xl = 0;
+    % else
+    %   xl =  yl/k;
+    % end
+    lenPx = ceil(sqrt(xl^2 + yl^2))+1; % total number of pixels
+    
+    % Only scan over rows where the molecule is present
+    kymo = zeros(size(mol,3),lenPx);
+    yValsAll = zeros(lenPx,1);
+    xValsAll = zeros(lenPx,1);
 
-% Only scan over rows where the molecule is present
-kymo = zeros(size(mol,3),lenPx);
-angle = atan(k);
-for i=1:size(mol,3)
-  molC = mol(:,:,i);
-  lSpc = linspace(-sPer,sPer,2*sPer+1); % take perpendicularly
-  for lIdx=1:lenPx % if at least one point outside, produces a nan
-    xVals = stX + cos(angle) * (lIdx - 1)  - sin(angle) * lSpc; % stX + cos(angle) * (lIdx - 1) is current x coordinate
-    yVals = stY - sin(angle) * (lIdx - 1) -  cos(angle) * lSpc; % same for Y
-    Vq = interp2(molC,xVals,yVals,'linear'); % Could change interpolation method
-    kymo(i,lIdx) = nanmean(Vq); % could be nansum
-  end
-end
+    angle = atan(k);
+    for i=1:size(mol,3)
+      molC = mol(:,:,i);
+      lSpc = linspace(-sPer,sPer,2*sPer+1); % take perpendicularly
+      for lIdx=1:lenPx % if at least one point outside, produces a nan
+        xVals = stX + cos(angle) * (lIdx - 1)  - sin(angle) * lSpc; % stX + cos(angle) * (lIdx - 1) is current x coordinate
+        yVals = stY - sin(angle) * (lIdx - 1) -  cos(angle) * lSpc; % same for Y
+        Vq = interp2(molC,xVals,yVals,'linear'); % Could change interpolation method
+        kymo(i,lIdx) = nanmean(Vq); % could be nansum
+        yValsAll(lIdx) = mean(yVals);
+        xValsAll(lIdx) = mean(xVals);
+      end
+    end
+
+    xyPars{1} = yValsAll;
+    xyPars{2} = xValsAll;
+
+
+
 end
 

@@ -27,18 +27,22 @@ function [] = detailed_analysis_plot(movies,barcodes,idx)
     xF = barcodes.xy{idx}{1};
     yF = barcodes.xy{idx}{2};
     
-    tiledlayout(2,2);nexttile
-    imagesc(mol')
+    tiledlayout(2,3);nexttile
+    imagesc(mol)
     nexttile
-    imagesc(mol2')
+    imagesc(mol2)
     hold on
     %             
-    plot(xF,yF,'redx')
+    plot(yF,xF,'->','MarkerSize',3, 'MarkerEdgeColor','red','MarkerFaceColor',[1 .6 .6])
     % %             
     colormap(gray)
     pos = barcodes.dots{idx}.locations+barcodes.dots{idx}.leftOffset;
 %     pos
-    plot(barcodes.xy{idx}{1}(pos),barcodes.xy{idx}{2}(pos),'greeno','MarkerSize',20)
+    plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'greeno','MarkerSize',20)
+
+    nexttile
+    imagesc(movies.bwM{idx})
+
       nexttile
     plot(barcodes.expBars{idx}.rawBarcode)
     title('Yoyo barcode')

@@ -1,4 +1,4 @@
-function [kymos,lineParams] = fit_line_method(molM,bwM,sPer)
+function [kymos,lineParams,xyPars] = fit_line_method(molM,bwM,sPer)
     %   Args:
     %       molM - molecule movies
     %       bwM - molecule bw
@@ -11,10 +11,11 @@ function [kymos,lineParams] = fit_line_method(molM,bwM,sPer)
 
     kymos = cell(1,length(molM));
     lineParams = cell(1,length(molM));
+    xyPars = cell(1,length(molM));
 
     for i=1:length(molM)
             [k,b] = get_line_parameters(bwM{i});
-            kymos{i} = get_kymo(molM{i}, k , b, sPer);
+            [kymos{i},~,xyPars{i}] = get_kymo(molM{i}, k , b, sPer);
             lineParams{i} = [k b];
     end
 

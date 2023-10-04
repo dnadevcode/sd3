@@ -22,13 +22,15 @@ function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat,smoothi
     if flowVertical
         out = out';
     end
-    CC = bwconncomp(out);
-    [coor1, coor2] = ind2sub(size(out),CC.PixelIdxList{1});
-    % alternative    [coor1, coor2] = find(out==1); % Finding all the co-ordinates for the corresponding component
 
-    xd = 0.01; % step size
+    if sum(out(:)) > 3
+        CC = bwconncomp(out);
+        [coor1, coor2] = ind2sub(size(out),CC.PixelIdxList{1});
+        % alternative    [coor1, coor2] = find(out==1); % Finding all the co-ordinates for the corresponding component
+    
+        xd = 0.01; % step size
 
-    if length(coor1) > 3 % what is minimum number of points required
+%     if length(coor1) > 3 % what is minimum number of points required
         try
             yy1 = smooth(coor2,coor1,smoothingPar,'loess');
         
