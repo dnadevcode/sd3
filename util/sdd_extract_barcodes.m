@@ -56,7 +56,9 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims
   % Extract barcodes from kymographs
     [barcodes.expBars, barcodes.expStats, barcodes.delid, barcodes.nanid] = trans_bar_extr(kymos, sets);
     barcodes.idx = 1:length(movies.molM);
+    barcodes.stats = movies.stats;
     barcodes.idx( barcodes.delid) = [];
+    barcodes.stats(barcodes.delid) = [];
   if isfield(movies, 'dotM')
       
 

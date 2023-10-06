@@ -74,12 +74,14 @@ function [dots, pmin] = sdd_detect_dots(dotBars, sets, imageNumber, imageName, b
   totInt = 0; % total intensity
 
   dots = cell(1,numel(dotBars));
-  
+
   for i = 1:numel(dotBars)
     mask = peaks{i}.scores > pmin;
     endMask = peaks{i}.depth > sets.dotMargin;
     accMask = and(mask, endMask);
-    marginDots = marginDots + sum(mask .*~endMask);
+    dots{i}.marginDots = sum(mask .*~endMask);
+    marginDots = dots{i}.marginDots + marginDots;
+
     dots{i}.locations = peaks{i}.locations(accMask);
     dots{i}.depth = peaks{i}.depth(accMask);
     dots{i}.N = sum(accMask);

@@ -315,6 +315,7 @@ end
 
 
   trueedge(accepted + 1:end) = [];
+  stats = stats(~cellfun('isempty', D));
   D = D(~cellfun('isempty', D)); % Remove empty entries (where molecules have been filtered)
   scores = scores(~isnan(scores));
 

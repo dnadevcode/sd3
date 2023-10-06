@@ -21,12 +21,14 @@ function printName = csv_print(output, sets, runNo, i, filtered)
 % writematrix([strcat(['Mol ' num2str(jj)]), num2str(  barLength(jj))] ,filename,'Sheet','SDD molecules','Range','E:F')
  writecell({['Image' output{i}.name]}  ,printName,'Sheet','SDD molecules','Range',['A', num2str(1) ] );%,'WriteMode','append')
 
- writecell({'Mol nr','Length (micron)', 'Num dots','Dot score'}  ,printName,'Sheet','SDD molecules','Range',['A', num2str(2) ] );%,'WriteMode','append')
+ writecell({'Mol nr','Length (micron)', 'Num dots','Num removed (margin) dots', 'Eccentricity', 'Convex-to-hull ratio','Dot score'}  ,printName,'Sheet','SDD molecules','Range',['A', num2str(2) ] );%,'WriteMode','append')
              
  for jj=1:length(output{i}.dots)
     barLength(jj) = numel(output{i}.expBars{jj}.rawBarcode) * sets.pxnm / 1000;
-    writematrix([ jj barLength(jj) length(output{i}.dots{jj}.locations)]  ,printName,'Sheet','SDD molecules','Range',['A', num2str(jj+2) ] );%,'WriteMode','append')
-    writematrix(output{i}.dots{jj}.val,printName,'Sheet','SDD molecules','Range',['D', num2str(jj+2) ] );%,'WriteMode','append')
+    writematrix([ jj barLength(jj) length(output{i}.dots{jj}.locations) output{i}.dots{jj}.marginDots output{i}.stats{jj}.Eccentricity  output{i}.stats{jj}.FilledArea/output{i}.stats{jj}.ConvexArea ]  ,printName,'Sheet','SDD molecules','Range',['A', num2str(jj+2) ] );%,'WriteMode','append')
+    if ~isempty(output{i}.dots{jj}.val)
+        writematrix(output{i}.dots{jj}.val,printName,'Sheet','SDD molecules','Range',['G', num2str(jj+2) ] );%,'WriteMode','append')
+    end
  end
  
 %             fprintf(fid, strcat(['\n Mol ' num2str(jj) ' [micrometer length] : %4.3f']),imBarLengthAll{i}(jj));
