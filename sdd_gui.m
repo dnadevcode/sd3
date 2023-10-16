@@ -178,7 +178,7 @@ function [] = sdd_gui()
     
         sets.numSigmasAutoThresh =  str2double(setsTable.Var1{21});
         sets.autoThreshDotsMethod =  strtrim(setsTable.Var1{22}); % autothresh method
-        sets.lenRandBar =  str2double(setsTable.Var1{23}); % autothresh method
+        sets.lenRandBar =  str2double(setsTable.Var1{24}); % autothresh method
 
         
         % parameters not set by GUI

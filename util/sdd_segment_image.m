@@ -241,32 +241,35 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
      else
            % calculate some edge scores for random locations
         nmrand = 1000;
-        randMeh = zeros(1, nmrand);
+        allScores = zeros(1, nmrand);
         dim = size(logim,[1 2]);
         nPt = sets.lenRandBar;%sets.lengthLims(1);
         bg([1: floor(dist/2) end- floor(dist/2)+1:end],:) = 0;
         bg(:,[1: floor(dist/2) end- floor(dist/2)+1:end]) = 0;
 %         erodedbg = imerode(bg,ones(5,5));
         bgIndices = find(bg);
-        randbgind = randsample(bgIndices,nmrand);
-        [bgIx bgIy] = ind2sub(dim,randbgind);
+        rng("default"); % keep same indexes (for reproducibility)
+
+        % For future: could calculate 
+%         randbgind = randsample(bgIndices,nmrand);
+%         [bgIx bgIy] = ind2sub(dim,randbgind);
 %         randMeh
 
 %         [bgIx bgIy] = ind2sub(dim,find(ones(size(bg)))); %all
 
 %         [bgIx bgIy] = ind2sub(dim,find(erodedbg));
-        tic % edge scores for absolutely all pixels
-        allScores = arrayfun(@(x,y) edge_score([x y], logim, Gdir, floor(dist/2), stat),bgIx,bgIy );
-        toc
+%         tic % edge scores for absolutely all pixels
+%         allScores = arrayfun(@(x,y) edge_score([x y], logim, Gdir, floor(dist/2), stat),bgIx,bgIy );
+%         toc
 %         for jj=1:length(bgIndices)
 %             allScores(jj) = edge_score([ind2sub(dim,bgIndices(jj))], logim, Gdir, dist, stat);
 %         end
 
-%         for k = 1:nmrand% Filter out any regions with artifacts in them
-%             indices = randsample(bgIndices,nPt);
-%             [I J] = ind2sub(dim,indices); %(nPt*(k-1)+1:nPt*k)
-%             randMeh(k) = edge_score([I J], logim, Gdir, floor(dist/2), stat); %how many points along the gradient to take?
-%         end
+        for k = 1:nmrand% Filter out any regions with artifacts in them
+            indices = randsample(bgIndices,nPt);
+            [I J] = ind2sub(dim,indices); %(nPt*(k-1)+1:nPt*k)
+            allScores(k) = edge_score([I J], logim, Gdir, floor(dist/2), stat); %how many points along the gradient to take?
+        end
        lowLim = mean(allScores)+3*std(allScores); % might be some variation
 
      end
@@ -289,7 +292,7 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
     hold off
     if sets.autoThreshBarsold==0&&sets.autoThreshBars
         axes(tiles.dotScoresFilt);
-        histogram(randMeh)
+        histogram(allScores)
         title([imageName, ' edge score background histogram'])
     end
 
