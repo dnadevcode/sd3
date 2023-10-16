@@ -21,7 +21,7 @@ Inf     | Maximum length (px)                   | lengthLims(2)
 5       | numSigmasAutoThresh                   | numSigmasAutoThresh
 randomBars        | autoThreshDotsMethod (options - randomBars,meanstd) | autoThreshDotsMethod
 0       | Remove non-uniform noise from dot images | denoiseDotImages
-0       | Remove big circles                    | denoiseImages
+20     | length random barcode (for autothresh) | lenRandBar
 
 
 

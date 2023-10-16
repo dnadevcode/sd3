@@ -20,9 +20,9 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
       bgCutOut2 = [];
   end
 
-
+  %% get params, can possibly be skipped
   foundOptics = 0;
-%   optics = struct();
+
 
   if isfield(sets, 'opticsFile') && (isfile(sets.opticsFile) || isfile(fullfile(sets.targetFolder, sets.opticsFile)))
 
@@ -57,9 +57,7 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
   
  % Filter image with LoG filter 
 [filt, dist] = wd_calc(sets.sigma); 
-
-
-
+%%
   tic;
   if ~isa(imAverage, 'double')
     imAverage = double(imAverage);
@@ -67,7 +65,8 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
   end
 
   % log filter
-  logim = imfilter(imAverage, filt);
+  logim = imfilter(imAverage, filt,'replicate');
+
 
   % Find zero crossing contours
   if sets.showMolecules
@@ -92,6 +91,10 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
 
     % boundaries
     [B, L] = bwboundaries(1-thedges, 'noholes'); % holes in thedges is noholes in 1-thedges
+
+
+
+
 
 %     tic % all lengths min
     allFeatLengths =  cellfun(@(x) max(max(x)-min(x)),B); % bar length at least this times sqrt(2)
@@ -132,8 +135,7 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
         
         
   fprintf('Total number of regions: %i regions found in %.1f sec.\n', length(B),toc);
-  
-  
+ 
     meh = zeros(1, length(B));
     stat = @(h) mean(h); % This should perhaps be given from the outside
 
@@ -147,7 +149,7 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
 %     end
 
 %     if ~in
-      meh(k) = edge_score(B{k}, logim, Gdir, dist, stat); %/optics.sigma^3;% What is the point of this division? //Erik
+      meh(k) = edge_score(B{k}, logim, Gdir, floor(dist/2), stat); %/optics.sigma^3;% What is the point of this division? //Erik
 %     else
 %       meh(k) = -Inf;
 %     end
@@ -177,8 +179,11 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
       axes(tiles.dotDet);
       imshow(mat2gray(dotIm), 'InitialMagnification', 'fit');
       title([imageName, ' dot image']);
+    else
+        dotFigNum = [];
     end
-
+  else
+      dotFigNum = [];
   end
 
   %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
@@ -213,15 +218,31 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
         nmrand = 1000;
         randMeh = zeros(1, nmrand);
         dim = size(logim,[1 2]);
-        nPt = sets.lengthLims(1);%sets.lengthLims(1);
+        nPt = sets.lenRandBar;%sets.lengthLims(1);
+        bg([1: floor(dist/2) end- floor(dist/2)+1:end],:) = 0;
+        bg(:,[1: floor(dist/2) end- floor(dist/2)+1:end]) = 0;
+%         erodedbg = imerode(bg,ones(5,5));
+        bgIndices = find(bg);
+        randbgind = randsample(bgIndices,nmrand);
+        [bgIx bgIy] = ind2sub(dim,randbgind);
+%         randMeh
 
-        indices = randsample(dim(1)*dim(2),nPt*nmrand);
+%         [bgIx bgIy] = ind2sub(dim,find(ones(size(bg)))); %all
 
-        for k = 1:nmrand% Filter out any regions with artifacts in them
-            [I J] = ind2sub(dim,indices(nPt*(k-1)+1:nPt*k));
-            randMeh(k) = edge_score([I J], logim, Gdir, 5, stat); %how many points along the gradient to take?
-        end
-       lowLim = mean(randMeh)+3*std(randMeh); % might be some variation
+%         [bgIx bgIy] = ind2sub(dim,find(erodedbg));
+        tic % edge scores for absolutely all pixels
+        allScores = arrayfun(@(x,y) edge_score([x y], logim, Gdir, floor(dist/2), stat),bgIx,bgIy );
+        toc
+%         for jj=1:length(bgIndices)
+%             allScores(jj) = edge_score([ind2sub(dim,bgIndices(jj))], logim, Gdir, dist, stat);
+%         end
+
+%         for k = 1:nmrand% Filter out any regions with artifacts in them
+%             indices = randsample(bgIndices,nPt);
+%             [I J] = ind2sub(dim,indices); %(nPt*(k-1)+1:nPt*k)
+%             randMeh(k) = edge_score([I J], logim, Gdir, floor(dist/2), stat); %how many points along the gradient to take?
+%         end
+       lowLim = mean(allScores)+3*std(allScores); % might be some variation
 
      end
   end

@@ -7,6 +7,7 @@ function [dots, pmin] = sdd_detect_dots(dotBars, sets, imageNumber, imageName, b
     %       dots - dot structure
     %       pmin - 
 
+    pmin = nan;
     bgMedian = median(bgPixels(:),'omitnan');
 
     import Core.DotDetection.log_dot_detection;
@@ -32,10 +33,12 @@ function [dots, pmin] = sdd_detect_dots(dotBars, sets, imageNumber, imageName, b
                 [pmin, logBgPixels] = autothresh_random_bars(bgPixels,sets,bgMedian);
             otherwise
         end
-    axes(tiles.bgScores);
-%     figure(5 + (imageNumber - 1) * 5)
-    hbg = histogram(logBgPixels(:), 20);
-    title([imageName, ' background (dot) score histogram'])
+        if ~isempty(tiles)
+            axes(tiles.bgScores);
+        %     figure(5 + (imageNumber - 1) * 5)
+            hbg = histogram(logBgPixels(:), 20);
+            title([imageName, ' background (dot) score histogram'])
+        end
     else
          pmin = sets.dotScoreMin;
   end
@@ -74,7 +77,6 @@ function [dots, pmin] = sdd_detect_dots(dotBars, sets, imageNumber, imageName, b
   totInt = 0; % total intensity
 
   dots = cell(1,numel(dotBars));
-
   for i = 1:numel(dotBars)
     mask = peaks{i}.scores > pmin;
     endMask = peaks{i}.depth > sets.dotMargin;

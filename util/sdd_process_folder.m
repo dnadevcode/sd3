@@ -10,6 +10,11 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     %   Returns:
     %       output, hPanelResult
     %
+
+    if nargin < 3
+        % use no gui.
+       tsHCC = [];
+    end
     
     
     hPanelResult = [];
@@ -74,6 +79,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 
   for i = 1:numel(images)
     fprintf('\nAnalysing image %s.\n', imageNames{i});
+    if ~isempty(tsHCC)
 
     hPanelResult{i} = uitab(tsHCC, 'title',strcat([ imageNames{i} ' results']));
     
@@ -101,7 +107,9 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     else
         tiles = [];
     end
- 
+    else
+        tiles = [];
+  end
     % Detect centers (no denoising)
     cleanImages.registeredIm = images{i}.registeredIm;
     cleanImages.imAverage =  averageImages(images{i}.registeredIm);
@@ -182,6 +190,8 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
         tb = axtoolbar(tiles.dotDet , 'default');
         btn = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
         btn.ButtonPushedFcn = @callbackDetailedPlot;
+    else
+        [output{i}.dotLocsGlobal] = dot_locs_global(movies, barcodes,sets.extractionMethod);
     end
     
   end
@@ -207,7 +217,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
   % 	fprintf('Preliminary check failed. Analysis aborted.\n');
   % 	output = NaN;
 
-
+  
   
     
     function callbackDetailedPlot(src, event)

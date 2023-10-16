@@ -55,9 +55,9 @@ function [] = sdd_gui()
         itemsList{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{13+i}),'String',{checkItems{i}},'Units', 'normal', 'Position', [0.45 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
 
-    checkItems2 = [setsTable.Var2(23) setsTable.Var2(24)];
+    checkItems2 = setsTable.Var2(23);
     for i = 1:length(checkItems2)
-        itemsList2{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{22+i}),'String',{checkItems2{i}},'Units', 'normal', 'Position', [0.6 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+        itemsList2{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{23}),'String',{checkItems2{i}},'Units', 'normal', 'Position', [0.6 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
     
     % parameters with initial values
@@ -143,8 +143,7 @@ function [] = sdd_gui()
 
 
     function clear_results(src, event)
-%         tsHCC.SelectedTab
-        display('Clearing visual tabs')
+        tsHCC.SelectedTab
         child_handles = allchild(tsHCC);
         delete(child_handles(2:end));
     end
@@ -176,10 +175,10 @@ function [] = sdd_gui()
         sets.autoThreshDots = itemsList{6}.Value; 
         sets.extractionMethod =   itemsList{7}.Value+1; % detects dots on spline
         sets.denoiseDotImages =  itemsList2{1}.Value;
-        sets.denoiseImages =  itemsList2{2}.Value;
-
+    
         sets.numSigmasAutoThresh =  str2double(setsTable.Var1{21});
         sets.autoThreshDotsMethod =  strtrim(setsTable.Var1{22}); % autothresh method
+        sets.lenRandBar =  str2double(setsTable.Var1{23}); % autothresh method
 
         
         % parameters not set by GUI
@@ -189,7 +188,11 @@ function [] = sdd_gui()
         sets.deltaCut = 1; % Number of sigma_psf uncertainty for extract_barcodes.
         sets.showDotPeaks = 0;
         sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
-        sets.rLims = [12 23]; % used if denoiseImages =1
+        sets.rLims = [12 23]; % lims for circles in an image.
+        sets.denoiseImages = 0;
+%         sets.denoiseDotImages = 1;
+%         sets.denoiseDotImages =  str2double(setsTable.Var1{23}); % whether to denoise dot images
+
     
         if  processFolders
             dataFolders = search_folder(sets.folder);
