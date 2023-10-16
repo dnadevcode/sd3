@@ -39,7 +39,7 @@ function [peaks,allscores] = log_dot_detection(dotBars,sets,bgMedian)
       peaks{i}.scores = zeros(1, numel(peaklocs));
       peaks{i}.locations = peaklocs; % locations: shifted by initnan
       %peaks{i}.depth = min(peaklocs-initnan-oldsig,barLength-peaklocs-endnan-oldsig);
-      peaks{i}.depth = min(peaklocs - oldsig, barLength - peaklocs - endnan - initnan - oldsig); % how far along barcode
+      peaks{i}.depth = max(zeros(1,length(peaklocs)),min(peaklocs - oldsig, barLength - peaklocs - endnan - initnan - oldsig)); % how far along barcode
       peaks{i}.leftOffset = initnan; % offsets
       peaks{i}.rightOffset = endnan;
 
