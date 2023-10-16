@@ -203,8 +203,33 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
   widthLims = sets.widthLims;
   sigmaBgLim = sets.sigmaBgLim;
   
-   
+  bg = L == 0;
+  % Filter molecules via the tweak parameters above
+  accepted = 0;
+  D = B;
+  newL = zeros(size(L));
+  trueedge = cell(1, length(B));
+  scores = nan(1, length(B));
 
+  % Background stuff
+  bgPixels = imAverage(bg);    
+  bgMean = trimmean(bgPixels(:), 10);
+  
+    if length(bgPixels) > 10000
+        bgPixels(bgPixels>bgMean+2*std(bgPixels)) = [];
+    end
+
+  bgCutOut = nan(size(imAverage));
+  bgCutOut(bg) = imAverage(bg);
+  
+  if sigmaBgLim > 0
+    bgStd = sqrt(trimmean(bgPixels(:).^2, 10) - bgMean.^2);
+  end
+
+  bgSubtractedIm = cellfun(@(x) x- bgMean,registeredIm,'un',false);
+  for ix=1:length(bgSubtractedIm)
+      bgSubtractedIm{ix}(bgSubtractedIm{ix} <= 0) = nan;
+  end
   if sets.autoThreshBars
       sets.autoThreshBarsold = 0;
      if sets.autoThreshBarsold
@@ -270,32 +295,7 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
 
   end
 
-  % Filter molecules via the tweak parameters above
-  accepted = 0;
-  D = B;
-  newL = zeros(size(L));
-  trueedge = cell(1, length(B));
-  scores = nan(1, length(B));
 
-  % Background stuff
-  bgPixels = imAverage(L ==0);    
-  bgMean = trimmean(bgPixels(:), 10);
-  
-    if length(bgPixels) > 10000
-        bgPixels(bgPixels>bgMean+2*std(bgPixels)) = [];
-    end
-
-  bgCutOut = nan(size(imAverage));
-  bgCutOut(L ==0) = imAverage(L ==0);
-  
-  if sigmaBgLim > 0
-    bgStd = sqrt(trimmean(bgPixels(:).^2, 10) - bgMean.^2);
-  end
-
-  bgSubtractedIm = cellfun(@(x) x- bgMean,registeredIm,'un',false);
-  for ix=1:length(bgSubtractedIm)
-      bgSubtractedIm{ix}(bgSubtractedIm{ix} <= 0) = nan;
-  end
   
 if sets.showMolecules
     axes(tiles.molDet);
