@@ -187,14 +187,18 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     if sets.showMolecules
       % Mark barcodes in molecule image
         [output{i}.dotLocsGlobal] = sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
-        tb = axtoolbar(tiles.dotDet , 'default');
-        btn = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
-        btn.ButtonPushedFcn = @callbackDetailedPlot;
+        if i==numel(images) % define only for last image
+            tb = axtoolbar(tiles.dotDet , 'default');
+            btn = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
+            btn.ButtonPushedFcn = @callbackDetailedPlot; 
+        end
     else
         [output{i}.dotLocsGlobal] = dot_locs_global(movies, barcodes,sets.extractionMethod);
     end
     
   end
+
+%   fig3(images, movies,barcodes)
 
   import SAD.dnarec_print
   resultsName = dnarec_print(output, sets, runNo);
