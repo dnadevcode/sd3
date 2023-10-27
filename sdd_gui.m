@@ -201,13 +201,13 @@ function [] = sdd_gui()
         end
     
         outputRes = cell(1,numel(dataFolders));
-        for i = 1:numel(dataFolders)       
+        for jj = 1:numel(dataFolders)       
             % MAIN FUNCTION
-            [output,hPanelResult] = sdd_process_folder(dataFolders{i}, sets, tsHCC);
+            [output,hPanelResult] = sdd_process_folder(dataFolders{jj}, sets, tsHCC);
             if ~isempty(output)
-                outputRes{i} = output;
-                folderName = subsref(dir(dataFolders{i}), substruct('.', 'folder'));
-                savePath = fullfile(folderName, ['dnarecoutput_',num2str(i)]);
+                outputRes{jj} = output;
+                folderName = subsref(dir(dataFolders{jj}), substruct('.', 'folder'));
+                savePath = fullfile(folderName, ['dnarecoutput_',num2str(jj)]);
                 save(savePath, 'output')
             end
 

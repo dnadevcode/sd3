@@ -18,67 +18,76 @@ images = {};
 names = {};
 for i = 1:numel(list)
   % Check if the file ends in 'C=1.tif'
-  filename = fullfile(list(i).folder, list(i).name);
-  if isequal(filename(end-2:end),'czi')
-      % use bfopen to load czi
-      try
-          T = evalc(['data = bfopen(''', filename, ''');']);
-      catch
-          bfmatlabFold = uigetdir('pwd','Select folder with bfmatlab');
-          addpath(genpath(bfmatlabFold));
-          try
-              T = evalc(['data = bfopen(''', filename, ''');']);
-          catch
-              warning('Failed to import czi file');
-          end
-
-      end
+    filename = fullfile(list(i).folder, list(i).name);
+    [~,filen,ending] =fileparts(filename);
+    switch ending(2:end)
+        case 'czi' % todo: reduce try-catch
+        % use bfopen to load czi
+        try
+            T = evalc(['data = bfopen(''', filename, ''');']);
+        catch
+            bfmatlabFold = uigetdir('pwd','Select folder with bfmatlab');
+            addpath(genpath(bfmatlabFold));
+            try
+                T = evalc(['data = bfopen(''', filename, ''');']);
+            catch
+                warning('Failed to import czi file');
+            end
+        end
+        
         try
             images{end+1}.registeredIm = {double(data{1,1}{1,1})}; % Here just single frame
             [f1,f2,fend] = fileparts(filename);
-
+            
             names{end+1} = f2; 
             try
-              images{end}.dotIm = double(data{1,1}{2,1});
+                images{end}.dotIm = double(data{1,1}{2,1});
             catch
             end
-            
+        
             try % if three channel
-              images{end}.dotIm2 = double(data{1,1}{3,1});
-            catch
+                images{end}.dotIm2 = double(data{1,1}{3,1});
+                catch
             end
             data = [];
         catch
         end
+        case 'tiff' % multitiff, only single frames
+            images{end+1}.registeredIm{1} =   imread(filename,1);
+            images{end}.dotIm =   imread(filename,2);
+            names{end+1} = filen;
+        case 'tif'
+            % loading a tiff
+            isFile = isfile(filename);
+            isBar = not(isempty(strfind(list(i).name, barFlag))) || isempty(barFlag);
+            if isFile && isBar
+                try
+                    numMols = length(imfinfo(filename));
+                    for idxTf=1:numMols
+                        registeredIm{idxTf} =  imread(filename,idxTf);
+                    end
+                    images{end+1}.registeredIm = registeredIm;
+                catch
+                    fprintf('Could not interpret %s as an image.\n', list(i).name);
+                    continue
+                end
+                
+                names{end+1} = strrep(list(i).name, barFlag, ''); %sort away flag
+                if not(isempty(barFlag))
+                    dotPath = fullfile(list(i).folder, strrep(list(i).name, barFlag, dotFlag));
+                try
+                    images{end}.dotIm = importdata(dotPath);
+                catch
+                    fprintf('Did not find file %s.\n',dotPath);
+                end
 
-  else
-      % loading a tiff
-  isFile = isfile(filename);
-  isBar = not(isempty(strfind(list(i).name, barFlag))) || isempty(barFlag);
-  if isFile && isBar
-    try
-        numMols = length(imfinfo(filename));
-        for idxTf=1:numMols
-            registeredIm{idxTf} =  imread(filename,idxTf);
-        end
-        images{end+1}.registeredIm = registeredIm;
-    catch
-      fprintf('Could not interpret %s as an image.\n', list(i).name);
-      continue
+                elseif isempty(barFlag) && isempty(dotFlag)
+                    images{end}.dotIm = images{end}.registeredIm;
+                end
+            end
+        
+        otherwise
     end
-    names{end+1} = strrep(list(i).name, barFlag, ''); %sort away flag
-    if not(isempty(barFlag))
-      dotPath = fullfile(list(i).folder, strrep(list(i).name, barFlag, dotFlag));
-      try
-        images{end}.dotIm = importdata(dotPath);
-      catch
-        fprintf('Did not find file %s.\n',dotPath);
-      end
-    elseif isempty(barFlag) && isempty(dotFlag)
-      images{end}.dotIm = images{end}.registeredIm;
-    end
-  end
-  end
 end
 
 if isempty(images)

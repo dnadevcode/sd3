@@ -24,6 +24,9 @@ function [] = detailed_analysis_plot(movies,barcodes,idx)
     mol = movies.molM{idx};
     mol2 = movies.dotM{idx};
     
+    % if there are some delid, the correct idx has to be checked
+    % (barcodes.idx)
+
     xF = barcodes.xy{idx}{1};
     yF = barcodes.xy{idx}{2};
     
@@ -43,7 +46,7 @@ function [] = detailed_analysis_plot(movies,barcodes,idx)
     nexttile
     imagesc(movies.bwM{idx})
 
-      nexttile
+    nexttile
     plot(barcodes.expBars{idx}.rawBarcode)
     title('Yoyo barcode')
     xlabel('Position')
@@ -54,3 +57,6 @@ function [] = detailed_analysis_plot(movies,barcodes,idx)
     title('Dot barcode')
     xlabel('Position')
     ylabel('Intensity')
+    nexttile
+    %x = ["Conveg to hull" "Eccentricity" "Length"];
+    bar([movies.stats{idx}.FilledArea/movies.stats{idx}.ConvexArea movies.stats{idx}.Eccentricity length(barcodes.expBars{idx}.rawBarcode)/100])

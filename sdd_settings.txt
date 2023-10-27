@@ -17,7 +17,7 @@ Inf     | Maximum length (px)                   | lengthLims(2)
 0       | Save barcodes and dots                | saveBars
 1       | Auto-threshold EdgeScore              | autoThreshBars
 1       | Auto-threshold DotScore               | autoThreshDots
-1       | Spline dot-detection                  | extractionMethod-1
+1       | Spline dot-detection                  | extractionMethod
 5       | numSigmasAutoThresh                   | numSigmasAutoThresh
 randomBars        | autoThreshDotsMethod (options - randomBars,meanstd) | autoThreshDotsMethod
 0       | Remove non-uniform noise from dot images | denoiseDotImages

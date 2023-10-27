@@ -16,6 +16,8 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims
   % Convert images to kymographs
   [kymos, barcodes.lineParams, barcodes.xy,barcodes.distance] = get_kymos_from_movies(movies.molM, movies.bwM, sPer, extractionMethod);
 
+  % calculate R2:
+%   calculate_r2( movies.bwM,barcodes.lineParams);
 %%  
 %     figure,
 %     idx = 1;
@@ -97,6 +99,8 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims
   else
     dotScoreMin = 'NA';
   end
+
+
 %%  also for spline
 %     idx = 1;
 %     figure

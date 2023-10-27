@@ -1,4 +1,4 @@
-function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
+function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataFold, sets, tsHCC)
     % sdd_process_folder
     % This routine analyses the image contents of the folder specified in the "exp" struct
     % via the functions specified in the "functions" struct according to te actions
@@ -14,6 +14,12 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     if nargin < 3
         % use no gui.
        tsHCC = [];
+    end
+
+    if nargout >=3
+        images = [];
+        movies = [];
+        barcodes = [];
     end
     
     
@@ -76,6 +82,7 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
   
     import SAD.denoise_images;
     hPanelResult = cell(1,numel(images));
+    btn = cell(1,numel(images)); % helping plot button
 
   for i = 1:numel(images)
     fprintf('\nAnalysing image %s.\n', imageNames{i});
@@ -157,13 +164,11 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
 % % % %     sPer = 0;
 %       end
 
-
-    
-
-
     % Calculate p-values for specific sequence
-    %	output = functions.bc_analyse(barcodes,optics);i
     output{i} = barcodes;
+    if sets.showMolecules % optional
+        output{i}.movies = movies; 
+    end
     output{i}.trueedge = movies.trueedge;
     output{i}.pos = movies.pos;
 
@@ -175,7 +180,6 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     output{i}.median = median(cleanImages.imAverage(:));
     output{i}.settings = sets;
     output{i}.molRunFold = movies.molRunName;
-%     output{i}.optics = optics;
     output{i}.runNo = movies.runNo;
     
     % csv print:
@@ -186,14 +190,14 @@ function [output,hPanelResult] = sdd_process_folder(dataFold, sets, tsHCC)
     
     if sets.showMolecules
       % Mark barcodes in molecule image
-        [output{i}.dotLocsGlobal] = sdd_mark_bars(movies, barcodes,tiles,sets.extractionMethod);
+        [output{i}.dotLocsGlobal] = sdd_mark_bars(  output{i}.movies, output{i},tiles,sets.extractionMethod);
         if i==numel(images) % define only for last image
             tb = axtoolbar(tiles.dotDet , 'default');
-            btn = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
-            btn.ButtonPushedFcn = @callbackDetailedPlot; 
+            btn{i} = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
+            btn{i}.ButtonPushedFcn = @callbackDetailedPlot; 
         end
     else
-        [output{i}.dotLocsGlobal] = dot_locs_global(movies, barcodes,sets.extractionMethod);
+        [output{i}.dotLocsGlobal] = dot_locs_global( movies, barcodes ,sets.extractionMethod);
     end
     
   end

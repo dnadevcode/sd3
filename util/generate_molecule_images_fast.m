@@ -1,9 +1,20 @@
 function [molM,bwM,dotM,pos] = generate_molecule_images_fast(D,L,registeredIm,dotIm,folder,runNo,imageName,edgePx,actions)
+%   generate_molecule_images_fast
+%
+%   Args:
+%       D,L,registeredIm,dotIm,folder,runNo,imageName,edgePx,actions
+%   Returns:
+%       molM - molecule sub-images
+%       bwM - molecule mask sub-images
+%       dotM - dot sub images
+%       pos - bottom left corner position
+
 cellLength = length(D);
 pos = cell(1,cellLength);
 molM = cell(1,cellLength);
 bwM = cell(1,cellLength);
 dotM = cell(1,cellLength);
+coords = cell(1,cellLength);
 
 % Fix to simplify surrounding code.
 if not(iscell(registeredIm))
