@@ -83,6 +83,7 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
     import SAD.denoise_images;
     hPanelResult = cell(1,numel(images));
     btn = cell(1,numel(images)); % helping plot button
+    btn2 = cell(1,numel(images)); % helping plot button
 
   for i = 1:numel(images)
     fprintf('\nAnalysing image %s.\n', imageNames{i});
@@ -195,6 +196,8 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
             tb = axtoolbar(tiles.dotDet , 'default');
             btn{i} = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
             btn{i}.ButtonPushedFcn = @callbackDetailedPlot; 
+            btn2{i} = axtoolbarbtn(tb,'Icon',1+63*(triu(ones(25))),'Tooltip','Zoomed-in molecule plot 2');
+            btn2{i}.ButtonPushedFcn = @callbackDetailedPlot2; 
         end
     else
         [output{i}.dotLocsGlobal] = dot_locs_global( movies, barcodes ,sets.extractionMethod);
@@ -234,6 +237,15 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
         user_val = str2num(answer{1});
         import Core.AnalysisPlot.detailed_analysis_plot;
         detailed_analysis_plot(movies,barcodes,user_val)
+
+    end
+
+    function callbackDetailedPlot2(src, event)
+        answer = inputdlg('Select molecule(s) to analyse in detail:',...
+             'Mol analysis', [1 50]);
+        user_val = str2num(answer{1});
+        import Core.AnalysisPlot.detailed_analysis_plot_nicefig;
+        detailed_analysis_plot_nicefig(images, movies,barcodes,user_val)
 
     end
 end
