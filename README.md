@@ -10,7 +10,7 @@ Without GUI:
 datafold = 'testfolder/';
 [output,hPanelResult,images,movies,barcodes]  = sdd_script('sdd_settings.txt',[],datafold});
 
-
+```
 130     | Pixel size(nm)                        | pxnm
 300     | Width of LoG filter (nm)              | logSigmaNm
 C=0     | Molecule image flag                   | barFlag
@@ -35,13 +35,11 @@ Inf     | Maximum length (px)                   | lengthLims(2)
 randomBars        | autoThreshDotsMethod (options - randomBars,meanstd) | autoThreshDotsMethod
 0       | Remove non-uniform noise from dot images | denoiseDotImages
 20     | length random barcode (for autothresh) | lenRandBar
-inf |   |highLim
 0 |Set lower limit for number of standard deviations in molecule intensity from the background | sigmaBgLim
 3 | Minimum distance (in pixels) from image edge for a molecule to be included in the analysis.  | edgeMargin
 1 | Number of sigma_psf uncertainty for extract_barcodes.| deltaCut
 0 | | showDotPeaks
-[4 8 12] |% Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range. | fragLengthRangeBp
-[12 23] | | rLims
+```
 
 
 As this software is set up to analyse pairs of images, one with DNA molecules and one with "dots", it requires particular naming of the images in the folder:
