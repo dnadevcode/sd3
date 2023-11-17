@@ -122,6 +122,7 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
     cleanImages.registeredIm = images{i}.registeredIm;
     cleanImages.imAverage =  averageImages(images{i}.registeredIm);
     cleanImages.centers = [];
+    sets.denoiseImages = 0;% not used at the moment
     if sets.denoiseImages
         cleanImages = denoise_images(images{i}.registeredIm,sets);
     end

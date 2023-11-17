@@ -1,47 +1,48 @@
-# SDD_dots readme v0.1
-Barcode and dot extractor for DNA stretced on glass
+# SDD_dots readme v0.8.1
+Barcode and dot extractor for DNA stretched on glass
 
 # How to use
 With GUI:
-Run `sdd_gui` (old:sdd_dots_gui). The GUI asks for a number of parameters and then runs `sdd_process_folder` routine which allows for analysis of large data sets.
+Run `sdd_gui`. The GUI asks for a number of parameters and then runs `sdd_process_folder` routine which allows for analysis of large data sets.
 Information about some specific settings can be found below.
-
-folder
-pxnm
-logSigmaNm
-barFlag
-dotFlag
-lowLim        
-dotScoreMin
-widthLims
-lengthLims
-dotMargin - edge margin for dots
-elim - minimum molecule eccentricity
-ratlim - minimum molecule to convex hull ratio
-showScores - show molecule edge and dot score histograms
-showMolecules - show molecules in image
-saveMolecules - save molecules in output folder
-saveBars - save barcodes in output folder
-autoThreshBars - calculate auto threshold for molecules
-autoThreshDots - calculate autothreshold for dots
-        
-Some hardcoded parameters
-highLim = inf; % Arbitrary higher bound not utilized at this point. (ignore this for now)
-sigmaBgLim = 0; % Set lower limit for number of standard deviations in molecule intensity from the background
-edgeMargin = 3; % Minimum distance (in pixels) from image edge for a molecule to be included in the analysis.
-deltaCut = 1; % Number of sigma_psf uncertainty for extract_barcodes.
-showDotPeaks = 0;
-fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
-
-
-# 
-sdd_settings.md contains default settings for the parameters (shown in the GUI)
-
-OLD:
+--
 Without GUI:
-The analysis is initiated via by the dnarec_skel routine (Type `dnarec_skel`) in Matlab.
-Inside the `dnarec_skel.m` file, the target folder (with the images) is specified in the `experiment.targetFolder` parameter in the first section.
-If you wish to only analyze a single image, the file name can be included in the `experiment.targetFolder` parameter.
+datafold = 'testfolder/';
+[output,hPanelResult,images,movies,barcodes]  = sdd_script('sdd_settings.txt',[],datafold});
+
+
+130     | Pixel size(nm)                        | pxnm
+300     | Width of LoG filter (nm)              | logSigmaNm
+C=0     | Molecule image flag                   | barFlag
+C=1     | Dots image flag                       | dotFlag
+0       | Minimum log(EdgeScore)                | lowLim
+10      | Minimum DotScore                      | dotScoreMin
+1       | Minimum width (px)                    | widthLims(1)
+Inf     | Maximum width (px)                    | widthLims(2)
+50      | Minimum length (px)                   | lengthLims(1)
+Inf     | Maximum length (px)                   | lengthLims(2)
+2       | Edge margin for dots                  | dotMargin
+0.8     | Minimum molecule eccentricity         | elim
+0.4     | Minimum molecule-to-convex-hull ratio | ratlim
+1       | Show score histograms                 | showScores
+1       | Show detected molecules               | showMolecules
+0       | Save detected molecules               | saveMolecules
+0       | Save barcodes and dots                | saveBars
+1       | Auto-threshold EdgeScore              | autoThreshBars
+1       | Auto-threshold DotScore               | autoThreshDots
+1       | Spline dot-detection                  | extractionMethod
+5       | numSigmasAutoThresh                   | numSigmasAutoThresh
+randomBars        | autoThreshDotsMethod (options - randomBars,meanstd) | autoThreshDotsMethod
+0       | Remove non-uniform noise from dot images | denoiseDotImages
+20     | length random barcode (for autothresh) | lenRandBar
+inf |   |highLim
+0 |Set lower limit for number of standard deviations in molecule intensity from the background | sigmaBgLim
+3 | Minimum distance (in pixels) from image edge for a molecule to be included in the analysis.  | edgeMargin
+1 | Number of sigma_psf uncertainty for extract_barcodes.| deltaCut
+0 | | showDotPeaks
+[4 8 12] |% Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range. | fragLengthRangeBp
+[12 23] | | rLims
+
 
 As this software is set up to analyse pairs of images, one with DNA molecules and one with "dots", it requires particular naming of the images in the folder:
 - The names of the images showing barcodes due to fluouresence by YOYO must contain the flag defined in `experiment.barFlag`.
@@ -52,35 +53,20 @@ Similarly, if the dot images are named on the form "XXCH2YY.tif", set `experimen
 Update(October 2020): It is now possible to extract both barcodes and dots from single images, although this is strongly discouraged.
 Set `experiment.barFlag` and `experiment.dotFlag` to empty character arrays to achieve this functionality.
 
-In order to extract barcodes, a file named "optics.txt" must be placed either in the target folder along the images (preferred) or in the SDD_dots project folder.
-This file must hold the NA, pixelsize, and wavelength of the flourescent light(for the molecule detection), along with an experiment name on the form:
-- experiment lambdatest
-- NA 1.46
-- pixelsize 500
-- wavelength 509
 
-such that the pixelsize and wavelength are given in nanometers.
-If the same optics setup is used for many different measurements in different folders, the path of a specific optics file may be specified in the experiment.opticsFile variable.
-In this case, the file does not need to be present in all data folders.
-
-Update(October 2020): The optics file is now optional. Only the pixelsize and the width of the LoG filter have to be specified in either the GUI or in `dnarec_skel.m`.
-
-One may tune the parameters which filter bad molecules, by changing the "User default settings" in the `dnarec_skel.m` file.
-If `actions.showScores=1`, the routine automatically plots a histogram of the scores generated by the regions in the images as a guide.
+One may tune the parameters which filter bad molecules, by changing the "User default settings" in the `sdd_settings.txt' file or through SDD_Gui.
+If `showScores=1`, the routine automatically plots a histogram of the scores generated by the regions in the images as a guide.
 Additionally the detected molecules are numbered in the original image and the LoG filtered image are shown.
 
 An option for automated choice of the thresholds for molecule and dot scores has been added.
-To enforce automated thresholding of these, set `actions.autoThreshBars=1` and/or `actions.autoThreshDots=1`.
+To enforce automated thresholding of these, set `autoThreshBars=1` and/or `autoThreshDots=1`.
 
-If `actions.saveMolecules=1`, closeups of the detected molecules along with their barcode, if a such can be extracted, is saved in a "molecules" folder inside the target folder.
-These should be readily insertable into the `CBC_Gui` routine. Similarly, if `actions.saveBars=1`, the molecule barcodes and barcode from the dot image are saved in the folders "barcodes" and "dotbars" respectively.
+If `saveMolecules=1`, closeups of the detected molecules along with their barcode, if a such can be extracted, is saved in a "molecules" folder inside the target folder.
+These should be readily insertable into the `CBC_Gui` routine. Similarly, if `saveBars=1`, the molecule barcodes and barcode from the dot image are saved in the folders "barcodes" and "dotbars" respectively.
 
 For each image where dots have been detected, the number of barcodes, total APPARENT length of barcodes, number of detected dots(within the barcode regions) and the average dots per micron are printed in a `...results(I).txt` file, where (I) is an integer.
 The program automatically increases (I) by 1 for each analysis if an old `...results(I).txt` file is present in the folder. When 10 such files are present, the new results are always saved as `...results10.txt`.
 
-The software is now set up to handle massive data input at once, without having to insert the `optics.txt` file into each separate folder.
-The path of the optics file may be set in the `experiment.opticsFile` parameter by giving the full path of the optics file.
-Additionally, one may use the `dnarec_folder_scan` to analyse all subfolders in a given directory.
 The algorithm scans through all levels of subfolder in the given directory and runs the `dnarec_skel` routine on all SUITABLE subfolders;
 A subfolder is deemed "suitable" if
 - Its name does not contain the phrase "molsandbars" or "movies"

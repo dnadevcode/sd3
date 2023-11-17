@@ -189,7 +189,7 @@ function [] = sdd_gui()
         sets.showDotPeaks = 0;
         sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
         sets.rLims = [12 23]; % lims for circles in an image.
-        sets.denoiseImages = 0;
+%         sets.denoiseImages = 0;
 %         sets.denoiseDotImages = 1;
 %         sets.denoiseDotImages =  str2double(setsTable.Var1{23}); % whether to denoise dot images
 

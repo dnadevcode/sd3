@@ -22,6 +22,12 @@ Inf     | Maximum length (px)                   | lengthLims(2)
 randomBars        | autoThreshDotsMethod (options - randomBars,meanstd) | autoThreshDotsMethod
 0       | Remove non-uniform noise from dot images | denoiseDotImages
 20     | length random barcode (for autothresh) | lenRandBar
-
+inf |   |highLim
+0 | | sigmaBgLim
+3 | | edgeMargin
+1 | | deltaCut
+0 | | showDotPeaks
+[4 8 12] | | fragLengthRangeBp
+[12 23] | | rLims
 
 
