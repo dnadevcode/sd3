@@ -71,11 +71,11 @@ The algorithm scans through all levels of subfolder in the given directory and r
 A subfolder is deemed "suitable" if
 - Its name does not contain the phrase "molsandbars" or "movies"
 - It has no subfolders inside it that fullfill the first point.
-
+This means that if a folder has data images but also a subfolder which is does not contain the phrase "molsandbars" or "movies", the folder will be ignored.
 
 Please cite this software as
 
 [![DOI](https://zenodo.org/badge/547354110.svg)](https://zenodo.org/doi/10.5281/zenodo.10149648)
 
 
-This means that if a folder has data images but also a subfolder which is does not contain the phrase "molsandbars" or "movies", the folder will be ignored.
+
