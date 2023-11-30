@@ -1,0 +1,33 @@
+110     | Pixel size(nm)                        | pxnm
+300     | Width of LoG filter (nm)              | logSigmaNm
+C=0     | Molecule image flag                   | barFlag
+C=1     | Dots image flag                       | dotFlag
+0       | Minimum log(EdgeScore)                | lowLim
+10      | Minimum DotScore                      | dotScoreMin
+1       | Minimum width (px)                    | widthLims(1)
+Inf     | Maximum width (px)                    | widthLims(2)
+50      | Minimum length (px)                   | lengthLims(1)
+Inf     | Maximum length (px)                   | lengthLims(2)
+0       | Edge margin for dots                  | dotMargin
+0.8       | Minimum molecule eccentricity         | elim
+0.7       | Minimum molecule-to-convex-hull ratio | ratlim
+1       | Show score histograms                 | showScores
+1       | Show detected molecules               | showMolecules
+1       | Save detected molecules               | saveMolecules
+0       | Save barcodes and dots                | saveBars
+1       | Auto-threshold EdgeScore              | autoThreshBars
+1       | Auto-threshold DotScore               | autoThreshDots
+1       | Spline dot-detection                  | extractionMethod
+5       | numSigmasAutoThresh                   | numSigmasAutoThresh
+randomBars        | autoThreshDotsMethod (options - randomBars,meanstd) | autoThreshDotsMethod
+0       | Remove non-uniform noise from dot images | denoiseDotImages
+20     | length random barcode (for autothresh) | lenRandBar
+/export/scratch/albertas/data_temp/DOTS/031523 h202 data/1/h202/ | folder | folder
+0       |denoiseImages                          | denoiseImages
+inf |   |highLim
+0 | | sigmaBgLim
+3 | | edgeMargin
+1 | | deltaCut
+0 | | showDotPeaks
+[4 8 12] | | fragLengthRangeBp
+[12 23] | | rLims

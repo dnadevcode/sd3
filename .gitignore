@@ -5,3 +5,4 @@ testfolder2/
 TEST/
 test2/
 +TEST/
+*.nfs*
