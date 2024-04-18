@@ -147,7 +147,7 @@ function printName = dnarec_print(output, sets, runNo,filtered)
         fprintf(fid, '\n Total number of dots    : %i \n', imDots(i));
         fprintf(fid, '\n Average dots/micron     : %.6f \n', imDotsPerLength(i));
         fprintf(fid, '\n Intensity of dots    : %.6f \n', dotIntAll(i));
-      end
+      
     
         for jj=1:length(output{i}.dots)
             fprintf(fid, strcat(['\n Mol ' num2str(jj) ' [micrometer length] : %4.3f']),imBarLengthAll{i}(jj));
@@ -160,6 +160,7 @@ function printName = dnarec_print(output, sets, runNo,filtered)
             fprintf(fid, '\n');
 
         end
+      end
       fprintf(fid, '----------------------------------------------- \n');
 
 %             fprintf(fid, '\n Total intensity of dots   : %i \n', sum(dotIntAll));

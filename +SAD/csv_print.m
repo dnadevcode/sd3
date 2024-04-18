@@ -7,9 +7,15 @@ function printName = csv_print(output, sets, runNo, i, filtered)
     
       nImage = numel(output);
 
+      hasDots = isfield(output{1}, 'dots');
+   
+
       % Initiate printing - make file with corrects filename - make new file if old is present
       printName = print_version(nImage, sets, output{1}.name, runNo, i, filtered);
 
+      if ~hasDots
+          return;
+      end
   % Print overall results
 %   fid = fopen(printName, 'w');
 %   

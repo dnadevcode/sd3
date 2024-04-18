@@ -185,8 +185,8 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
     output{i}.runNo = movies.runNo;
     
     % csv print:
-  import SAD.csv_print
-  resultsName = csv_print(output, sets, runNo, i);
+    import SAD.csv_print
+    resultsName = csv_print(output, sets, runNo, i);
 
       
     

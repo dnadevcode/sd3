@@ -63,6 +63,7 @@ for i = 1:numel(list)
             if isFile && isBar
                 try
                     numMols = length(imfinfo(filename));
+                    registeredIm = cell(1,numMols);
                     for idxTf=1:numMols
                         registeredIm{idxTf} =  imread(filename,idxTf);
                     end

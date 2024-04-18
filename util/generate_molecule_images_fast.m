@@ -40,6 +40,7 @@ for k = 1:cellLength
   end
   if isempty(dotIm)
     dotMov = [];
+    dotCut = [];
   else
     dotCut = dotIm(yMin:yMax,xMin:xMax);
     dotMov = double(dotCut).*mask;
