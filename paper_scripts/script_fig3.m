@@ -23,6 +23,8 @@ sets = Core.Default.read_default_sets('sdd_fig3.txt',0);
 
 
 f = fig3(images,movies,barcodes,sets)
+set(gcf, 'Color', 'w')
+
 print(f, 'Fig3.png', '-dpng', '-r300', '-painters');
 %% fig 4
 

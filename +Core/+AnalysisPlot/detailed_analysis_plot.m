@@ -48,14 +48,14 @@ function [] = detailed_analysis_plot(movies,barcodes,idx)
 
     nexttile
     plot(barcodes.expBars{idx}.rawBarcode)
-    title('Yoyo barcode')
-    xlabel('Position')
+    title('Yoyo intensity plot')
+    xlabel('Position (px)')
     ylabel('Intensity')
 
     nexttile
     plot(barcodes.dotBars{idx})
-    title('Dot barcode')
-    xlabel('Position')
+    title('Dot intensity plot')
+    xlabel('Position (px)')
     ylabel('Intensity')
     nexttile
     %x = ["Conveg to hull" "Eccentricity" "Length"];

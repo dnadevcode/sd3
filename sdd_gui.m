@@ -1,4 +1,4 @@
-function [] = sdd_gui()
+function [hFig] = sdd_gui()
 
     % Simplified GUI for SDD with possibility of updating results based on
     % parameter choice

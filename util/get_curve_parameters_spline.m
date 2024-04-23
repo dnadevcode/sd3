@@ -13,7 +13,7 @@ function [curve, xF, yF, distance] = get_curve_parameters_spline( bw,mat,smoothi
     out = bwskel(bw==1,'MinBranchLength',MinBranchLength);
 
     % make sure barcode flows left to right and not top to bottom
-    if sum(sum(out,1)>=1) > sum(sum(out,2)>=1) %size(out,1)>size(out,2) % todo: deal with cases where flow close to horizontal/vertical
+    if sum(sum(out,1)>1) > sum(sum(out,2)>1) %size(out,1)>size(out,2) % todo: deal with cases where flow close to horizontal/vertical
        flowVertical = 1;
     else
         flowVertical = 0;

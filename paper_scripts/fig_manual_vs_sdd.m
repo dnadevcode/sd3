@@ -3,6 +3,7 @@ function [] = fig_manual_vs_sdd()
 % manual counting vs sdd
 
 
+[output,hPanelResult,images,movies,barcodes]  = sdd_script('sdd_fig_obed.txt');
 
 
 xlsFiles = dir(['/export/scratch/albertas/data_temp/DOTS/data_for_figures/Manual/','*.xlsx']);
@@ -23,9 +24,15 @@ p = ranksum(x,y)
 szscale = histcounts(idx,min(unique(idx))-0.5:max(unique(idx))+0.5);
 %Plot Scale of 25 and stars
 f=figure
-tiledlayout(1,2)
-nexttile
+tiledlayout(1,2,'TileSpacing','compact','Padding','tight')
+axA = nexttile
 hold on
+axis equal
+daspect(axA,[1 1 1]);  % <---- move to after-plot
+pbaspect(axA,[1 1 1]); % <---- move to after-plot
+
+
+
 ax = scatter(uxy(:,1),uxy(:,2),'c','blue','filled','sizedata',szscale*3)
 ax.MarkerEdgeColor = [0.85  0.32 0.098];
 ax.MarkerFaceColor = [0.85  0.32 0.098];
@@ -96,9 +103,13 @@ lgd.Location ='southoutside';
 
 % figure
 % for manual detection plot
-[output,hPanelResult,images,movies,barcodes]  = sdd_script('sdd_fig_obed.txt');
 
 molIdx = 19;
+% % 
+% f = figure
+% imagesc(movies.dotM{molIdx});colormap(gray)
+% [posx,posy] = getpts(f)
+% 
 
 [ymin] = movies.pos{molIdx}(1);
 [xmin] = movies.pos{molIdx}(2);
@@ -113,12 +124,19 @@ molIdx = 19;
 % % plot(movies.trueedge{molIdx}(:, 2)-xmin+1, movies.trueedge{molIdx}(:, 1)-ymin+1,'red');
 % title(['Mol.',num2str(molIdx)])
 
-nexttile
+axB = nexttile
 imagesc(movies.dotM{molIdx});colormap(gray)
 hold on
+axis equal
+daspect(axB,[1 1 1]);  % <---- move to after-plot
+pbaspect(axB,[1 1 1]); % <---- move to after-plot
+
+
+axis off
+
 pos = barcodes.dots{molIdx}.locations+barcodes.dots{molIdx}.leftOffset;
 %     pos
-plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'redx','MarkerSize',10)
+plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'redo','MarkerSize',10)
 axis off
 
 % pos = barcodes.dots{molIdx}.locations+barcodes.dots{molIdx}.leftOffset;
@@ -131,14 +149,13 @@ end
 
 
 hold on
-ax2=plot(posx,posy,'green+','MarkerSize',10)
+ax2=plot(posx,posy,'greeno','MarkerSize',10)
 
 lgd = legend({'SDD detected dots','manual detection'})
 lgd.Location ='southoutside';
 % 
-% f = figure
-% imagesc(movies.dotM{molIdx});colormap(gray)
-% [posx,posy] = getpts(f)
 
-saveas(f,'Fig4.png');
+print(f, 'Fig4.png', '-dpng', '-r300', '-painters');
+
+% saveas(f,'Fig4.png');
 
