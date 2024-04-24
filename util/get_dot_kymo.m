@@ -23,9 +23,10 @@ function [kymo, boundaries] = get_dot_kymo(mol,k,b,sPer)
       enX = m;
     end
     
-
-    stX = -(stY-b)/k;
-    enX = -(enY-b)/k;
+    if k~=0 % if molecule is horizontal, skip this 
+        stX = -(stY-b)/k;
+        enX = -(enY-b)/k;
+    end
     
     % boundaries for the molecule within the cut-out window
     boundaries = [stY enY stX enX];
