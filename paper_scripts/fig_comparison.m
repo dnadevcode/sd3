@@ -3,7 +3,7 @@ function [] = fig_comparison()
 % data to analyze also with Tiff16
 
 % first run SSD with settings from sdd_fig4.txt on one of the datasets
-ix = 3;
+ix = 1;
 
 datafolds = {'/export/scratch/albertas/data_temp/DOTS/data_for_figures/031523 h202 data/1/h202/','/export/scratch/albertas/data_temp/DOTS/data_for_figures/031523 h202 data/1/ut/','/export/scratch/albertas/data_temp/DOTS/data_for_figures/031523 h202 data/2/h202/','/export/scratch/albertas/data_temp/DOTS/data_for_figures/031523 h202 data/2/ut/' };
 [output,hPanelResult,images,movies,barcodes]  = sdd_script('sdd_fig4.txt',[],datafolds{ix});
@@ -99,14 +99,28 @@ end
 
 %%
 mols.greenLength = mols.greenLength(b);
+mols.redNum = mols.redNum(b);
 keepRows =  find(mols.greenLength>=40);
 lengthsM =mols.greenLength*110/1000;
 
+tiff16_lengths = lengthsM(keepRows);
+sdd_lengths = calculatedLengths(keepRows);
 
-x = calculatedNumDots(keepRows);
-y =  mols.redNum(keepRows);
+lenDigLessThanMicron = find(abs(tiff16_lengths-sdd_lengths)<1);
+% calculatedLengths(keepRows),lengthsM(keepRows)
+
+
+sddDots = calculatedNumDots(keepRows);
+tiff16Dots =  mols.redNum(keepRows);
+
+sddDots = sddDots(lenDigLessThanMicron);
+tiff16Dots = tiff16Dots(lenDigLessThanMicron);
+
+keptMols = keepRows(lenDigLessThanMicron);
+[sddDots;tiff16Dots]
+% keptMols(139)
 %Engine
-[uxy, jnk, idx] = unique([x.',y.'],'rows');
+[uxy, jnk, idx] = unique([sddDots.',tiff16Dots.'],'rows');
 szscale = histcounts(idx,min(unique(idx))-0.5:max(unique(idx))+0.5);
 %Plot Scale of 25 and stars
 f=figure
@@ -117,10 +131,10 @@ ax.MarkerFaceColor = [0.85  0.32 0.098];
 xlabel('SDD Number of Dots')
 ylabel('Tiff16 number of dots')
 
-mdl = fitlm(x,y,'intercept',false)
-plot(min(x):max(x),mdl.Coefficients.Estimate(1)*(min(x):max(x)))
+mdl = fitlm(sddDots,tiff16Dots,'intercept',false)
+plot(min(sddDots):max(sddDots),mdl.Coefficients.Estimate(1)*(min(sddDots):max(sddDots)))
 lgd=legend({['$R^2$ =',num2str(mdl.Rsquared.Ordinary)],['f(x) = ',num2str(mdl.Coefficients.Estimate(1))]},'Interpreter','latex')
-saveas(f,'FigTiff16dots_2_h202.png');
+print(f,['FigTiff16dots_' num2str(ix) '.png'], '-dpng', '-r300', '-painters');
 
 % plot(min(x):max(x),mdl.Coefficients.Estimate(2)*(min(x):max(x))+mdl.Coefficients.Estimate(1))
 % lgd=legend({['$R^2$ =',num2str(mdl.Rsquared.Ordinary)],['f(x) = ',num2str(mdl.Coefficients.Estimate(2)),'x','+',num2str(mdl.Coefficients.Estimate(1))]},'Interpreter','latex')
@@ -129,9 +143,13 @@ saveas(f,'FigTiff16dots_2_h202.png');
 %%
 % results from both. Tiff16 - import, sdd - detect (for this molecule
 % specifically)
-idx = 2; % good
+% idx = b(end); % good
+% goodMols = b(keepRows);
+idx=143
 [B, out1,hPanelResult1,images1,movies1,barcodes1] = tiff16_vs_sdd_plot(foldRun1,foldRun,b,keepRows,idx);
 
+idx = 7; % good
+[B, out1,hPanelResult1,images1,movies1,barcodes1] = tiff16_vs_sdd_plot(foldRun1,foldRun,b,keepRows,idx);
 
 % 
 % % figure;imshow(B)
@@ -153,21 +171,48 @@ idx = 2; % good
 % xlabel('Num dots SDD')
 % ylabel('Num dots tiff16')
 
-f=figure
-tiledlayout(2,2)
-nexttile
-hold on
-title('A) Tiff16 analizer output')
-imagesc(B)
-axis off
 
-nexttile
+%%
+f=figure
+tiledlayout(2, 2,'TileSpacing','none','Padding','none')
+ax1 = nexttile
+hold on
+title('A) Tiff16analizer output')
+imagesc(B)
+axis equal;            % <---- move to after-plot
+daspect(ax1,[1 1 1]);  % <---- move to after-plot
+pbaspect(ax1,[1 1 1]); % <---- move to after-plot
+axis off
+% 
+xbound = size(B,2);
+ybound = size(B,1);
+
+nPixels = 1e3/sets.pxnm; % 1 micron
+x = [xbound-nPixels-10 xbound-10];
+y = [3 3 ];
+plot(x,y,'Linewidth',2,'Color','white')
+
+ax2=nexttile
+
 % show all
 hold on
 title('B) SDD output')
 imagesc(images1{1}.dotIm);colormap(gray)
-axis off
 hold on
+
+xbound = size(images1{1}.dotIm,2);
+ybound = size(images1{1}.dotIm,1);
+
+nPixels = 1e3/sets.pxnm;
+x = [xbound-nPixels-10 xbound-10];
+y = [3 3 ];
+plot(x,y,'Linewidth',2,'Color','white')
+
+
+axis equal;            % <---- move to after-plot
+daspect(ax2,[1 1 1]);  % <---- move to after-plot
+pbaspect(ax2,[1 1 1]); % <---- move to after-plot
+axis off
 
 for molIdx=1:length(movies1.dotM)
     plot(movies1.trueedge{molIdx}(:, 2), movies1.trueedge{molIdx}(:, 1),'green');
@@ -190,12 +235,17 @@ end
 %     str = sprintf('I = %.1f', barcodes1.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
 %     text(barcodes1.xy{molIdx}{2}(pos(j))-5,barcodes1.xy{molIdx}{1}(pos(j))-5,str,'Color','white','Clipping','on');
 % end
-nexttile
+ax3 = nexttile
+
 scatter(calculatedLengths(keepRows),lengthsM(keepRows))
-xlabel('Length SDD')
-ylabel('Length tiff16')
-title('C) Lengths SDD vs tiff16')
+xlabel('Length SDD (micron)')
+ylabel('Length Tiff16 (micron)')
+title('C) Lengths SDD vs Tiff16')
 hold on
+axis equal
+daspect(ax3,[1 1 1]);  % <---- move to after-plot
+pbaspect(ax3,[1 1 1]); % <---- move to after-plot
+
 y = lengthsM(keepRows);
 x = calculatedLengths(keepRows);
 
@@ -204,7 +254,11 @@ mdl = fitlm(x,y)
 % text(1,max(y)-2,['R^2 =',num2str(mdl.Rsquared.Ordinary)])
 
 plot(min(x):max(x),mdl.Coefficients.Estimate(2)*(min(x):max(x))+mdl.Coefficients.Estimate(1))
-lgd=legend({['$R^2$ =',num2str(mdl.Rsquared.Ordinary)],['f(x) = ',num2str(mdl.Coefficients.Estimate(2)),'x','+',num2str(mdl.Coefficients.Estimate(1))]},'Interpreter','latex')
+if mdl.Coefficients.Estimate(1) < 1
+    lgd=legend({['$R^2$ =',num2str(mdl.Rsquared.Ordinary)],['f(x) = ',num2str(mdl.Coefficients.Estimate(2)),'x',num2str(mdl.Coefficients.Estimate(1))]},'Interpreter','latex')
+else
+    lgd=legend({['$R^2$ =',num2str(mdl.Rsquared.Ordinary)],['f(x) = ',num2str(mdl.Coefficients.Estimate(2)),'x','+',num2str(mdl.Coefficients.Estimate(1))]},'Interpreter','latex')
+end
 lgd.Location ='southoutside';
 
 [y(idx) x(idx)]
@@ -213,11 +267,40 @@ lgd.Location ='southoutside';
 % imagesc(movies1.molM{molIdx});colormap(gray)
 % hold on
 % plot(movies1.trueedge{molIdx}(:, 2)-xmin+1, movies1.trueedge{molIdx}(:, 1)-ymin+1,'red');
+ax1=nexttile
+title('D) SDD dots vs Tiff16 dots')
+%Engine
+[uxy, jnk, idx] = unique([sddDots.',tiff16Dots.'],'rows');
+szscale = histcounts(idx,min(unique(idx))-0.5:max(unique(idx))+0.5);
+%Plot Scale of 25 and stars
+% f=figure
+hold on
+ax = scatter(uxy(:,1),uxy(:,2),'c','blue','filled','sizedata',szscale*3)
+ax.MarkerEdgeColor = [0.85  0.32 0.098];
+ax.MarkerFaceColor = [0.85  0.32 0.098];
+xlabel('SDD Number of Dots')
+ylabel('Tiff16 number of dots')
+axis equal;            % <---- move to after-plot
+xlim([0 max(uxy(:,1)) ])
+ylim([0 max(uxy(:,2)) ])
 
+mdl = fitlm(tiff16Dots,sddDots,'intercept',false)
+plot(min(sddDots):max(sddDots),mdl.Coefficients.Estimate(1)*(min(sddDots):max(sddDots)))
+lgd=legend({['$R^2$ =',num2str(mdl.Rsquared.Ordinary)],['f(x) = ',num2str(mdl.Coefficients.Estimate(1)),'x']},'Interpreter','latex')
+% print(f,['FigTiff16dots_' num2str(ix) '.png'], '-dpng', '-r300', '-painters');
+lgd.Location ='southoutside';
+daspect(ax1,[1 1 1]);  % <---- move to after-plot
+pbaspect(ax1,[1 1 1]); % <---- move to after-plot
+set(gcf, 'Color', 'w')
+
+print(f, 'FigTiff16.png', '-dpng', '-r300', '-painters');
+%%
 figure,
 hold on
 bar(1,mean(calculatedLengths(keepRows)))                
 errorbar(mean(calculatedLengths(keepRows)), std(calculatedLengths(keepRows)))
+
+
 %%
 foldRun = ['tiffDataTest',outname];
 mkdir(foldRun);

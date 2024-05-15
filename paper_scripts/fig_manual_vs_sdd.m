@@ -23,6 +23,7 @@ p = ranksum(x,y)
 [uxy, jnk, idx] = unique([x.',y.'],'rows');
 szscale = histcounts(idx,min(unique(idx))-0.5:max(unique(idx))+0.5);
 %Plot Scale of 25 and stars
+%%
 f=figure
 tiledlayout(1,2,'TileSpacing','compact','Padding','tight')
 axA = nexttile
@@ -36,8 +37,8 @@ pbaspect(axA,[1 1 1]); % <---- move to after-plot
 ax = scatter(uxy(:,1),uxy(:,2),'c','blue','filled','sizedata',szscale*3)
 ax.MarkerEdgeColor = [0.85  0.32 0.098];
 ax.MarkerFaceColor = [0.85  0.32 0.098];
-xlabel('SDD Number of Dots')
-ylabel('Manual Number of Dots')
+xlabel('SDD Number of Dots','FontName','Times')
+ylabel('Manual Number of Dots','FontName','Times')
 
 mdl = fitlm(x,y)
 % text(1,max(y)-1,['f(x) = ',num2str(mdl.Coefficients.Estimate(2)),'x','+',num2str(mdl.Coefficients.Estimate(1))])
@@ -142,18 +143,31 @@ axis off
 % pos = barcodes.dots{molIdx}.locations+barcodes.dots{molIdx}.leftOffset;
 %     pos
 % plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'redx','MarkerSize',10)
-for j = 1:length(barcodes.dots{molIdx}.val)
-    str = sprintf('I = %.1f', barcodes.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
-    text(barcodes.xy{molIdx}{2}(pos(j))-5,barcodes.xy{molIdx}{1}(pos(j))-5,str,'Color','white','Clipping','on');
-end
+% for j = 1:length(barcodes.dots{molIdx}.val)
+%     str = sprintf('I = %.1f', barcodes.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
+%     text(barcodes.xy{molIdx}{2}(pos(j))-5,barcodes.xy{molIdx}{1}(pos(j))-5,str,'Color','white','Clipping','on');
+% end
 
 
 hold on
 ax2=plot(posx,posy,'greeno','MarkerSize',10)
 
-lgd = legend({'SDD detected dots','manual detection'})
+lgd = legend({'SDD detected dots','Manual detection'})
 lgd.Location ='southoutside';
+
+% L = legend;
+lgd.AutoUpdate = 'off'; 
+
 % 
+xbound = size(movies.dotM{molIdx},2);
+ybound = size(movies.dotM{molIdx},1);
+
+nPixels = 1e3/sets.pxnm;
+x = [xbound-nPixels-10 xbound-10];
+y = [ybound-3 ybound-3 ];
+plot(x,y,'Linewidth',2,'Color','white')
+set(gcf, 'Color', 'w')
+
 
 print(f, 'Fig4.png', '-dpng', '-r300', '-painters');
 

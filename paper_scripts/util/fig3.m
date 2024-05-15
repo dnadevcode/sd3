@@ -67,14 +67,16 @@ rat = 0:0.01:1;
     lengthsrem(i) = sum(lengths > rat(i)*max(lengths));
  end
 
-xlim([600 1100])
-ylim([100 800])
+ xbound = [600 1100];
+xlim(xbound);
+ybound = [100 800];
+ylim(ybound);
 
 nPixels = 1e4/sets.pxnm;
-x = 600+[5, 5 + nPixels ];
-y = [0.9*800 ,0.9*800 ];
-plot(x,y,'Linewidth',8,'Color','white')
-text(0,0.05,'10 microns','Fontsize',10,'Color','white','Units','normalized')
+x = [xbound(2)-nPixels-10 xbound(2)-10];
+y = [ybound(2)-20 ybound(2)-20 ];
+plot(x,y,'Linewidth',2,'Color','white')
+% text(0,0.05,'10 microns','Fontsize',10,'Color','white','Units','normalized')
 title('A) SDD output')
 axis off
 
@@ -116,7 +118,7 @@ plot( rat*max(lengths),lengthsrem/length(cnvToHull),'black')
 
 title('D) Length (px) ')
 xlabel('$Length_{thresh}$','Interpreter','latex')
-ylabel('Fraction of remaining molecules')
+ylabel('Fraction of remaining molecules','FontSize',10,'FontName','Times')
 
 
 lgd=legend({['Mol.',num2str(ix1)],['Mol.',num2str(ix2)],'Default threshold'})

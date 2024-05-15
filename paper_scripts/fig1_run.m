@@ -54,9 +54,35 @@ ax.YLim = [400 470];
 set(gcf, 'Color', 'w')
 
 A = gcf;
-A.XDisplay
+A.XDisplay;
+
+hold on
+nPixels = 1e4/sets.pxnm;
+x = [ax.XLim(2)-nPixels-10 ax.XLim(2)+nPixels-nPixels-10];
+y = [ax.YLim(2)-5 ,ax.YLim(2)-5 ];
+plot(x,y,'Linewidth',2,'Color','white')
+% text(0,0.05,'10 microns','Fontsize',10,'Color','white','Units','normalized')
+set(gcf, 'Color', 'w')
+
+%% Select 14
+
+% ft = 'Times';
+% fsz = 10;        
+% %%%%%%%%%%%%%%%
+% % Your Figure
+% %%%%%%%%%%%%%%%
+% set(findall(gcf,'type','text'), 'FontSize', fsz, 'Color', 'k','FontName', ft)
+% set(gca,'FontSize', fsz, 'FontName', ft)
+
+
 
 print(A,'Fig1C.png','-dpng','-r300');
 
 %% 14:
+sets.pixelSize = sets.pxnm;
+Core.AnalysisPlot.detailed_analysis_plot(movies,barcodes,sets,14)
+% ax = gca;
+% ax.XLim = [450 660];
+% ax.YLim = [400 470];
+
     print('Fig1D.png','-dpng','-r300');

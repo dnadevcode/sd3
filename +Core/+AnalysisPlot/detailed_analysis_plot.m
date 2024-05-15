@@ -1,4 +1,4 @@
-function [] = detailed_analysis_plot(movies,barcodes,idx)
+function [] = detailed_analysis_plot(movies,barcodes,sets,idx)
 
 % 
 % indexes = {62};
@@ -18,6 +18,7 @@ function [] = detailed_analysis_plot(movies,barcodes,idx)
 % 
 % end
 
+    nmPx = 1/sets.pixelSize*1000;
 
     figure,
 %     idx = 62;
@@ -30,9 +31,16 @@ function [] = detailed_analysis_plot(movies,barcodes,idx)
     xF = barcodes.xy{idx}{1};
     yF = barcodes.xy{idx}{2};
     
-    tiledlayout(2,3);nexttile
+    tiledlayout(2,3);axA =nexttile;
     imagesc(mol)
-    nexttile
+    hold on
+    axis equal
+    ylim([1 size(mol,1)])
+%     daspect(axA,[1 1 1]);  % <---- move to after-plot
+%     pbaspect(axA,[1 1 1]); % <---- move to after-plot
+
+    axA =nexttile;
+
     imagesc(mol2)
     hold on
     %             
@@ -42,21 +50,54 @@ function [] = detailed_analysis_plot(movies,barcodes,idx)
     pos = barcodes.dots{idx}.locations+barcodes.dots{idx}.leftOffset;
 %     pos
     plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'greeno','MarkerSize',20)
-
-    nexttile
+    axis equal
+%     daspect(axA,[1 1 1]);  % <---- move to after-plot
+%     pbaspect(axA,[1 1 1]); % <---- move to after-plot
+    ylim([1 size(mol,1)])
+    xgr = [0:nmPx:length(barcodes.dotBars{idx})];
+    xticks(xgr)
+    xticklabels([arrayfun(@(x) num2str(x),0:1:length(xgr),'un',false)] )
+    xtickangle(0)
+    xlabel('Position (micron)','fontname','Times')
+    axA = nexttile;
     imagesc(movies.bwM{idx})
+    axis equal
+%     daspect(axA,[1 1 1]);  % <---- move to after-plot
+%     pbaspect(axA,[1 1 1]); % <---- move to after-plot
+    ylim([1 size(mol,1)])
 
     nexttile
-    plot(barcodes.expBars{idx}.rawBarcode)
-    title('Yoyo intensity plot')
-    xlabel('Position (px)')
-    ylabel('Intensity')
+    plot(barcodes.expBars{idx}.rawBarcode(~isnan(barcodes.expBars{idx}.rawBarcode)))
+    title('YOYO-1 intensity plot','fontname','Times')
+    xgr = [0:nmPx:length(barcodes.dotBars{idx})];
+    xticks(xgr)
+    xticklabels([arrayfun(@(x) num2str(x),0:1:length(xgr),'un',false)] )
+    xtickangle(0)
+    xlabel('Position (micron)','fontname','Times')
+    ylabel('Intensity','fontname','Times')
 
     nexttile
-    plot(barcodes.dotBars{idx})
+    plot(barcodes.dotBars{idx}(~isnan(barcodes.dotBars{idx})))
     title('Dot intensity plot')
-    xlabel('Position (px)')
-    ylabel('Intensity')
+
+    xgr = [0:nmPx:length(barcodes.dotBars{idx})];
+    xticks(xgr)
+    xticklabels([arrayfun(@(x) num2str(x),0:1:length(xgr),'un',false)] )
+    xtickangle(0)
+    xlabel('Position (micron)','fontname','Times')
+    ylabel('Intensity','fontname','Times')
     nexttile
     %x = ["Conveg to hull" "Eccentricity" "Length"];
     bar([movies.stats{idx}.FilledArea/movies.stats{idx}.ConvexArea movies.stats{idx}.Eccentricity length(barcodes.expBars{idx}.rawBarcode)/100])
+
+
+    ft = 'Times';
+    fsz = 10;        
+    %%%%%%%%%%%%%%%
+    % Your Figure
+    %%%%%%%%%%%%%%%
+    set(findall(gcf,'type','text'), 'FontSize', fsz, 'Color', 'k','FontName', ft)
+    set(gca,'FontSize', fsz, 'FontName', ft)
+
+
+end

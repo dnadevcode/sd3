@@ -237,7 +237,7 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
              'Mol analysis', [1 50]);
         user_val = str2num(answer{1});
         import Core.AnalysisPlot.detailed_analysis_plot;
-        detailed_analysis_plot(movies,barcodes,user_val)
+        detailed_analysis_plot(movies,barcodes,sets,user_val)
 
     end
 

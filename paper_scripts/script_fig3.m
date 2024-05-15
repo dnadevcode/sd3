@@ -25,6 +25,15 @@ sets = Core.Default.read_default_sets('sdd_fig3.txt',0);
 f = fig3(images,movies,barcodes,sets)
 set(gcf, 'Color', 'w')
 
+% 
+%     ft = 'Times';
+%     fsz = 10;        
+% %     %%%%%%%%%%%%%%%
+%     % Your Figure
+%     %%%%%%%%%%%%%%%
+%     set(findall(gcf,'type','text'), 'FontSize', fsz,'FontName', ft)
+%     set(gca,'FontSize', fsz, 'FontName', ft)
+
 print(f, 'Fig3.png', '-dpng', '-r300', '-painters');
 %% fig 4
 
