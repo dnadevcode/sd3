@@ -19,7 +19,7 @@ sets.elim = 0.8;
 sets.extractionMethod = 2;
 % sets.folder = '/export/scratch/albertas/data_temp/DOTS/031523 h202 data/testFig3/image for slide 7.czi';
 % 
-
+%%
     % create tabbed figure
     hFig = figure('Name', ['SDD-dots GUI v'], ...
         'Units', 'normalized', ...
@@ -57,11 +57,15 @@ A = gcf;
 A.XDisplay;
 
 hold on
-nPixels = 1e4/sets.pxnm;
-x = [ax.XLim(2)-nPixels-10 ax.XLim(2)+nPixels-nPixels-10];
+nPixels = 1e3/sets.pxnm;
+% x = [ax.XLim(2)-nPixels-10 ax.XLim(2)+nPixels-nPixels-10];
+x = [ax.XLim(1)+10 ax.XLim(1)+nPixels+10];
+
 y = [ax.YLim(2)-5 ,ax.YLim(2)-5 ];
 plot(x,y,'Linewidth',2,'Color','white')
-% text(0,0.05,'10 microns','Fontsize',10,'Color','white','Units','normalized')
+% text(x(1)-2,y(1)-5,'1$\mu$m','FontName','times', 'Fontsize',12,'FontWeight','bold','Color','white','Interpreter','latex')
+
+% text(0,0.05,'10 mM','Fontsize',10,'Color','white','Units','normalized','Interpreter','latex')
 set(gcf, 'Color', 'w')
 
 %% Select 14
@@ -86,3 +90,77 @@ Core.AnalysisPlot.detailed_analysis_plot(movies,barcodes,sets,14)
 % ax.YLim = [400 470];
 
     print('Fig1D.png','-dpng','-r300');
+
+%% Full figure in single run:
+%%
+figure;%('Position',[1 1 600 300]),
+t = tiledlayout(3,2,'TileSpacing','tight','Padding','tight')
+ax1 = nexttile([1 2]);
+hold on
+
+xlims = [400 699];
+ylims = [400 461];
+imagesc(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)));colormap gray;
+set(gca,'YDir','normal')
+axis off
+axis equal
+daspect(ax1,[1 1 1]);  % <---- move to after-plot
+pbaspect([2.4 0.5 1])
+
+% imshow(mat2gray(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2))), 'InitialMagnification', 'fit');
+% nexttile([1 2])
+% hold on
+
+% xlims = [450 660];
+% ylims = [400 470];
+% imshow(mat2gray(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2))), 'InitialMagnification', 'fit');
+% nexttile([1 2])
+% hold on
+% 
+% xlims = [450 660];
+% ylims = [400 470];
+% imshow(mat2gray(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2))), 'InitialMagnification', 'fit');
+% 
+% figure
+% imagesc(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)));colormap gray;
+%     axis equal
+
+
+ids = [10 14]
+for idx=ids
+    plot(output{1}.trueedge{idx}(:, 2)-xlims(1)+1, output{1}.trueedge{idx}(:, 1)-ylims(1)+1,'LineWidth',1);
+end
+
+
+hold on
+for molIdx = 1:numel(ids)
+    %     curIdx = barcodes.idx(molIdx);
+    str = sprintf('Mol. %i',molIdx);
+    text(-5+min(output{1}.trueedge{ids(molIdx)}(:, 2)-xlims(1)+1),5+max(output{1}.trueedge{ids(molIdx)}(:, 1)-ylims(1)+1),str,'Color','white','FontName','times', 'Fontsize',12, 'Clipping','on');
+end
+
+
+nPixels = 1e3/sets.pxnm;
+% x = [ax.XLim(2)-nPixels-10 ax.XLim(2)+nPixels-nPixels-10];
+x = [10 nPixels+10];
+y = [5 , 5 ];
+
+% y = [diff(ylims)-5 , diff(ylims)-5 ];
+plot(x,y,'Linewidth',2,'Color','white')
+% text(x(1)-2,y(1)-5,'1$\mu$m','FontName','times', 'Fontsize',12,'FontWeight','bold','Color','white','Interpreter','latex')
+
+% text(0,0.05,'10 mM','Fontsize',10,'Color','white','Units','normalized','Interpreter','latex')
+
+% nexttile
+%
+sets.pixelSize = sets.pxnm;
+Core.AnalysisPlot.detailed_analysis_plot_intensity(movies,barcodes,sets,14)
+% ax = gca;
+set(gcf, 'Color', 'w')
+
+size(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)),2)/ size(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)),1)
+ size(movies.molM{14},2)/size(movies.molM{14},1)
+% 
+% ax = gca;
+% copygraphics(ax,'Resolution',300)
+    print('Fig1BD.png','-dpng','-r300');
