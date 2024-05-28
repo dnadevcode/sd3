@@ -1,4 +1,4 @@
-function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOut2] = sdd_segment_image(images, imageName, imageNumber, runNo, sets, tiles)
+function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOut2,meh] = sdd_segment_image(images, imageName, imageNumber, runNo, sets, tiles)
     % sdd_segment_image - segments image
     %
     %

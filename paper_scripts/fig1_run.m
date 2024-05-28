@@ -93,8 +93,27 @@ Core.AnalysisPlot.detailed_analysis_plot(movies,barcodes,sets,14)
 
 %% Full figure in single run:
 %%
-figure;%('Position',[1 1 600 300]),
-t = tiledlayout(3,2,'TileSpacing','tight','Padding','tight')
+figure('Position',[1 1 800 700]),
+t = tiledlayout(4,2,'TileSpacing','tight','Padding','tight')
+ax0 = nexttile
+%     figure(2 + (imageNumber - 1) * 5)
+%     axes(tiles.molScores);
+    h1 = histogram(log(output{1}.meh(output{1}.meh > 1)));
+%     title([imageName, ' edge scores'])
+
+      mess = 'Automated threshold';
+      line([log(output{1}.molScoreLim) log(output{1}.molScoreLim)], [0 max(h1.Values)], 'LineStyle', '--', 'Color', 'red', 'LineWidth', 2)
+
+    text(1.1 * log(output{1}.molScoreLim), 2/3 * max(h1.Values), mess, 'FontSize', 12,'FontName','Times')
+%     hold off
+%     if sets.autoThreshBarsold==0&&sets.autoThreshBars
+%         axes(tiles.dotScoresFilt);
+%         histogram(allScores)
+%         title([imageName, ' edge score background histogram'])
+%     end
+nexttile
+    axis off
+
 ax1 = nexttile([1 2]);
 hold on
 

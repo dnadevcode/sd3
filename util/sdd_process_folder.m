@@ -136,7 +136,7 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
     end
 
     % Segment image
-    [movies, ~, sets, lengthLims, molScoreLim, widthLims, bgPixels, bgPixels2] = sdd_segment_image(cleanImages, imageNames{i}, i, runNo,sets,tiles);
+    [movies, scores, sets, lengthLims, molScoreLim, widthLims, bgPixels, bgPixels2,meh] = sdd_segment_image(cleanImages, imageNames{i}, i, runNo,sets,tiles);
 
     if isempty(bgPixels2)
         bgPixels2 = bgPixels;
@@ -183,7 +183,9 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
     output{i}.settings = sets;
     output{i}.molRunFold = movies.molRunName;
     output{i}.runNo = movies.runNo;
-    
+    output{i}.scores = scores;
+    output{i}.meh = meh;
+
     % csv print:
     import SAD.csv_print
     resultsName = csv_print(output, sets, runNo, i);

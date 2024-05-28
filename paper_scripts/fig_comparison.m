@@ -78,7 +78,8 @@ for k=1:length(files)
 end
 
 %% Now run the Tiff16 analizer
-
+foldRun1 = '/export/scratch/albertas/data_temp/DOTS/oUTPUT/ix1/tifftest2024-05-15_15_42_43_test1_output_ix1/tifftest2024-05-15_15_42_43/';
+foldRun= '/export/scratch/albertas/data_temp/DOTS/code_for_figures/sddsmall2024-05-15_15_42_43/';
 
 % import results from Tiff16 analizer
 A = importdata(fullfile(foldRun1,'result.txt'));
@@ -174,21 +175,22 @@ idx = 7; % good
 
 %%
 f=figure
-tiledlayout(2, 2,'TileSpacing','none','Padding','none')
+tiledlayout(3, 2,'TileSpacing','tight','Padding','none')
 ax1 = nexttile
 hold on
-title('A) Tiff16analizer output')
+title('A) Tiff16analizer output','Interpreter','latex','FontName','Times')
 imagesc(B)
+axis off
+
 axis equal;            % <---- move to after-plot
 daspect(ax1,[1 1 1]);  % <---- move to after-plot
-pbaspect(ax1,[1 1 1]); % <---- move to after-plot
-axis off
+pbaspect(ax1,[1 0.32 1]); % <---- move to after-plot
 % 
 xbound = size(B,2);
 ybound = size(B,1);
 
 nPixels = 1e3/sets.pxnm; % 1 micron
-x = [xbound-nPixels-10 xbound-10];
+x = [10 nPixels+10];
 y = [3 3 ];
 plot(x,y,'Linewidth',2,'Color','white')
 
@@ -196,7 +198,7 @@ ax2=nexttile
 
 % show all
 hold on
-title('B) SDD output')
+title('B) SDD output','Interpreter','latex','FontName','Times')
 imagesc(images1{1}.dotIm);colormap(gray)
 hold on
 
@@ -204,14 +206,14 @@ xbound = size(images1{1}.dotIm,2);
 ybound = size(images1{1}.dotIm,1);
 
 nPixels = 1e3/sets.pxnm;
-x = [xbound-nPixels-10 xbound-10];
+x = [10 nPixels+10];
 y = [3 3 ];
 plot(x,y,'Linewidth',2,'Color','white')
 
 
 axis equal;            % <---- move to after-plot
 daspect(ax2,[1 1 1]);  % <---- move to after-plot
-pbaspect(ax2,[1 1 1]); % <---- move to after-plot
+pbaspect(ax2,[1 0.32 1]); % <---- move to after-plot
 axis off
 
 for molIdx=1:length(movies1.dotM)
@@ -235,16 +237,18 @@ end
 %     str = sprintf('I = %.1f', barcodes1.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
 %     text(barcodes1.xy{molIdx}{2}(pos(j))-5,barcodes1.xy{molIdx}{1}(pos(j))-5,str,'Color','white','Clipping','on');
 % end
-ax3 = nexttile
+ax3 = nexttile([2 1])
 
 scatter(calculatedLengths(keepRows),lengthsM(keepRows))
-xlabel('Length SDD (micron)')
-ylabel('Length Tiff16 (micron)')
-title('C) Lengths SDD vs Tiff16')
+xlabel('Length SDD ($\mu m$)','Interpreter','latex','FontName','Times')
+ylabel('Length Tiff16 ($\mu m$)','Interpreter','latex','FontName','Times')
+title('C) Lengths SDD vs Tiff16','Interpreter','latex','FontName','Times')
 hold on
 axis equal
-daspect(ax3,[1 1 1]);  % <---- move to after-plot
-pbaspect(ax3,[1 1 1]); % <---- move to after-plot
+% daspect(ax3,[1 1 1]);  % <---- move to after-plot
+% pbaspect(ax3,[1 1 1]); % <---- move to after-plot
+% daspect(ax1,[1 1 1]);  % <---- move to after-plot
+% pbaspect([2.4 0.5 1])
 
 y = lengthsM(keepRows);
 x = calculatedLengths(keepRows);
@@ -267,8 +271,8 @@ lgd.Location ='southoutside';
 % imagesc(movies1.molM{molIdx});colormap(gray)
 % hold on
 % plot(movies1.trueedge{molIdx}(:, 2)-xmin+1, movies1.trueedge{molIdx}(:, 1)-ymin+1,'red');
-ax1=nexttile
-title('D) SDD dots vs Tiff16 dots')
+ax1=nexttile([2 1])
+title('D) Dots SDD vs Tiff16','Interpreter','latex','FontName','Times')
 %Engine
 [uxy, jnk, idx] = unique([sddDots.',tiff16Dots.'],'rows');
 szscale = histcounts(idx,min(unique(idx))-0.5:max(unique(idx))+0.5);
@@ -278,9 +282,10 @@ hold on
 ax = scatter(uxy(:,1),uxy(:,2),'c','blue','filled','sizedata',szscale*3)
 ax.MarkerEdgeColor = [0.85  0.32 0.098];
 ax.MarkerFaceColor = [0.85  0.32 0.098];
-xlabel('SDD Number of Dots')
-ylabel('Tiff16 number of dots')
+xlabel('SDD Number of Dots','Interpreter','latex','FontName','Times')
+ylabel('Tiff16 number of dots','Interpreter','latex','FontName','Times')
 axis equal;            % <---- move to after-plot
+
 xlim([0 max(uxy(:,1)) ])
 ylim([0 max(uxy(:,2)) ])
 
@@ -289,8 +294,9 @@ plot(min(sddDots):max(sddDots),mdl.Coefficients.Estimate(1)*(min(sddDots):max(sd
 lgd=legend({['$R^2$ =',num2str(mdl.Rsquared.Ordinary)],['f(x) = ',num2str(mdl.Coefficients.Estimate(1)),'x']},'Interpreter','latex')
 % print(f,['FigTiff16dots_' num2str(ix) '.png'], '-dpng', '-r300', '-painters');
 lgd.Location ='southoutside';
-daspect(ax1,[1 1 1]);  % <---- move to after-plot
-pbaspect(ax1,[1 1 1]); % <---- move to after-plot
+
+% daspect(ax1,[1 1 1]);  % <---- move to after-plot
+% pbaspect(ax1,[1 1 1]); % <---- move to after-plot
 set(gcf, 'Color', 'w')
 
 print(f, 'FigTiff16.png', '-dpng', '-r300', '-painters');
