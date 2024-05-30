@@ -158,16 +158,6 @@ end
 
 
 molIdx = 19;
-[ymin] = movies.pos{molIdx}(1);
-[xmin] = movies.pos{molIdx}(2);
-[ymax] = ymin+size(movies.molM{molIdx},1)-1;
-[xmax] = xmin+size(movies.molM{molIdx},2)-1;
-rectangle('Position', [xmin, ymin, size(movies.molM{molIdx},2), size(movies.molM{molIdx},1)], 'EdgeColor', 'r', 'LineWidth', 1);
-
-
-
-
-molIdx = 17;
 
 [ymin] = movies.pos{molIdx}(1);
 [xmin] = movies.pos{molIdx}(2);
@@ -175,6 +165,18 @@ molIdx = 17;
 [xmax] = xmin+size(movies.molM{molIdx},2)-1;
 rectangle('Position', [xmin, ymin, size(movies.molM{molIdx},2), size(movies.molM{molIdx},1)], 'EdgeColor', 'cyan', 'LineWidth', 1);
 
+
+
+molIdx = 17;
+[ymin] = movies.pos{molIdx}(1);
+[xmin] = movies.pos{molIdx}(2);
+[ymax] = ymin+size(movies.molM{molIdx},1)-1;
+[xmax] = xmin+size(movies.molM{molIdx},2)-1;
+rectangle('Position', [xmin, ymin, size(movies.molM{molIdx},2), size(movies.molM{molIdx},1)], 'EdgeColor', 'r', 'LineWidth', 1);
+
+% 
+sizeY1 = max(size(movies.dotM{17},1),size(movies.dotM{19},1));
+sizeX1 = max(size(movies.dotM{19},2),size(movies.dotM{17},2));
 
 for molIdxT = 1:length(barcodes.dots)
     curIdx = barcodes.idx(molIdxT);
@@ -274,11 +276,12 @@ plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'cyanx','MarkerSize
 
 set(gcf, 'Color', 'w')
 
+% ylim([1 sizeY1])
 %
 
 
 
-print('FigDots.png','-dpng','-r300');
+print('FigDots.png','-dpng','-r400');
 
 % print('FigDots.eps','-depsc','-r300');
 % saveas(f,'panelC.png');
