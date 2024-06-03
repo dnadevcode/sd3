@@ -34,7 +34,7 @@ function [dots, pmin] = sdd_detect_dots(dotBars, sets, imageNumber, imageName, b
             otherwise
         end
         if ~isempty(tiles)
-            axes(tiles.bgDotScores);
+            axes(tiles(1)); 
         %     figure(5 + (imageNumber - 1) * 5)
             hbg = histogram(logBgPixels(:), 20);
             title([imageName, ' background (dot) score histogram'])
@@ -47,7 +47,7 @@ function [dots, pmin] = sdd_detect_dots(dotBars, sets, imageNumber, imageName, b
 
   if sets.showScores
 %     t = tiledlayout(hPanelResult,2,2,'TileSpacing','compact');
-    axes(tiles.dotScores);
+    axes(tiles(2));
 %     figure(5 + (imageNumber - 1) * 5)
     h2 = histogram(allscores, 20);
     title([imageName, ' dot scores'])

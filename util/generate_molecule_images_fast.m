@@ -1,4 +1,4 @@
-function [molM,bwM,dotM,pos] = generate_molecule_images_fast(D,L,registeredIm,dotIm,folder,runNo,imageName,edgePx,actions)
+function [molM,bwM,dotM,dotM2,pos] = generate_molecule_images_fast(D,L,registeredIm,dotIm,dotIm2,folder,runNo,imageName,edgePx,actions)
 %   generate_molecule_images_fast
 %
 %   Args:
@@ -14,6 +14,7 @@ pos = cell(1,cellLength);
 molM = cell(1,cellLength);
 bwM = cell(1,cellLength);
 dotM = cell(1,cellLength);
+dotM2 = cell(1,cellLength);
 coords = cell(1,cellLength);
 
 % Fix to simplify surrounding code.
@@ -46,6 +47,16 @@ for k = 1:cellLength
     dotMov = double(dotCut).*mask;
     dotMov(dotMov == 0) = NaN;
   end
+
+  if isempty(dotIm2)
+      dotMov2 = [];
+      dotCut2 = [];
+  else
+      dotCut2 = dotIm2(yMin:yMax,xMin:xMax);
+      dotMov2 = double(dotCut2).*mask;
+      dotMov2(dotMov2 == 0) = NaN;
+  end
+
   bwMov(mask == 1) = 1;
   
   if actions.saveMolecules
@@ -58,12 +69,13 @@ for k = 1:cellLength
     if ~isempty(dotCut)
       imwrite(uint16(dotCut),molSaveName,'writemode','append');
     end
-    
+
     if ~isempty(dotMov)
-      imwrite(uint16(dotMov),molSaveName,'writemode','append');
+        imwrite(uint16(dotMov),molSaveName,'writemode','append');
     end
-        imwrite(uint16(bwMov(:,:,1)),molSaveName,'writemode','append');
-        imwrite(uint16(molMov(:,:,1)),molSaveName,'writemode','append');
+ 
+    imwrite(uint16(bwMov(:,:,1)),molSaveName,'writemode','append');
+    imwrite(uint16(molMov(:,:,1)),molSaveName,'writemode','append');
     for i = 2:length(registeredIm)
         imwrite(uint16(molMov(:,:,i)),molSaveName,'writemode','append');
     end
@@ -73,6 +85,8 @@ for k = 1:cellLength
   molM{k} = molMov;
   bwM{k} = bwMov;
   dotM{k} = dotMov;
+  dotM2{k} = dotMov2;
+
 end
 
 molM = molM(~cellfun('isempty',molM));
@@ -82,3 +96,10 @@ if isempty(dotIm)
 else
   dotM = dotM(~cellfun('isempty',dotM));
 end
+
+if isempty(dotIm2)
+  dotM2 = [];
+else
+  dotM2 = dotM2(~cellfun('isempty',dotM2));
+end
+

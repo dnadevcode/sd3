@@ -85,158 +85,187 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
     btn = cell(1,numel(images)); % helping plot button
     btn2 = cell(1,numel(images)); % helping plot button
 
-    if isfield(images{1}, 'dotIm')
-        if  isfield(images{1}, 'dotIm2')
-            numSub = 3;
+    for i = 1:numel(images)
+        fprintf('\nAnalysing image %s.\n', imageNames{i});
+
+        if isfield(images{i}, 'dotIm')
+            if  isfield(images{i}, 'dotIm2')
+                numSub = 3;
+            else
+                numSub = 2;
+            end
         else
-            numSub = 2;
+            numSub = 1;
         end
-    else
-        numSub = 1;
-    end
 
-  for i = 1:numel(images)
-    fprintf('\nAnalysing image %s.\n', imageNames{i});
-    if ~isempty(tsHCC)
+        if ~isempty(tsHCC)
 
-    hPanelResult{i} = uitab(tsHCC, 'title',strcat([ imageNames{i} ' results']));
-    
-    if sets.showMolecules || sets.showScores % visualization
-        % create tabs to display results from the analysis
-        hTabgroup = uitabgroup('Parent',hPanelResult{i});
+            hPanelResult{i} = uitab(tsHCC, 'title',strcat([ imageNames{i} ' results']));
 
-        hResScores= uitab(hTabgroup, 'title',strcat('Scores'));
-        t = tiledlayout(hResScores,2,numSub,'TileSpacing','compact','Padding','compact');
-        tiles.molScores = nexttile(t);
+            if sets.showMolecules || sets.showScores % visualization
+                % create tabs to display results from the analysis
+                hTabgroup = uitabgroup('Parent',hPanelResult{i});
+
+                hResScores= uitab(hTabgroup, 'title',strcat('Scores'));
+                t = tiledlayout(hResScores,2,numSub,'TileSpacing','compact','Padding','compact');
+                tiles.molScores = nexttile(t);
+                if isfield(images{i}, 'dotIm')
+                    tiles.dotScores = nexttile(t);
+                end
+                if isfield(images{i}, 'dotIm2')
+                    tiles.dotScores2 = nexttile(t);
+                end
+                tiles.bgScores = nexttile(t);
+                if isfield(images{i}, 'dotIm')
+                    tiles.bgDotScores = nexttile(t);
+                end
+                if isfield(images{i}, 'dotIm2')
+                    tiles.bgDotScores2 = nexttile(t);
+                end
+
+                hResplot = uitab(hTabgroup, 'title',strcat('Detected molecules'));
+                t = tiledlayout(hResplot,1,numSub,'TileSpacing','tight','Padding','tight');
+                tiles.molDet = nexttile(t);
+
+                if isfield(images{i}, 'dotIm')
+                    tiles.dotDet = nexttile(t);
+                    linkaxes([ tiles.molDet tiles.dotDet  ])
+                end
+
+                if isfield(images{i}, 'dotIm2')
+                    tiles.dotDet2 = nexttile(t);
+                    linkaxes([ tiles.molDet tiles.dotDet tiles.dotDet2  ])
+                end
+
+                hResFilt = uitab(hTabgroup, 'title',strcat('Filtered'));
+                t = tiledlayout(hResFilt,1,numSub,'TileSpacing','tight','Padding','tight');
+                tiles.logFilt = nexttile(t);
+                if isfield(images{i}, 'dotIm')
+                    tiles.bg = nexttile(t);
+                end
+                if isfield(images{i}, 'dotIm2')
+                    tiles.bg2 = nexttile(t);
+                end
+            else
+                tiles = [];
+            end
+        else
+            tiles = [];
+        end
+        % Detect centers (no denoising)
+        cleanImages.registeredIm = images{i}.registeredIm;
+        cleanImages.imAverage =  averageImages(images{i}.registeredIm);
+        cleanImages.centers = [];
+        sets.denoiseImages = 0;% not used at the moment
+        if sets.denoiseImages
+            cleanImages = denoise_images(images{i}.registeredIm,sets);
+        end
+
         if isfield(images{i}, 'dotIm')
-            tiles.dotScores = nexttile(t);
-        end
-        tiles.bgScores = nexttile(t);
-        if isfield(images{i}, 'dotIm')
-            tiles.bgDotScores = nexttile(t);
-        end
-
-        hResplot = uitab(hTabgroup, 'title',strcat('Detected molecules'));
-        t = tiledlayout(hResplot,1,numSub,'TileSpacing','tight','Padding','tight');
-        tiles.molDet = nexttile(t);
-
-        if isfield(images{i}, 'dotIm')
-            tiles.dotDet = nexttile(t);
-            linkaxes([ tiles.molDet tiles.dotDet  ])
+            cleanImages.dotIm = images{i}.dotIm;
+            if sets.denoiseDotImages
+                SE = strel("rectangle",[20 20]);
+                cleanImages.dotIm  = imtophat(double(cleanImages.dotIm ),SE);
+            end
         end
 
-        hResFilt = uitab(hTabgroup, 'title',strcat('Filtered'));
-        t = tiledlayout(hResFilt,1,numSub,'TileSpacing','tight','Padding','tight');
-        tiles.logFilt = nexttile(t);
-        if isfield(images{i}, 'dotIm')
-            tiles.bg = nexttile(t);
+        if isfield(images{i}, 'dotIm2')
+            cleanImages.dotIm2 = images{i}.dotIm2;
+            if sets.denoiseDotImages
+                SE = strel("rectangle",[20 20]);
+                cleanImages.dotIm2  = imtophat(double(cleanImages.dotIm2 ),SE);
+            end
         end
-    else
-        tiles = [];
-    end
-    else
-        tiles = [];
-  end
-    % Detect centers (no denoising)
-    cleanImages.registeredIm = images{i}.registeredIm;
-    cleanImages.imAverage =  averageImages(images{i}.registeredIm);
-    cleanImages.centers = [];
-    sets.denoiseImages = 0;% not used at the moment
-    if sets.denoiseImages
-        cleanImages = denoise_images(images{i}.registeredIm,sets);
-    end
-    
-    if isfield(images{i}, 'dotIm')
-        cleanImages.dotIm = images{i}.dotIm;
-        if sets.denoiseDotImages
-            SE = strel("rectangle",[20 20]);
-            cleanImages.dotIm  = imtophat(double(cleanImages.dotIm ),SE);
+
+
+        % Segment image
+        [movies, scores, sets, lengthLims, molScoreLim, widthLims, bgPixels, bgPixels2,bgPixels3, meh] = sdd_segment_image(cleanImages, imageNames{i}, i, runNo,sets,tiles);
+
+        if isempty(bgPixels2)
+            bgPixels2 = bgPixels;
         end
-    end
 
-    % Segment image
-    [movies, scores, sets, lengthLims, molScoreLim, widthLims, bgPixels, bgPixels2,meh] = sdd_segment_image(cleanImages, imageNames{i}, i, runNo,sets,tiles);
+        %     sets.extractionMethod = 2;
+        % Extract barcodes
+        [barcodes, dotScoreLim,dotScoreLim2] = sdd_extract_barcodes(movies, sets, lengthLims, i, runNo, bgPixels2, tiles);
 
-    if isempty(bgPixels2)
-        bgPixels2 = bgPixels;
-    end
-    
-%     sets.extractionMethod = 2;
-    % Extract barcodes
-    [barcodes, dotScoreLim] = sdd_extract_barcodes(movies, sets, lengthLims, i, runNo, bgPixels2, tiles);
+        %   % plot molecule with mask
+        %       if sets.saveMolecules
+        % %
+        %           idx=find(barcodes.idx==5)
+        %           figure,imagesc(movies.dotM{barcodes.idx(idx)})
+        %     %         imagesc(movies.molM{barcodes.idx(idx)})
+        %
+        %           hold on
+        %           plot(barcodes.xy{barcodes.idx(idx)}{2},barcodes.xy{barcodes.idx(idx)}{1},'redx')
+        % %           pos = barcodes.dots{idx}.locations+barcodes.nanid(idx);
+        % %           plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'blackx')
+        %     %             plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
+        %
+        % %           plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
+        %     % %     %
+        %         colormap(gray)
+        % % % %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
+        % % % %     sPer = 0;
+        %       end
 
-%   % plot molecule with mask
-%       if sets.saveMolecules
-% % 
-%           idx=find(barcodes.idx==5)
-%           figure,imagesc(movies.dotM{barcodes.idx(idx)})
-%     %         imagesc(movies.molM{barcodes.idx(idx)})
-% 
-%           hold on
-%           plot(barcodes.xy{barcodes.idx(idx)}{2},barcodes.xy{barcodes.idx(idx)}{1},'redx')
-% %           pos = barcodes.dots{idx}.locations+barcodes.nanid(idx);
-% %           plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'blackx')
-%     %             plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
-% 
-% %           plot(-barcodes.lineParams{idx}(1)*(1:size(movies.molM{idx},2))+barcodes.lineParams{idx}(2),'redx')
-%     % %     %   
-%         colormap(gray)
-% % % %     imwrite(uint16(movies.dotM{idx}),'ex.tif')
-% % % %     sPer = 0;
-%       end
+        % Calculate p-values for specific sequence
+        output{i} = barcodes;
 
-    % Calculate p-values for specific sequence
-    output{i} = barcodes;
-    if sets.showMolecules % optional
-        output{i}.movies = movies; 
-    end
-    output{i}.trueedge = movies.trueedge;
-    output{i}.pos = movies.pos;
+        output{i}.trueedge = movies.trueedge;
+        output{i}.pos = movies.pos;
 
-    output{i}.name = imageNames{i};
-    output{i}.lengthLims = lengthLims;
-    output{i}.widthLims = widthLims;
-    output{i}.molScoreLim = molScoreLim;
-    output{i}.dotScoreLim = dotScoreLim;
-    output{i}.median = median(cleanImages.imAverage(:));
-    output{i}.settings = sets;
-    output{i}.molRunFold = movies.molRunName;
-    output{i}.runNo = movies.runNo;
-    output{i}.scores = scores;
-    output{i}.meh = meh;
+        output{i}.name = imageNames{i};
+        output{i}.lengthLims = lengthLims;
+        output{i}.widthLims = widthLims;
+        output{i}.molScoreLim = molScoreLim;
+        output{i}.dotScoreLim = dotScoreLim;
+        output{i}.dotScoreLim2 = dotScoreLim2;
+        output{i}.median = median(cleanImages.imAverage(:));
+        output{i}.settings = sets;
+        output{i}.molRunFold = movies.molRunName;
+        output{i}.runNo = movies.runNo;
+        output{i}.scores = scores;
+        output{i}.meh = meh;
 
-    % csv print:
-    import SAD.csv_print
-    resultsName = csv_print(output, sets, runNo, i);
+        % csv print:
+        import SAD.csv_print
+        resultsName = csv_print(output, sets, runNo, i);
 
-      
-    
-    if sets.showMolecules
-      % Mark barcodes in molecule image
-        [output{i}.dotLocsGlobal] = sdd_mark_bars(  output{i}.movies, output{i},tiles,sets.extractionMethod);
-        if i==numel(images) % define only for last image
-            tb = axtoolbar(tiles.molDet , 'default');
-            btn{i} = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
-            btn{i}.ButtonPushedFcn = @callbackDetailedPlot; 
-            btn2{i} = axtoolbarbtn(tb,'Icon',1+63*(triu(ones(25))),'Tooltip','Zoomed-in molecule plot 2');
-            btn2{i}.ButtonPushedFcn = @callbackDetailedPlot2; 
+   
+
+        if sets.showMolecules % optional
+            output{i}.movies = movies;
         end
-    else
-        [output{i}.dotLocsGlobal] = dot_locs_global( movies, barcodes ,sets.extractionMethod);
+
+        if sets.showMolecules
+            % Mark barcodes in molecule image
+            [output{i}.dotLocsGlobal] = sdd_mark_bars(  output{i}.movies, output{i},tiles,sets.extractionMethod);
+            if i==numel(images) % define only for last image
+                tb = axtoolbar(tiles.molDet , 'default');
+                btn{i} = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
+                btn{i}.ButtonPushedFcn = @callbackDetailedPlot;
+                btn2{i} = axtoolbarbtn(tb,'Icon',1+63*(triu(ones(25))),'Tooltip','Zoomed-in molecule plot 2');
+                btn2{i}.ButtonPushedFcn = @callbackDetailedPlot2;
+            end
+        else
+            [output{i}.dotLocsGlobal] = dot_locs_global( movies, barcodes ,sets.extractionMethod);
+        end
+
     end
-    
-  end
 
-%   fig3(images, movies,barcodes)
+    %   fig3(images, movies,barcodes)
 
-  import SAD.dnarec_print
-  resultsName = dnarec_print(output, sets, runNo);
-  fprintf('\n-------------------------------------------------------------------\n');
-  fprintf('Analysis complete\n');
-  fprintf('Results saved in %s', resultsName);
-  fprintf('\n-------------------------------------------------------------------\n');
+    import SAD.dnarec_print
+    resultsName = dnarec_print(output, sets, runNo);
+    import SAD.dnarec_print2
+    resultsName2 = dnarec_print2(output, sets, runNo);
+    fprintf('\n-------------------------------------------------------------------\n');
+    fprintf('Analysis complete\n');
+    fprintf('Results saved in %s', resultsName);
+    fprintf('\n-------------------------------------------------------------------\n');
 
-  % Run the consensus barcode routine on the barcodes
+    % Run the consensus barcode routine on the barcodes
   %	consensusStruct = functions.consensus_gen(barcodes);
 
   % Print results

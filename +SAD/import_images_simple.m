@@ -11,13 +11,14 @@ folder = experiment.targetFolder;
 fprintf('Analyzing data from the %s folder,\n',folder)
 barFlag = experiment.barFlag;
 dotFlag = experiment.dotFlag;
+dotFlag2 = experiment.dotFlag2;
 
 list = dir(folder);
 
 if experiment.askForNumChannels
     numberOfChannels = str2num(questdlg('How many channels?', ...
 	'How many channels', ...
-	'1','2','2'));
+	'1','2','3','2'));
 
 else
     numberOfChannels = 2; % default number
@@ -25,6 +26,10 @@ end
 
 if numberOfChannels==1
     barFlag = '';
+end
+
+if numberOfChannels~=3
+    dotFlag2 = '';
 end
 
 images = {};
@@ -107,6 +112,15 @@ for i = 1:numel(list)
 
                 elseif isempty(barFlag) && isempty(dotFlag)
                     images{end}.dotIm = images{end}.registeredIm;
+                end
+
+                if not(isempty(dotFlag2))
+                    dotPath2 = fullfile(list(i).folder, strrep(list(i).name, barFlag, dotFlag2));
+                    try
+                        images{end}.dotIm2 = importdata(dotPath2);
+                    catch
+                        fprintf('Did not find file %s.\n',dotPath2);
+                    end
                 end
             end
         

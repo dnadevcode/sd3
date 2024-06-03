@@ -1,4 +1,4 @@
-function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims, imageNumber, runNo, bgPixels,tiles)
+function [barcodes, dotScoreMin,dotScoreMin2] = sdd_extract_barcodes(movies, sets, lengthLims, imageNumber, runNo, bgPixels,tiles)
     % sdd_extract_barcodes
     %
     %   Args:
@@ -61,6 +61,8 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims
     barcodes.stats = movies.stats;
     barcodes.idx( barcodes.delid) = [];
     barcodes.stats(barcodes.delid) = [];
+
+
   if isfield(movies, 'dotM')
       
 
@@ -90,7 +92,11 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims
 %     end
 
     % old:
-    [barcodes.dots, dotScoreMin] = sdd_detect_dots(barcodes.dotBars, sets, imageNumber, movies.imageName, bgPixels,tiles);
+    if ~isempty(tiles)
+        tl = [tiles.bgDotScores tiles.dotScores];
+    end
+
+    [barcodes.dots, dotScoreMin] = sdd_detect_dots(barcodes.dotBars, sets, imageNumber, movies.imageName, bgPixels,tl);
 %     if sets.dotDet2D % detect 2d dots      
 %         % for each point need to find 
 %         %%
@@ -98,6 +104,30 @@ function [barcodes, dotScoreMin] = sdd_extract_barcodes(movies, sets, lengthLims
 %     end
   else
     dotScoreMin = 'NA';
+  end
+% 
+% 
+    if isfield(movies, 'dotM2')
+      if   extractionMethod ==1
+    % Extract dotBarcodes from their images
+        [barcodes.dotBars2,barcodes.boundaries2] = cellfun(@(x,y) get_dot_kymo(x, y(1) , y(2), sPer) ,movies.dotM2, barcodes.lineParams,'un',false);
+        barcodes.dotBars2(barcodes.delid) = [];
+      else
+          movies.dotM2(barcodes.delid) = [];
+          [barcodes.dotBars2,barcodes.boundaries2] = cellfun(@(x,y) get_curved_kymo(x, y{1} , y{2}, sPer), movies.dotM2, barcodes.xy,'un',false);
+      end
+      if ~isempty(tiles)
+
+          tl = [tiles.bgDotScores2 tiles.dotScores2];
+      end
+      [barcodes.dots2, dotScoreMin2] = sdd_detect_dots(barcodes.dotBars2, sets, imageNumber, movies.imageName, bgPixels,tl);
+%     if sets.dotDet2D % detect 2d dots      
+%         % for each point need to find 
+%         %%
+% %         [barcodes.dots, dotScoreMin] = sdd_detect_dots_2D(movies.dotM, optics, sets.dotMargin, sets.dotScoreMin, lengthLims, imageNumber, movies.imageName, sets, bgPixels,tiles);
+%     end
+  else
+    dotScoreMin2 = 'NA';
   end
 
 

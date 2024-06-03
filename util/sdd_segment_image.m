@@ -1,4 +1,4 @@
-function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOut2,meh] = sdd_segment_image(images, imageName, imageNumber, runNo, sets, tiles)
+function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOut2,bgCutOut22,meh] = sdd_segment_image(images, imageName, imageNumber, runNo, sets, tiles)
     % sdd_segment_image - segments image
     %
     %
@@ -13,11 +13,18 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
   imAverage = images.imAverage;
   centers = images.centers;
   hasDots = isfield(images, 'dotIm');
+  hasDots2 = isfield(images, 'dotIm2'); % coud make into a loop for many
 
   if hasDots
     dotIm = images.dotIm;
   else
       bgCutOut2 = [];
+  end
+
+  if hasDots2
+      dotIm2 = images.dotIm2;
+  else
+      bgCutOut22 = [];
   end
 
   %% get params, can possibly be skipped
@@ -182,8 +189,19 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
     else
         dotFigNum = [];
     end
+    if hasDots2
+        dotFigNum2 = 5 + (imageNumber - 1) * 5;
+        %       figure(dotFigNum)
+        axes(tiles.dotDet2);
+        imshow(mat2gray(dotIm2), 'InitialMagnification', 'fit');
+        title([imageName, ' dot image']);
+    else
+        dotFigNum2 = [];
+    end
+
   else
       dotFigNum = [];
+      dotFigNum2 = [];
   end
 
   %%%%%%%%%%%%%%% TWEAK PARAMETERS %%%%%%%%%%%%%%%
@@ -365,9 +383,13 @@ end
   folderName = subsref(dir(sets.targetFolder), substruct('.', 'folder'));
 
   if hasDots
-    [molM, bwM, dotM, pos] = generate_molecule_images_fast(D, newL, bgSubtractedIm, dotIm, folderName, runNo, imageName, sets.edgeMargin, sets);
+      if hasDots2
+        [molM, bwM, dotM, dotM2,pos] = generate_molecule_images_fast(D, newL, bgSubtractedIm, dotIm, dotIm2, folderName, runNo, imageName, sets.edgeMargin, sets);
+      else
+        [molM, bwM, dotM, dotM2, pos] = generate_molecule_images_fast(D, newL, bgSubtractedIm, dotIm, [], folderName, runNo, imageName, sets.edgeMargin, sets);
+      end
   else
-    [molM, bwM, dotM, pos] = generate_molecule_images_fast(D, newL, bgSubtractedIm, [], folderName, runNo, imageName, sets.edgeMargin, sets);
+    [molM, bwM, dotM, dotM2, pos] = generate_molecule_images_fast(D, newL, bgSubtractedIm, [],[], folderName, runNo, imageName, sets.edgeMargin, sets);
   end
 
   movies.imageName = imageName;
@@ -395,6 +417,10 @@ end
     %     t = tiledlayout(hPanelResult,4,2,'TileSpacing','tight','Padding','tight');
     axes(tiles.bg);
     imagesc(bgCutOut2);
+    axis equal
+    axis off
+%     imshow(bgCutOut2, 'InitialMagnification', 'fit')
+
     colormap(gray);
     %     ax1 = uiaxes(hPanelResult);
     %     imshow(logim, 'InitialMagnification', 'fit','Parent',ax1)
@@ -407,6 +433,37 @@ end
         bgCutOut2 = bgCutOut2(bgCutOut2<bgMean2+2*nanstd(bgCutOut2(:)));
     end
 
+  end
+
+  if hasDots2
+
+    movies.dotFigNum2 = dotFigNum2;
+    movies.dotM2 = dotM2;
+    
+    bgCutOut22 = nan(size(dotIm2)); % background
+    bgCutOut22(L ==0) = dotIm2(L ==0);
+
+    if sets.showMolecules
+    %     figure(1 + (imageNumber - 1) * 5)
+    %     t = tiledlayout(hPanelResult,4,2,'TileSpacing','tight','Padding','tight');
+    axes(tiles.bg2);
+%     imshow(bgCutOut22, 'InitialMagnification', 'fit')
+
+    imagesc(bgCutOut22);
+    colormap(gray);
+    axis equal
+    axis off
+
+    %     ax1 = uiaxes(hPanelResult);
+    %     imshow(logim, 'InitialMagnification', 'fit','Parent',ax1)
+    title([imageName, 'dot 2 bg pixels'])
+    end
+
+    bgCutOut22 = bgCutOut22(~isnan(bgCutOut22));
+    bgMean22 =  trimmean(bgCutOut22(:), 10);
+    if length(bgCutOut22(:)) > 10000
+        bgCutOut22 = bgCutOut22(bgCutOut22<bgMean22+2*std(bgCutOut22(:),'omitnan'));
+    end
   end
   
 end

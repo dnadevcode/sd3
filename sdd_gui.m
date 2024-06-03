@@ -206,6 +206,7 @@ function [hFig] = sdd_gui()
         sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
         sets.rLims = [12 23]; % lims for circles in an image.
         sets.autoThreshBarsold = 1;
+        sets.dotFlag2 = 'C=2';
 
 %         sets.denoiseImages = 0;
 %         sets.denoiseDotImages = 1;
