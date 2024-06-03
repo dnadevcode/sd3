@@ -55,24 +55,31 @@ function [hFig] = sdd_gui()
         itemsList{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{13+i}),'String',{checkItems{i}},'Units', 'normal', 'Position', [0.45 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
 
-    checkItems2 = setsTable.Var2(23);
+    itmsLst2 = [23 33];
+    checkItems2 = setsTable.Var2(itmsLst2 );
     for i = 1:length(checkItems2)
-        itemsList2{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{23}),'String',{checkItems2{i}},'Units', 'normal', 'Position', [0.6 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
+        itemsList2{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{itmsLst2(i)}),'String',{checkItems2{i}},'Units', 'normal', 'Position', [0.6 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
     
     % parameters with initial values
-    textItems =  setsTable.Var2(1:11);    
-    values = setsTable.Var1(1:11);
+    textItems =  setsTable.Var2([1:11 32 21]);    
+    values = setsTable.Var1([1:11 32 21]);
 
-    for i=1:6 % these will be in two columns
-        positionsText{i} =   [0.2-0.2*mod(i,2) .88-0.1*ceil(i/2) 0.2 0.03];
-        positionsBox{i} =   [0.2-0.2*mod(i,2) .83-0.1*ceil(i/2) 0.15 0.05];
+    for i=[1:6] % these will be in two columns
+        positionsText{i} =   [0.2-0.2*mod(i,2) .93-0.1*ceil(i/2) 0.2 0.03];
+        positionsBox{i} =   [0.2-0.2*mod(i,2) .88-0.1*ceil(i/2) 0.15 0.05];
     end
     
     for i=7:11 % these will be in two columns
-        positionsText{i} =   [0.2*(i-7) .45 0.15 0.03];
-        positionsBox{i} =   [0.2*(i-7) .4 0.15 0.05];
+        positionsText{i} =   [0.2*(i-7) .42 0.15 0.03];
+        positionsBox{i} =   [0.2*(i-7) .37 0.15 0.05];
     end
+
+    for i= [12:13] % these will be in two columns
+        positionsText{i} =   [0.2-0.2*mod(i,2) .93-0.1*ceil((i-5)/2) 0.2 0.03];
+        positionsBox{i} =   [0.2-0.2*mod(i,2) .88-0.1*ceil((i-5)/2) 0.15 0.05];
+    end
+    
 
     for i=1:length(textItems)
         textListT{i} = uicontrol('Parent', hPanelImport, 'Style', 'text','String',{textItems{i}},'Units', 'normal', 'Position', positionsText{i},'HorizontalAlignment','Left');%, 'Max', Inf, 'Min', 0);  [left bottom width height]
@@ -149,7 +156,7 @@ function [hFig] = sdd_gui()
     end
 
     function run(src, event)
-        display(['Started analysis sdd_dots v',versionSDD{1}])
+        display(['Started analysis sdd_dots v',versionSDD{1}]) %todo: make settings read-off automatic in order to make updating easier
         sets.folder = dotImport.String;
         sets.pxnm = str2double(textList{1}.String);
         sets.logSigmaNm =  str2double(textList{2}.String);
@@ -164,8 +171,16 @@ function [hFig] = sdd_gui()
         sets.lengthLims = [ str2double(textList{9}.String)  str2double(textList{10}.String)];
         sets.dotMargin = str2double(textList{11}.String);
 
+        sets.numSigmasAutoThresh =   str2double(textList{13}.String);
+        sets.numthreshautoEdgeScore =  str2double(textList{12}.String);
+%                sets.numSigmasAutoThresh =  str2double(setsTable.Var1{21});
+%         sets.numthreshautoEdgeScore = str2double(setsTable.Var1{32});
+
+
         sets.elim =  str2double(sliderValue{1}.String);
         sets.ratlim =  str2double(sliderValue{2}.String);
+
+        
 
         sets.showScores = itemsList{1}.Value;
         sets.showMolecules = itemsList{2}.Value;
@@ -175,8 +190,9 @@ function [hFig] = sdd_gui()
         sets.autoThreshDots = itemsList{6}.Value; 
         sets.extractionMethod =   itemsList{7}.Value+1; % detects dots on spline
         sets.denoiseDotImages =  itemsList2{1}.Value;
-    
-        sets.numSigmasAutoThresh =  str2double(setsTable.Var1{21});
+        sets.askForNumChannels =  itemsList2{2}.Value;
+
+ 
         sets.autoThreshDotsMethod =  strtrim(setsTable.Var1{22}); % autothresh method
         sets.lenRandBar =  str2double(setsTable.Var1{24}); % autothresh method
 
@@ -189,6 +205,8 @@ function [hFig] = sdd_gui()
         sets.showDotPeaks = 0;
         sets.fragLengthRangeBp = [4 8 12]; % Specfiy range breakpoints (micrometers), for the number of DNA fragments in each range.
         sets.rLims = [12 23]; % lims for circles in an image.
+        sets.autoThreshBarsold = 1;
+
 %         sets.denoiseImages = 0;
 %         sets.denoiseDotImages = 1;
 %         sets.denoiseDotImages =  str2double(setsTable.Var1{23}); % whether to denoise dot images

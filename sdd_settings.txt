@@ -18,7 +18,7 @@ Inf     | Maximum length (px)                   | lengthLims(2)
 1       | Auto-threshold EdgeScore              | autoThreshBars
 1       | Auto-threshold DotScore               | autoThreshDots
 1       | Spline dot-detection                  | extractionMethod
-5       | numSigmasAutoThresh                   | numSigmasAutoThresh
+5       | numSigmas (dot score)                     | numSigmasAutoThresh
 randomBars        | autoThreshDotsMethod (options - randomBars,meanstd) | autoThreshDotsMethod
 0       | Remove non-uniform noise from dot images | denoiseDotImages
 20     | length random barcode (for autothresh) | lenRandBar
@@ -29,5 +29,8 @@ inf |   |highLim
 0 | | showDotPeaks
 [4 8 12] | | fragLengthRangeBp
 [12 23] | | rLims
+3 | numSigmas (edge score) | numthreshautoEdgeScore
+0       | Ask for num channels                    | askForNumChannels
+
 
 

@@ -230,8 +230,9 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
   for ix=1:length(bgSubtractedIm)
       bgSubtractedIm{ix}(bgSubtractedIm{ix} <= 0) = nan;
   end
+
   if sets.autoThreshBars
-      sets.autoThreshBarsold = 0;
+     sets.autoThreshBarsold = 0;
      if sets.autoThreshBarsold
         logEdgeScores = log(meh(meh > 1));
         lowestScore = min(logEdgeScores);
@@ -270,7 +271,7 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
             [I J] = ind2sub(dim,indices); %(nPt*(k-1)+1:nPt*k)
             allScores(k) = edge_score([I J], logim, Gdir, floor(dist/2), stat); %how many points along the gradient to take?
         end
-       lowLim = mean(allScores)+3*std(allScores); % might be some variation
+       lowLim = mean(allScores)+sets.numthreshautoEdgeScore*std(allScores); % might be some variation
 
      end
   end
@@ -291,7 +292,7 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
     text(1.1 * log(lowLim), 2/3 * max(h1.Values), mess, 'FontSize', 14)
     hold off
     if sets.autoThreshBarsold==0&&sets.autoThreshBars
-        axes(tiles.dotScoresFilt);
+        axes(tiles.bgScores);
         histogram(allScores)
         title([imageName, ' edge score background histogram'])
     end

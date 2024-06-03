@@ -34,7 +34,7 @@ function [dots, pmin] = sdd_detect_dots(dotBars, sets, imageNumber, imageName, b
             otherwise
         end
         if ~isempty(tiles)
-            axes(tiles.bgScores);
+            axes(tiles.bgDotScores);
         %     figure(5 + (imageNumber - 1) * 5)
             hbg = histogram(logBgPixels(:), 20);
             title([imageName, ' background (dot) score histogram'])

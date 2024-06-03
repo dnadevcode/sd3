@@ -14,6 +14,19 @@ dotFlag = experiment.dotFlag;
 
 list = dir(folder);
 
+if experiment.askForNumChannels
+    numberOfChannels = str2num(questdlg('How many channels?', ...
+	'How many channels', ...
+	'1','2','2'));
+
+else
+    numberOfChannels = 2; % default number
+end
+
+if numberOfChannels==1
+    barFlag = '';
+end
+
 images = {};
 names = {};
 for i = 1:numel(list)
@@ -22,39 +35,49 @@ for i = 1:numel(list)
     [~,filen,ending] =fileparts(filename);
     switch ending(2:end)
         case 'czi' % todo: reduce try-catch
-        % use bfopen to load czi
-        try
-            T = evalc(['data = bfopen(''', filename, ''');']);
-        catch
-            bfmatlabFold = uigetdir('pwd','Select folder with bfmatlab');
-            addpath(genpath(bfmatlabFold));
+            % use bfopen to load czi
             try
                 T = evalc(['data = bfopen(''', filename, ''');']);
             catch
-                warning('Failed to import czi file');
+                bfmatlabFold = uigetdir('pwd','Select folder with bfmatlab. ');
+                addpath(genpath(bfmatlabFold));
+                try
+                    T = evalc(['data = bfopen(''', filename, ''');']);
+                catch
+                    warning('Failed to import czi file. Please check for bfmatlab');
+                end
             end
-        end
-        
-        try
-            images{end+1}.registeredIm = {double(data{1,1}{1,1})}; % Here just single frame
-            [f1,f2,fend] = fileparts(filename);
-            
-            names{end+1} = f2; 
-            try
-                images{end}.dotIm = double(data{1,1}{2,1});
+
+            try % .czi only single frame
+                images{end+1}.registeredIm = {double(data{1,1}{1,1})}; % Here just single frame
+                [f1,f2,fend] = fileparts(filename);
+
+                names{end+1} = f2;
+
+                if ~isempty(barFlag) && numberOfChannels>=2
+                    try
+                        images{end}.dotIm = double(data{1,1}{2,1});
+                    catch
+                    end
+
+                    if numberOfChannels>=3
+                        try % if three channel
+                            images{end}.dotIm2 = double(data{1,1}{3,1});
+                        catch
+                        end
+                    end
+                end
+                data = [];
             catch
             end
-        
-            try % if three channel
-                images{end}.dotIm2 = double(data{1,1}{3,1});
-                catch
-            end
-            data = [];
-        catch
-        end
         case 'tiff' % multitiff, only single frames
             images{end+1}.registeredIm{1} =   imread(filename,1);
-            images{end}.dotIm =   imread(filename,2);
+            if ~isempty(barFlag)&& numberOfChannels>=2
+                images{end}.dotIm =   imread(filename,2);
+                 if numberOfChannels>=3
+                    images{end}.dotIm2 =   imread(filename,3);
+                 end
+            end
             names{end+1} = filen;
         case 'tif'
             % loading a tiff
@@ -76,11 +99,11 @@ for i = 1:numel(list)
                 names{end+1} = strrep(list(i).name, barFlag, ''); %sort away flag
                 if not(isempty(barFlag))
                     dotPath = fullfile(list(i).folder, strrep(list(i).name, barFlag, dotFlag));
-                try
-                    images{end}.dotIm = importdata(dotPath);
-                catch
-                    fprintf('Did not find file %s.\n',dotPath);
-                end
+                    try
+                        images{end}.dotIm = importdata(dotPath);
+                    catch
+                        fprintf('Did not find file %s.\n',dotPath);
+                    end
 
                 elseif isempty(barFlag) && isempty(dotFlag)
                     images{end}.dotIm = images{end}.registeredIm;
@@ -96,12 +119,6 @@ if isempty(images)
   warning(compose("No viable images found in target folder: %s", folder))
 end
 
-%import PD.Core.Extraction.get_load_tiffs;
 
-
-%[cutoutM] = get_load_tiffs(folder,actions.checkSameOrientation,actions.removeRegions,actions.makeSameSize);
-
-%import PD.Core.Extraction.register_images_fast;
-%images = register_images_fast(cutoutM);
 t=toc;
 fprintf('Image import completed in %.1f seconds. \n',t);

@@ -85,33 +85,52 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
     btn = cell(1,numel(images)); % helping plot button
     btn2 = cell(1,numel(images)); % helping plot button
 
+    if isfield(images{1}, 'dotIm')
+        if  isfield(images{1}, 'dotIm2')
+            numSub = 3;
+        else
+            numSub = 2;
+        end
+    else
+        numSub = 1;
+    end
+
   for i = 1:numel(images)
     fprintf('\nAnalysing image %s.\n', imageNames{i});
     if ~isempty(tsHCC)
 
     hPanelResult{i} = uitab(tsHCC, 'title',strcat([ imageNames{i} ' results']));
     
-    if sets.showMolecules || sets.showScores
+    if sets.showMolecules || sets.showScores % visualization
         % create tabs to display results from the analysis
         hTabgroup = uitabgroup('Parent',hPanelResult{i});
 
         hResScores= uitab(hTabgroup, 'title',strcat('Scores'));
-        t = tiledlayout(hResScores,2,2,'TileSpacing','compact','Padding','compact');
+        t = tiledlayout(hResScores,2,numSub,'TileSpacing','compact','Padding','compact');
         tiles.molScores = nexttile(t);
-        tiles.dotScores = nexttile(t);
-        tiles.dotScoresFilt = nexttile(t);
+        if isfield(images{i}, 'dotIm')
+            tiles.dotScores = nexttile(t);
+        end
         tiles.bgScores = nexttile(t);
+        if isfield(images{i}, 'dotIm')
+            tiles.bgDotScores = nexttile(t);
+        end
 
         hResplot = uitab(hTabgroup, 'title',strcat('Detected molecules'));
-        t = tiledlayout(hResplot,1,2,'TileSpacing','tight','Padding','tight');
+        t = tiledlayout(hResplot,1,numSub,'TileSpacing','tight','Padding','tight');
         tiles.molDet = nexttile(t);
-        tiles.dotDet = nexttile(t);
-        linkaxes([ tiles.molDet tiles.dotDet  ])
+
+        if isfield(images{i}, 'dotIm')
+            tiles.dotDet = nexttile(t);
+            linkaxes([ tiles.molDet tiles.dotDet  ])
+        end
 
         hResFilt = uitab(hTabgroup, 'title',strcat('Filtered'));
-        t = tiledlayout(hResFilt,1,2,'TileSpacing','tight','Padding','tight');
+        t = tiledlayout(hResFilt,1,numSub,'TileSpacing','tight','Padding','tight');
         tiles.logFilt = nexttile(t);
-        tiles.bg = nexttile(t);
+        if isfield(images{i}, 'dotIm')
+            tiles.bg = nexttile(t);
+        end
     else
         tiles = [];
     end
@@ -196,7 +215,7 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
       % Mark barcodes in molecule image
         [output{i}.dotLocsGlobal] = sdd_mark_bars(  output{i}.movies, output{i},tiles,sets.extractionMethod);
         if i==numel(images) % define only for last image
-            tb = axtoolbar(tiles.dotDet , 'default');
+            tb = axtoolbar(tiles.molDet , 'default');
             btn{i} = axtoolbarbtn(tb,'Icon',1+63*(eye(25)),'Tooltip','Detailed molecule plot');
             btn{i}.ButtonPushedFcn = @callbackDetailedPlot; 
             btn2{i} = axtoolbarbtn(tb,'Icon',1+63*(triu(ones(25))),'Tooltip','Zoomed-in molecule plot 2');
