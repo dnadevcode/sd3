@@ -241,14 +241,29 @@ function [hFig] = sdd_gui()
     function select_good(src, event)
         % select good molecules from output / save in filtered results
         % output
+
         import UI.goodbadtool;
-        [outputNew] = goodbadtool([4 1],outputRes{1}.molRunFold,savePath,outputRes{1}.molRunFold);
+
+        if isfield(outputRes{1},'molRunFold')
+            [outputNew] = goodbadtool([4 1],outputRes{1}.molRunFold,savePath,outputRes{1}.molRunFold);
+
+            sets = outputRes{1}.settings;
+            
+            import SAD.dnarec_print
+            resultsName = dnarec_print(outputNew, sets,outputRes{1}.runNo,1);
         
-        sets = outputRes{1}.settings;
-        
-        import SAD.dnarec_print
-        resultsName = dnarec_print(outputNew, sets,outputRes{1}.runNo,1);
-        
+        else
+            for j=1:length(outputRes{1})
+                 [outputNew] = goodbadtool([4 1],outputRes{1}{j}.molRunFold,savePath,outputRes{1}{j}.molRunFold);
+    
+                sets = outputRes{1}{j}.settings;
+                
+                import SAD.dnarec_print
+                resultsName = dnarec_print(outputNew, sets,outputRes{1}{j}.runNo,1);
+            end
+
+        end    
+
         fprintf('\n-------------------------------------------------------------------\n');
         fprintf('Filtered results saved in %s', resultsName);
         fprintf('\n-------------------------------------------------------------------\n');

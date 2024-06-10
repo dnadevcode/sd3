@@ -18,7 +18,7 @@ sets.ratlim = 0.3;
 sets.elim = 0.8;
 sets.extractionMethod = 2;
 % sets.folder = '/export/scratch/albertas/data_temp/DOTS/031523 h202 data/testFig3/image for slide 7.czi';
-% 
+% sets.folder = 'C:\Users\Lenovo\test\image for slide 7.czi'
 %%
     % create tabbed figure
     hFig = figure('Name', ['SDD-dots GUI v'], ...
@@ -93,7 +93,7 @@ Core.AnalysisPlot.detailed_analysis_plot(movies,barcodes,sets,14)
 
 %% Full figure in single run:
 %%
-figure('Position',[1 1 800 700]),
+f=figure('Position',[1 1 700 800]), % ,'PaperUnits','centimeters'
 t = tiledlayout(4,2,'TileSpacing','tight','Padding','tight')
 ax0 = nexttile
 %     figure(2 + (imageNumber - 1) * 5)
@@ -106,25 +106,33 @@ ax0 = nexttile
 
     text(1.1 * log(output{1}.molScoreLim), 2/3 * max(h1.Values), mess, 'FontSize', 12,'FontName','Times')
 %     hold off
-%     if sets.autoThreshBarsold==0&&sets.autoThreshBars
+%     if sets.autoThreshBarsold==0&&sets.autoThreshBarsx`
 %         axes(tiles.dotScoresFilt);
 %         histogram(allScores)
 %         title([imageName, ' edge score background histogram'])
 %     end
 nexttile
-    axis off
+axis off
+% daspect(ax0,[1 1 1]);  % <---- move to after-plot
+% pbaspect([1 1 1])
+
 
 ax1 = nexttile([1 2]);
 hold on
 
-xlims = [400 699];
+xlims = [400 742];
 ylims = [400 461];
-imagesc(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)));colormap gray;
+% imagesc(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)));colormap gray;
+imshow(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)),[min(images{1}.registeredIm{1}(:)) max(images{1}.registeredIm{1}(:))],'InitialMagnification','fit')
+% imshow(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)),[min(images{1}.registeredIm{1}(:)) max(images{1}.registeredIm{1}(:))],'InitialMagnification','fit')
+
+% imshow(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)),'InitialMagnification','fit')%;colormap gray;
+
 set(gca,'YDir','normal')
 axis off
-axis equal
-daspect(ax1,[1 1 1]);  % <---- move to after-plot
-pbaspect([2.4 0.5 1])
+% axis equal
+% daspect(ax1,[1 1 1]);  % <---- move to after-plot
+% pbaspect([1 0.22 1])
 
 % imshow(mat2gray(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2))), 'InitialMagnification', 'fit');
 % nexttile([1 2])
@@ -180,6 +188,9 @@ set(gcf, 'Color', 'w')
 size(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)),2)/ size(images{1}.registeredIm{1}(ylims(1):ylims(2),xlims(1):xlims(2)),1)
  size(movies.molM{14},2)/size(movies.molM{14},1)
 % 
+% nexttile
+% imshow(movies.molM{14},[min(movies.molM{14}(:)) max(movies.molM{14}(:))],'InitialMagnification','fit')
+
 % ax = gca;
 % copygraphics(ax,'Resolution',300)
-    print('Fig1BD.png','-dpng','-r300');
+    print('Fig1BD.png','-dpng','-r400');

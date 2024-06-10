@@ -78,8 +78,8 @@ function [outputNew, allKymos] = goodbadtool(numImages,fold, data, foldOut)
     allKymos(selected) = 1;
 
 
-    mkdir(foldOut,'good');
-    mkdir(foldOut,'bad');
+    [~,~] = mkdir(foldOut,'good');
+    [~,~] = mkdir(foldOut,'bad');
     % delete(fullfile(foldOut,'good/','*.tif'));
     % delete(fullfile(foldOut,'bad/','*.tif'));
     % 

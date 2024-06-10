@@ -50,8 +50,10 @@ h = gca;
 %     pbaspect([1 1 1])
 
     ax2 =nexttile([1 2]);
+    imshow(mol2,[min(mol2(:)) max(mol2(:))],'InitialMagnification',100)
 
-    imagesc(mol2)
+    hold on
+%     imagesc(mol2)
     set(gca,'YDir','normal')
 
     hold on
@@ -65,6 +67,7 @@ h = gca;
 %     daspect(axA,[1 1 1]);  % <---- move to after-plot
 %     pbaspect(axA,[1 1 1]); % <---- move to after-plot
     ylim([1 size(mol,1)])
+    xlim([1 size(mol,2)])
     xgr = [0:nmPx:length(barcodes.dotBars{idx})];
     xticks(xgr)
     xticklabels([arrayfun(@(x) num2str(x),0:1:length(xgr),'un',false)] )
@@ -77,9 +80,10 @@ h = gca;
     y = [2 2];
 
     plot(x,y,'Linewidth',2,'Color','white')
+
     axis off
 
-axis equal
+% axis equal
 % daspect(ax2,[1 1 1]);  % <---- move to after-plot
 % pbaspect([4 0.4 1])
 %     ft = 'Times';
