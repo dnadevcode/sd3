@@ -31,6 +31,7 @@ inf |   |highLim
 [12 23] | | rLims
 3 | numSigmas (edge score) | numthreshautoEdgeScore
 0       | Ask for num channels                    | askForNumChannels
-
+0       | Remove close molecules   (beta)               | removeCloseMolecules
+10       | Pixels to consider molecules close      | pixelsCloseMolecules
 
 

@@ -55,7 +55,7 @@ function [hFig] = sdd_gui()
         itemsList{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{13+i}),'String',{checkItems{i}},'Units', 'normal', 'Position', [0.45 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
     end
 
-    itmsLst2 = [23 33];
+    itmsLst2 = [23 33 34];
     checkItems2 = setsTable.Var2(itmsLst2 );
     for i = 1:length(checkItems2)
         itemsList2{i} = uicontrol('Parent', hPanelImport, 'Style', 'checkbox','Value', str2double(setsTable.Var1{itmsLst2(i)}),'String',{checkItems2{i}},'Units', 'normal', 'Position', [0.6 .83-0.05*i 0.3 0.05]);%, 'Max', Inf, 'Min', 0);  [left bottom width height]
@@ -191,11 +191,12 @@ function [hFig] = sdd_gui()
         sets.extractionMethod =   itemsList{7}.Value+1; % detects dots on spline
         sets.denoiseDotImages =  itemsList2{1}.Value;
         sets.askForNumChannels =  itemsList2{2}.Value;
+        sets.removeCloseMolecules =  itemsList2{3}.Value;
 
  
         sets.autoThreshDotsMethod =  strtrim(setsTable.Var1{22}); % autothresh method
         sets.lenRandBar =  str2double(setsTable.Var1{24}); % autothresh method
-
+        sets.pixelsCloseMolecules =  str2double(setsTable.Var1{35});
         
         % parameters not set by GUI
         sets.highLim = inf; % Arbitrary higher bound not utilized at this point. (ignore this for now)
@@ -207,6 +208,7 @@ function [hFig] = sdd_gui()
         sets.rLims = [12 23]; % lims for circles in an image.
         sets.autoThreshBarsold = 1;
         sets.dotFlag2 = 'C=2';
+%         sets.upperLimPx = 2000; % harcoded upper limit for number of pixels in mask.
 
 %         sets.denoiseImages = 0;
 %         sets.denoiseDotImages = 1;

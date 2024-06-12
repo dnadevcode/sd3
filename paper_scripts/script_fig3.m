@@ -34,7 +34,7 @@ set(gcf, 'Color', 'w')
 %     set(findall(gcf,'type','text'), 'FontSize', fsz,'FontName', ft)
 %     set(gca,'FontSize', fsz, 'FontName', ft)
 
-print(f, 'Fig3.png', '-dpng', '-r300', '-painters');
+print(f, 'Fig3_no_labels.png', '-dpng', '-r400', '-painters');
 %% fig 4
 
 % test SDD_GUI without any GUI.

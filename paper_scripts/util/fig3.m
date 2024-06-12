@@ -77,13 +77,13 @@ x = [xbound(2)-nPixels-10 xbound(2)-10];
 y = [ybound(2)-20 ybound(2)-20 ];
 plot(x,y,'Linewidth',2,'Color','white')
 % text(0,0.05,'10 microns','Fontsize',10,'Color','white','Units','normalized')
-title('A) SDD output')
+% title('A) SDD output')
 axis off
 
 nexttile
 hold on
 plot(rat,numRem/length(cnvToHull),'black')
-title('B) Convex to hull ratio')
+% title('B) Convex to hull ratio')
 xlabel('$ratlim_{thresh}$','Interpreter','latex')
 
 
@@ -98,7 +98,7 @@ plot([0.4 0.4],[0 1], 'red-','LineWidth',lw)
 nexttile
 hold on
 plot(rat,eccrem/length(cnvToHull),'black')
-title('C) Eccentricity')
+% title('C) Eccentricity')
 xlabel('$elim_{thresh}$','Interpreter','latex')
 % ylabel('Remaining barcodes')
 plot(ecc(ix1),eccrem(find(ecc(ix1)<rat,1,'first'))/length(cnvToHull),'redx','LineWidth',lw)
@@ -116,7 +116,7 @@ plot([50 50],[0 1], 'red-','LineWidth',lw)
 
 plot( rat*max(lengths),lengthsrem/length(cnvToHull),'black')
 
-title('D) Length (px) ')
+% title('D) Length (px) ')
 xlabel('$Length_{thresh}$','Interpreter','latex')
 ylabel('Fraction of remaining molecules','FontSize',10,'FontName','Times')
 

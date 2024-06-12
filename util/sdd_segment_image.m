@@ -105,7 +105,12 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
 
 %     tic % all lengths min
     allFeatLengths =  cellfun(@(x) max(max(x)-min(x)),B); % bar length at least this times sqrt(2)
-%     allPxNum = cellfun(@(x) size(x,1),B);
+
+
+
+
+
+    allPxNum = cellfun(@(x) size(x,1),B);
 %     toc
     % lengths and repetitions
 %     allFeatLengths =  cellfun(@(x) sqrt(sum((max(x)-min(x)).^2)),B);
@@ -116,7 +121,21 @@ function [movies, scores, sets, lengthLims, lowLim, widthLims, bgCutOut, bgCutOu
 %     toc
 %     numAllowedCrossings = 6; % number of allowed crossings, i.e. how wiggly we allow molecule to be
     % remove regions which do not satisfy initial length constrains
-    acceptedMols = logical((allFeatLengths>=sets.lengthLims(1)).*(allFeatLengths<=sets.lengthLims(2)));
+    acceptedMols = logical((allFeatLengths>=sets.lengthLims(1)).*(allFeatLengths<=sets.lengthLims(2)).*(allPxNum<=min(max(size(logim)),2000)));
+
+   if sets.removeCloseMolecules % remove molecules close to the edge
+        edgeVals = [unique(L([1:sets.pixelsCloseMolecules end-sets.pixelsCloseMolecules+1:end],:)); unique(L(sets.pixelsCloseMolecules+1:end-sets.pixelsCloseMolecules,[1:sets.pixelsCloseMolecules end-sets.pixelsCloseMolecules+1:end]))];
+        edgeVals = edgeVals(edgeVals~=0);
+        %         acceptedMols(edgeVals(edgeVals~=0)) = 0;
+
+
+        curAccepted = find(acceptedMols);
+        import Core.Distance.pairwise_distances_molecule;
+        goodMols = pairwise_distances_molecule(B(curAccepted),sets.pixelsCloseMolecules);
+        acceptedMols(curAccepted(~goodMols)) = 0;
+        acceptedMols(edgeVals) = 0;
+
+    end
     B = B(acceptedMols);
     
     molPos = find(acceptedMols);
@@ -325,55 +344,71 @@ if sets.showMolecules
 end
 
 stats = cell(1,length(B));
-for k = 1:length(B)% Filter any edges with lower scores than lim
-     [acc, stats{k}, img]  = mol_filt(B{k}, meh(k), lowLim, highLim, elim, ratlim, lengthLims, widthLims);
+currentAccepted = zeros(1,length(B));
 
-    if sigmaBgLim > 0
-      numPixelsInMol = sum(L == molPos(k), 'all');
-      intensAcc = sum(imAverage(L == molPos(k))) >= numPixelsInMol * bgMean + sqrt(numPixelsInMol) * sigmaBgLim * bgStd;
+for k = 1:length(B)% Filter any edges with lower scores than lim
+    [acc, stats{k}, img]  = mol_filt(B{k}, meh(k), lowLim, highLim, elim, ratlim, lengthLims, widthLims);
+
+    if sigmaBgLim > 0 % is this correct if B has some elements removed
+        numPixelsInMol = sum(L == molPos(k), 'all');
+        intensAcc = sum(imAverage(L == molPos(k))) >= numPixelsInMol * bgMean + sqrt(numPixelsInMol) * sigmaBgLim * bgStd;
     else
-      intensAcc = 1;
+        intensAcc = 1;
     end
 
     if acc && intensAcc
-      accepted = accepted + 1;
-      trueedge{accepted} = D{k};
-      scores(k) = meh(k);
-      newL(L == molPos(k)) = accepted;
+        currentAccepted(k) = 1;
+        accepted = accepted + 1;
+        trueedge{accepted} = D{k};
+        scores(k) = meh(k);
+        newL(L == molPos(k)) = accepted; % is this used somewhere
 
-      if sets.showMolecules
-%         figure(molFigNum)
-            plot(trueedge{accepted}(:, 2), trueedge{accepted}(:, 1));
-      end
+%         if sets.showMolecules
+%             %         figure(molFigNum)
+%             plot(trueedge{accepted}(:, 2), trueedge{accepted}(:, 1));
+%         end
 
     else
-      D{k} = [];
+        D{k} = [];
     end
 
 end
   
-  if sets.showMolecules
-      hold off
-  end
+% if sets.removeCloseMolecules % final check: is one of the pixels close to any of previous found pixels
+%     acceptedMols = find(currentAccepted);
+%     import Core.Distance.pairwise_distances_molecule;
+%     goodMols = pairwise_distances_molecule(D(acceptedMols),sets.pixelsCloseMolecules);
+%     trueedge = D(acceptedMols(goodMols));
+%     accepted = length(trueedge);
+%     D = D(acceptedMols(goodMols));
+% end
+% 
+
+if sets.showMolecules
+    for k = 1:accepted % Filter any edges with lower scores than lim
+        plot(trueedge{k}(:, 2), trueedge{k}(:, 1));
+    end
+    hold off
+end
 
 
-  trueedge(accepted + 1:end) = [];
-  stats = stats(~cellfun('isempty', D));
-  D = D(~cellfun('isempty', D)); % Remove empty entries (where molecules have been filtered)
-  scores = scores(~isnan(scores));
+trueedge(accepted + 1:end) = [];
+stats = stats(~cellfun('isempty', D));
+D = D(~cellfun('isempty', D)); % Remove empty entries (where molecules have been filtered)
+scores = scores(~isnan(scores));
 
-  if hasDots && sets.showMolecules
+if hasDots && sets.showMolecules
     axes(tiles.dotDet);
     hold on
 
     for k = 1:length(trueedge)
-%       figure(dotFigNum)
-      plot(trueedge{k}(:, 2), trueedge{k}(:, 1));
+        %       figure(dotFigNum)
+        plot(trueedge{k}(:, 2), trueedge{k}(:, 1));
     end
-    
+
     hold off
 
-  end
+end
 
   fprintf('Found %i molecules with log edge score >%.2f, eccentricity >%.2f, aRat >%.2f, %i< length <%i, and %i< width <%i.\n', accepted, log(lowLim), elim, ratlim, lengthLims(1), lengthLims(2), widthLims(1), widthLims(2));
   t = toc;
