@@ -18,7 +18,7 @@ sets.ratlim = 0.3;
 sets.elim = 0.8;
 sets.extractionMethod = 2;
 % sets.folder = '/export/scratch/albertas/data_temp/DOTS/031523 h202 data/testFig3/image for slide 7.czi';
-% sets.folder = 'C:\Users\Lenovo\test\image for slide 7.czi'
+sets.folder = 'C:\Users\Lenovo\test\image for slide 7.czi'
 %%
     % create tabbed figure
     hFig = figure('Name', ['SDD-dots GUI v'], ...
