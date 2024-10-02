@@ -85,7 +85,7 @@ function [output,hPanelResult,images,movies,barcodes] = sdd_process_folder(dataF
     btn = cell(1,numel(images)); % helping plot button
     btn2 = cell(1,numel(images)); % helping plot button
 
-    for i = 1:numel(images)
+    for i = 1:numel(images) % could do a parpool here if the images do not take too much memory?
         fprintf('\nAnalysing image %s.\n', imageNames{i});
 
         if isfield(images{i}, 'dotIm')

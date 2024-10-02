@@ -137,13 +137,15 @@ ylabel('Remaining barcodes')
 plot(lengths(ix),lengthsrem(find(lengths(ix)<rat*max(lengths),1,'first'))/length(cnvToHull),'redx')
 
 %%
+sets.pxnm = output{1}.settings.pixelSize;
 
 f=figure
-tiledlayout(4,3,'TileSpacing','compact');
-nexttile([4 2])
+% tiledlayout(4,3,'TileSpacing','compact');
+% nexttile([4 2])
 imagesc(images{1}.dotIm);colormap(gray)
 hold on
     axis equal
+
 
 trueedge = movies.trueedge;
 %     axes(tiles.dotDet);
@@ -157,7 +159,7 @@ for k = 1:length(trueedge)
 end
 
 
-molIdx = 19;
+molIdx = 13;
 
 [ymin] = movies.pos{molIdx}(1);
 [xmin] = movies.pos{molIdx}(2);
@@ -167,7 +169,7 @@ rectangle('Position', [xmin, ymin, size(movies.molM{molIdx},2), size(movies.molM
 
 
 
-molIdx = 17;
+molIdx = 11;
 [ymin] = movies.pos{molIdx}(1);
 [xmin] = movies.pos{molIdx}(2);
 [ymax] = ymin+size(movies.molM{molIdx},1)-1;
@@ -197,12 +199,29 @@ hold on
  end
 
 axis off
-xbound = size(images{1}.dotIm,2);
-ybound =  size(images{1}.dotIm,1);
+% xbound = size(images{1}.dotIm,2);
+% ybound =  size(images{1}.dotIm,1);
+% nPixels = 1e3/sets.pxnm;
+% x = [xbound-10*nPixels-10 xbound-10];
+% y = [ybound-20 ybound-20 ];
+% plot(x,y,'Linewidth',2,'Color','white')
+xlim([430 966])
+ylim([394 796])
+
+xbound = 966;
+ybound =  796;
 nPixels = 1e3/sets.pxnm;
 x = [xbound-10*nPixels-10 xbound-10];
 y = [ybound-20 ybound-20 ];
 plot(x,y,'Linewidth',2,'Color','white')
+
+
+set(gcf, 'Color', 'w')
+
+print('FigDotsD1.png','-dpng','-r400');
+%
+f=figure
+tiledlayout(2,2,'TileSpacing','compact');
 
 nexttile
 imagesc(xmin:xmax,ymin:ymax,movies.molM{molIdx});colormap(gray)
@@ -237,7 +256,7 @@ plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'redx','MarkerSize'
 % end
 
 % Another molecule
-molIdx = 19;
+molIdx = 13;
 [ymin] = movies.pos{molIdx}(1);
 [xmin] = movies.pos{molIdx}(2);
 [ymax] = ymin+size(movies.molM{molIdx},1)-1;
@@ -281,7 +300,136 @@ set(gcf, 'Color', 'w')
 
 
 
-print('FigDots.png','-dpng','-r400');
+print('FigDotsD2.png','-dpng','-r400');
+
+%% SEP
+
+
+%%
+sets.pxnm = output{1}.settings.pixelSize;
+
+
+molIdx = 17;
+[ymin] = movies.pos{molIdx}(1);
+[xmin] = movies.pos{molIdx}(2);
+[ymax] = ymin+size(movies.molM{molIdx},1)-1;
+[xmax] = xmin+size(movies.molM{molIdx},2)-1;
+% rectangle('Position', [xmin, ymin, size(movies.molM{molIdx},2), size(movies.molM{molIdx},1)], 'EdgeColor', 'r', 'LineWidth', 1);
+
+% 
+sizeY1 = max(size(movies.dotM{17},1),size(movies.dotM{19},1));
+sizeX1 = max(size(movies.dotM{19},2),size(movies.dotM{17},2));
+
+for molIdxT = 1:length(barcodes.dots)
+    curIdx = barcodes.idx(molIdxT);
+    str = sprintf('Mol. %i',curIdx);
+    angle = atan(barcodes.lineParams{curIdx}(1));
+    % 
+    vOff = barcodes.boundaries{curIdx}(1);
+    hOff = barcodes.boundaries{curIdx}(3);
+    voffList(molIdxT) = vOff;
+end
+
+% hold on
+
+%  for molIdxT = 1:length(barcodes.expBars)
+%     curIdx = barcodes.idx(molIdxT);
+%     str = sprintf('Mol. %i',curIdx);
+%     text(movies.pos{curIdx}(2),movies.pos{curIdx}(1)+voffList(molIdxT),str,'Color','white','Clipping','on');
+%  end
+% 
+% axis off
+xbound = size(images{1}.dotIm,2);
+ybound =  size(images{1}.dotIm,1);
+nPixels = 1e3/sets.pxnm;
+x = [xbound-10*nPixels-10 xbound-10];
+y = [ybound-20 ybound-20 ];
+% plot(x,y,'Linewidth',2,'Color','white')
+
+figure
+imagesc(xmin:xmax,ymin:ymax,movies.molM{molIdx});colormap(gray)
+hold on
+plot(movies.trueedge{molIdx}(:, 2), movies.trueedge{molIdx}(:, 1),'red');
+    axis equal
+
+% plot(movies.trueedge{molIdx}(:, 2)-xmin+1, movies.trueedge{molIdx}(:, 1)-ymin+1,'red');
+title(['Mol.',num2str(molIdx)])
+axis off
+x = [xmin+10 xmin+nPixels+10];
+y = [ymax-5 ymax-5 ];
+plot(x,y,'Linewidth',2,'Color','white')
+
+print('FigDots1D1.png','-dpng','-r400');
+
+figure
+imagesc(movies.dotM{molIdx});colormap(gray)
+hold on
+    axis equal
+
+pos = barcodes.dots{molIdx}.locations+barcodes.dots{molIdx}.leftOffset;
+%     pos
+plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'redx','MarkerSize',10)
+axis off
+
+pos = barcodes.dots{molIdx}.locations+barcodes.dots{molIdx}.leftOffset;
+%     pos
+plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'redx','MarkerSize',10)
+% for j = 1:length(barcodes.dots{molIdx}.val)
+%     str = sprintf('I = %.1f', barcodes.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
+%     text(barcodes.xy{molIdx}{2}(pos(j))-5,barcodes.xy{molIdx}{1}(pos(j))-5,str,'Color','white','Clipping','on');
+% end
+print('FigDots1D2.png','-dpng','-r400');
+
+% Another molecule
+molIdx = 19;
+[ymin] = movies.pos{molIdx}(1);
+[xmin] = movies.pos{molIdx}(2);
+[ymax] = ymin+size(movies.molM{molIdx},1)-1;
+[xmax] = xmin+size(movies.molM{molIdx},2)-1;
+figure
+imagesc(xmin:xmax,ymin:ymax,movies.molM{molIdx});colormap(gray)
+hold on
+plot(movies.trueedge{molIdx}(:, 2), movies.trueedge{molIdx}(:, 1),'cyan');
+axis equal
+
+% plot(movies.trueedge{molIdx}(:, 2)-xmin+1, movies.trueedge{molIdx}(:, 1)-ymin+1,'red');
+title(['Mol.',num2str(molIdx)])
+axis off
+x = [xmin+10 xmin+nPixels+10];
+y = [ymax-2 ymax-2 ];
+plot(x,y,'Linewidth',2,'Color','white')
+
+print('FigDots1D3.png','-dpng','-r400');
+
+figure
+imagesc(movies.dotM{molIdx});colormap(gray)
+hold on
+    axis equal
+
+pos = barcodes.dots{molIdx}.locations+barcodes.dots{molIdx}.leftOffset;
+%     pos
+plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'cyanx','MarkerSize',10)
+axis off
+
+pos = barcodes.dots{molIdx}.locations+barcodes.dots{molIdx}.leftOffset;
+%     pos
+plot(barcodes.xy{molIdx}{2}(pos),barcodes.xy{molIdx}{1}(pos),'cyanx','MarkerSize',10)
+% for j = 1:length(barcodes.dots{molIdx}.val)
+%     str = sprintf('I = %.1f', barcodes.dots{molIdx}.val(j)); %,barcodes.dots{molIdx}.depth(j)
+%     text(barcodes.xy{molIdx}{2}(pos(j))-5,barcodes.xy{molIdx}{1}(pos(j))-5,str,'Color','white','Clipping','on');
+% end
+
+set(gcf, 'Color', 'w')
+print('FigDots1D4.png','-dpng','-r400');
+
+% ylim([1 sizeY1])
+%
+
+
+
+
+
+% ylim([1 sizeY1])
 
 % print('FigDots.eps','-depsc','-r300');
 % saveas(f,'panelC.png');

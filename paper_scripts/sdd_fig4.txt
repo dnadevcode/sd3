@@ -31,3 +31,6 @@ inf |   |highLim
 0 | | showDotPeaks
 [4 8 12] | | fragLengthRangeBp
 [12 23] | | rLims
+C=2     | Dots image flag                       | dotFlag2
+0 | askForNumChannels|askForNumChannels
+3 | numthreshautoEdgeScore | numthreshautoEdgeScore

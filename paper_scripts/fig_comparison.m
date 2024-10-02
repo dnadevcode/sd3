@@ -8,7 +8,6 @@ ix = 1;
 datafolds = {'/export/scratch/albertas/data_temp/DOTS/data_for_figures/031523 h202 data/1/h202/','/export/scratch/albertas/data_temp/DOTS/data_for_figures/031523 h202 data/1/ut/','/export/scratch/albertas/data_temp/DOTS/data_for_figures/031523 h202 data/2/h202/','/export/scratch/albertas/data_temp/DOTS/data_for_figures/031523 h202 data/2/ut/' };
 [output,hPanelResult,images,movies,barcodes]  = sdd_script('sdd_fig4.txt',[],datafolds{ix});
 
-
 fold = output{1}.molRunFold;
 files = dir(fullfile(fold,'*.tif')); % make sure the file ordering is the same!!
 % fn = arrayfun(@(x) files(x).name,1:length(files),'un',false)';
