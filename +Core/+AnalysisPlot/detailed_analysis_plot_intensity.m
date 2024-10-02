@@ -63,7 +63,7 @@ h = gca;
     colormap(gray)
     pos = barcodes.dots{idx}.locations+barcodes.dots{idx}.leftOffset;
 %     pos
-    plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'greeno','MarkerSize',20)
+    plot(barcodes.xy{idx}{2}(pos),barcodes.xy{idx}{1}(pos),'redx','MarkerSize',20,'LineWidth',3)
 %     daspect(axA,[1 1 1]);  % <---- move to after-plot
 %     pbaspect(axA,[1 1 1]); % <---- move to after-plot
     ylim([1 size(mol,1)])
