@@ -14,10 +14,12 @@ function [acc,stats,img] = mol_filt(B, score, lowLim, highLim, elim, ratlim, len
 
     % length and width limits
     lOk = (l > lengthLims(1) && l < lengthLims(2));
-    wOk = (w < widthLims(2));
+    % this should be min of (max repeating elements in X, Y)
+
+    %wOk = (w < widthLims(2));
 
  
-    if score > lowLim && score < highLim && lOk && wOk
+    if score > lowLim && score < highLim && lOk %&& wOk
         
         [img,stats] = cont_draw(B);
         testofboundary = (stats.Eccentricity > elim && stats.FilledArea/stats.ConvexArea > ratlim && stats.MinorAxisLength < widthLims(2)) ;
