@@ -89,6 +89,7 @@ function [dots, pmin] = sdd_detect_dots(dotBars, sets, imageNumber, imageName, b
     dots{i}.N = sum(accMask);
     totdots = totdots + dots{i}.N;
     dots{i}.val = peaks{i}.scores(accMask);% / medint;% ??
+    dots{i}.dotintensity = peaks{i}.dotintensity(accMask);
     dots{i}.leftOffset = peaks{i}.leftOffset;
     dots{i}.rightOffset = peaks{i}.rightOffset;
 
