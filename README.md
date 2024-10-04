@@ -1,4 +1,4 @@
-# SDD_dots readme v0.8.1
+# SD3 readme v0.8.6
 Barcode and dot extractor for DNA stretched on glass
 
 # How to use
