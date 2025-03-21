@@ -62,7 +62,8 @@ function printName = dnarec_print2(output, sets, runNo,filtered)
 
   % Print overall results
   fid = fopen(printName, 'w');
-  fprintf(fid, 'Results for the analysis of %s\n', printName(1:strfind(printName, '.') - 1));
+  posBeforeDot = strfind(printName, '.');
+  fprintf(fid, 'Results for the analysis of %s\n', printName(1:posBeforeDot(end) - 1));
   fprintf(fid, '\n Total number of barcodes: %i \n', sum(imBars));
   fprintf(fid, '\n Total length of barcodes: %.1f micrometer \n', sum(imBarLength));
   fprintf(fid, '\n Average length of barcodes: %.1f micrometer \n', mean(horzcat(imBarLengthAll{:})));
